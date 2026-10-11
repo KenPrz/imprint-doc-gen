@@ -1,5 +1,5 @@
-import { carboneImageResolver } from './image-binding.ts';
-import { carboneBindings, parseCarbonePath } from './carbone.ts';
+import { standardImageResolver } from './image-binding.ts';
+import { standardBindings, parseStandardPath } from './standard-syntax.ts';
 import { compileRowRenderer } from './xlsx-rows.ts';
 import { RenderError } from './errors.ts';
 import { validateData } from './data.ts';
@@ -13,7 +13,7 @@ import { compileCellText, renderCellText, readLeaf, attributeEdit, type CellText
 
 export interface CellPlan { node: ElementSpan; payload: ElementSpan; text: CellText; shared?: number }
 export interface SheetPlan { part: string; name: string; source: string; nodes: ElementSpan[]; cells: CellPlan[] }
-interface Picture { carbone?: boolean; path: string; description: AttributeSpan; reference: AttributeSpan }
+interface Picture { standard?: boolean; path: string; description: AttributeSpan; reference: AttributeSpan }
 interface DrawingPlan { part: string; source: string; pictures: Picture[] }
 const attr = (node: ElementSpan, name: string) => node.attributes.find(a => a.name === name)?.value;
 function linksFor(parts: PackageParts, owner: string) {
@@ -34,19 +34,19 @@ function compileDrawing(parts: PackageParts, part: string): DrawingPlan {
   const source = parts.get(part)!.toString('utf8'), nodes = indexXml(source, part);
   checkedRoot(nodes, ns.spreadsheetDrawing, 'wsDr', part);
   const pictures: Picture[] = [], owners = new Set<number>(), links = linksFor(parts, part);
-  for (const node of nodes) for (const description of node.attributes.filter(a => a.value.includes('{{') || carboneBindings(a.value, part).length)) {
+  for (const node of nodes) for (const description of node.attributes.filter(a => a.value.includes('{{') || standardBindings(a.value, part).length)) {
     if (node.uri !== ns.spreadsheetDrawing || node.local !== 'cNvPr' || !['descr', 'title', 'name'].includes(description.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Only picture metadata bindings are supported in XLSX drawings', part);
     const match = /^\s*\{\{image:([^{}]+)\}\}\s*$/.exec(description.value);
-    const carbone = !match, single = /^\s*\{([^{}]+)\}\s*$/.exec(description.value);
+    const standard = !match, single = /^\s*\{([^{}]+)\}\s*$/.exec(description.value);
     if (!match && !single) throw new RenderError('TEMPLATE_SYNTAX', 'Image binding must occupy the whole picture description', part);
-    const path = match ? match[1]!.trim() : parseCarbonePath(single![1]!, part); checkPath(path, part);
+    const path = match ? match[1]!.trim() : parseStandardPath(single![1]!, part); checkPath(path, part);
     const owner = ancestor(node, ns.spreadsheetDrawing, 'pic');
     if (!owner || owners.has(owner.start) || owner.parent?.uri !== ns.spreadsheetDrawing || !['oneCellAnchor', 'twoCellAnchor', 'absoluteAnchor'].includes(owner.parent.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one binding on an anchored spreadsheet picture', part);
     const blips = nodes.filter(n => n.uri === ns.drawing && n.local === 'blip' && n.start > owner.start && n.end < owner.end);
     const reference = blips[0]?.attributes.find(a => a.uri === ns.relationship && a.local === 'embed');
     if (blips.length !== 1 || !reference || blips[0]!.attributes.some(a => a.uri === ns.relationship && a.local === 'link')) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one embedded picture per binding', part);
     if (!links.some(link => link.getAttribute('Id') === reference.value && link.getAttribute('Type') === `${ns.relationship}/image` && link.getAttribute('TargetMode') !== 'External')) throw new RenderError('INVALID_PACKAGE', 'Picture references an undefined image relationship', part);
-    owners.add(owner.start); pictures.push({ path, description, reference, carbone });
+    owners.add(owner.start); pictures.push({ path, description, reference, standard });
   }
   return { part, source, pictures };
 }
@@ -82,13 +82,13 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
     const children = childrenOf(nodes);
     const cells: CellPlan[] = [];
     for (const node of nodes) {
-      if (node.uri === ns.spreadsheet && ['f', 'formula', 'formula1', 'formula2'].includes(node.local) && (readLeaf(source, node).includes('{{') || carboneBindings(readLeaf(source, node), part).length)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Formula templating is not supported', part);
+      if (node.uri === ns.spreadsheet && ['f', 'formula', 'formula1', 'formula2'].includes(node.local) && (readLeaf(source, node).includes('{{') || standardBindings(readLeaf(source, node), part).length)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Formula templating is not supported', part);
       if (node.uri !== ns.spreadsheet || node.local !== 'c') continue;
       const contents = children.get(node) ?? [], type = attr(node, 't');
       const values = contents.filter(n => n.uri === ns.spreadsheet && ['is', 'v'].includes(n.local));
       const formula = contents.some(n => n.uri === ns.spreadsheet && n.local === 'f');
       if (type !== 's' && type !== 'inlineStr') {
-        if (values.some(n => (source.slice(n.openEnd, n.closeStart).includes('{{') || carboneBindings(readLeaf(source, n), part).length))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Bindings require inline or shared-string cells', part);
+        if (values.some(n => (source.slice(n.openEnd, n.closeStart).includes('{{') || standardBindings(readLeaf(source, n), part).length))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Bindings require inline or shared-string cells', part);
         continue;
       }
       if (values.length !== 1 || values[0]!.local !== (type === 's' ? 'v' : 'is')) throw new RenderError('INVALID_PACKAGE', 'Invalid spreadsheet string cell payload', part);
@@ -118,14 +118,14 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
   const rows = compileRowRenderer({ original, mainPart, workbook, bookNodes, sheets, sharedPart, sharedSource, sharedNodes, shared });
   if (!rows && sheets.some(s => s.cells.some(c => c.text.bindings.some(b => b.path.startsWith('../'))))) throw new RenderError('TEMPLATE_EXPRESSION', 'Parent paths require a repeated row');
   const renderPictures = async (output: ReturnType<typeof createRenderPackage>, attachments: Record<string, Uint8Array>, data: Record<string, unknown>, drawingEdits = new Map<string, Edit[]>()) => {
-    const imageKey = carboneImageResolver(attachments);
+    const imageKey = standardImageResolver(attachments);
     for (const drawing of drawings) {
       const edits: Edit[] = [...(drawingEdits.get(drawing.part) ?? [])];
       for (const picture of drawing.pictures) {
-        const key = picture.carbone ? imageKey(picture.path, [data], drawing.part) : Object.hasOwn(attachments, picture.path) ? picture.path : scalar(lookup([data], picture.path, drawing.part), picture.path, drawing.part);
-        if (!key && picture.carbone) { edits.push({ start: picture.description.start, end: picture.description.end, value: 'Image placeholder' }); continue; }
+        const key = picture.standard ? imageKey(picture.path, [data], drawing.part) : Object.hasOwn(attachments, picture.path) ? picture.path : scalar(lookup([data], picture.path, drawing.part), picture.path, drawing.part);
+        if (!key && picture.standard) { edits.push({ start: picture.description.start, end: picture.description.end, value: 'Image placeholder' }); continue; }
         const id = await output.addImage(drawing.part, key!);
-        edits.push({ start: picture.reference.start, end: picture.reference.end, value: id }, { start: picture.description.start, end: picture.description.end, value: picture.carbone ? 'Image attachment' : escapeXml(`Attachment ${key}`) });
+        edits.push({ start: picture.reference.start, end: picture.reference.end, value: id }, { start: picture.description.start, end: picture.description.end, value: picture.standard ? 'Image attachment' : escapeXml(`Attachment ${key}`) });
       }
       if (edits.length) output.setPart(drawing.part, Buffer.from(applyEdits(drawing.source, edits, limits.entry)));
     }

@@ -28,7 +28,8 @@
     "corpus:validate": "node scripts/corpus/validate.ts",
     "corpus:score": "node scripts/corpus/score.ts",
     "test": "node --test --test-isolation=none scripts/corpus/tests/*.test.ts tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:synthetic": "node scripts/synthetic/synthetic-run.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",

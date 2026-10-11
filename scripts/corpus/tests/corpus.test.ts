@@ -90,7 +90,7 @@ test('DOCX: duplicate drawing identities are detected independently of picture b
   assert.throws(() => validatePackage(mutate(expected, 'word/document.xml', '<wp:docPr id="2"', '<wp:docPr id="1"')), /Duplicate drawing ID/);
 });
 
-test('Every corpus template uses Carbone syntax, with no legacy tags even across fragmented text', () => {
+test('Every corpus template uses Standard syntax, with no legacy tags even across fragmented text', () => {
   for (const format of ['docx', 'xlsx'] as const) for (let level = 1; level <= 100; level++) {
     const parts = (format === 'docx' ? buildDocx : buildXlsx)(level, inputData(level), false);
     let found = false;
@@ -101,10 +101,10 @@ test('Every corpus template uses Carbone syntax, with no legacy tags even across
       assert(!source.includes('{{') && !joined.includes('{{'), `${format}-${level}: legacy tag in ${name}`);
       found ||= source.includes('{d.') || joined.includes('{d.');
     }
-    assert(found, `${format}-${level}: expected Carbone bindings`);
+    assert(found, `${format}-${level}: expected Standard bindings`);
   }
 });
-test('The independent scorer rejects unresolved single-brace Carbone markers', () => {
+test('The independent scorer rejects unresolved single-brace Standard markers', () => {
   for (const format of ['docx', 'xlsx'] as const) {
     const parts = (format === 'docx' ? buildDocx : buildXlsx)(1, inputData(1), true);
     const part = format === 'docx' ? 'word/document.xml' : 'xl/worksheets/sheet1.xml';

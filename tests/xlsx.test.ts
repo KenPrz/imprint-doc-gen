@@ -200,7 +200,7 @@ test('XLSX rejects ambiguous picture bindings and bound phonetic strings', async
   await assert.rejects(compile(await template(cell)), code('UNSUPPORTED_TEMPLATE'));
 });
 
-test('Carbone XLSX picture bindings accept attachments/data URLs, preserve optional placeholders and reject remote URLs', async () => {
+test('Standard XLSX picture bindings accept attachments/data URLs, preserve optional placeholders and reject remote URLs', async () => {
   const input = await template('', undefined, pictureParts(picture(1, '{d.logo}')));
   const image = png([10, 20, 30]);
   for (const [data, options] of [[{}, { attachments: { logo: image } }], [{ logo: `data:image/png;base64,${image.toString('base64')}` }, {}]] as const) {

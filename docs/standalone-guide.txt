@@ -1,4 +1,4 @@
-Imprint Doc Gen: standalone deployment and PMS integration
+Imprint Doc Gen: standalone deployment and application integration
 =========================================================
 
 Deployment contract
@@ -29,7 +29,7 @@ to KenPrz/imprint-doc-gen. Do not put tokens in source control or command args.
 
 Set IMPRINT_API_KEY to a randomly generated secret of at least 24 characters
 in your shell or secret manager. It is the installation administrator key and
-also authenticates the default tenant. Use a dedicated tenant key for your PMS.
+also authenticates the default tenant. Use a dedicated tenant key for your application.
 
   docker run -d --name imprint-doc-gen --restart unless-stopped \
     --stop-timeout 120 --memory 2g --cpus 2 --pids-limit 384 \
@@ -41,7 +41,7 @@ also authenticates the default tenant. Use a dedicated tenant key for your PMS.
 
 The named volume is initialized for UID/GID 1001. A host bind mount must be
 writable by that UID/GID. The API is loopback-bound on the host; attach it to
-your PMS Docker network and use http://imprint-doc-gen:3000 from another
+your application Docker network and use http://imprint-doc-gen:3000 from another
 container, or put an authenticated TLS reverse proxy in front of host access.
 The existing compose.yml/compose.override.yml retain the two-container dev
 workflow. Both now persist service data in an app-data volume (UID 1000).
@@ -59,13 +59,13 @@ Using the published image with Compose:
 
 Authentication and ownership
 ----------------------------
-Every /v1 endpoint requires Authorization: Bearer <key>. Keys stay in the PMS
+Every /v1 endpoint requires Authorization: Bearer <key>. Keys stay in the application
 backend, never in a browser bundle. No client-supplied tenant ID selects the
 owner: identity comes from the key. Cross-tenant resource IDs return 404.
 The administrator's data requests operate on the default tenant, not on every
 tenant. The administrator can provision/rotate/revoke tenant keys:
 
-  POST   /v1/tenants             {"name":"My PMS"} -> {id,name,apiKey}
+  POST   /v1/tenants             {"name":"Example application"} -> {id,name,apiKey}
   GET    /v1/tenants             -> {tenants:[{id,name,keyActive}]}
   POST   /v1/tenants/:id/key     -> {id,apiKey} (invalidates the previous key)
   DELETE /v1/tenants/:id/key     -> {id} (revokes access immediately)
@@ -78,7 +78,7 @@ requests; it does not cancel work already accepted.
 Template lifecycle
 ------------------
   POST /v1/templates
-    {"name":"Guest invoice","template":"<base64 DOCX or XLSX>"}
+    {"name":"Invoice","template":"<base64 DOCX or XLSX>"}
     -> 201 {templateId,versionId,format,createdAt}
 
   POST /v1/templates/:id/versions
@@ -108,11 +108,11 @@ milliseconds. There is no individual version mutation/deletion endpoint.
 Durable generation
 ------------------
   POST /v1/jobs
-  Idempotency-Key: booking-42-invoice-revision-3
+  Idempotency-Key: order-42-invoice-revision-3
   {
     "templateId":"...",
     "versionId":"optional-explicit-version",
-    "data":{"guest":"Alex Rivera"},
+    "data":{"customer":"Alex Example"},
     "attachments":{"logo":"<base64 PNG/JPEG>"},
     "output":"pdf"
   }
@@ -125,8 +125,8 @@ keep the template format. DOCX-to-XLSX conversion is not supported.
   GET /v1/jobs/:id/result -> binary output (409 until succeeded)
   DELETE /v1/jobs/:id     -> 204 for terminal jobs; 409 while queued/running
 
-Statuses are queued, running, succeeded, failed. Save the job ID on your PMS
-booking record and poll from background work. A polling timeout is not proof
+Statuses are queued, running, succeeded, failed. Save the job ID on your application
+order record and poll from background work. A polling timeout is not proof
 that generation failed; continue polling the saved ID. No webhook is sent.
 
 A repeated Idempotency-Key with the same JSON body returns the same job (200),
@@ -163,7 +163,7 @@ Terminal inputs/attachments are cleared logically when processing finishes.
 Results and error records expire seven days after completion; cleanup runs
 roughly once per minute. Templates persist until explicitly deleted. Deleted
 SQLite pages may remain in the database/WAL until reused/checkpointed; logical
-deletion is not a secure erase. Set backup retention to suit your PMS data.
+deletion is not a secure erase. Set backup retention to suit your application data.
 
 Budgets: 16 MiB HTTP body; existing 8 MiB archive/image/part and 32 MiB expanded
 package bounds; 32 MiB maximum result. Submission reserves result capacity.
@@ -178,25 +178,25 @@ Error additions: 403 forbidden administrator action; 404 missing/not-owned;
 result not ready; 413 storage/version/history limit; 503 queue/capacity limit.
 Existing /v1/render statuses and binary response contract remain supported.
 
-PMS example
+Invoice example
 -----------
-examples/pms/client.ts is a dependency-free server-side TypeScript HTTP client.
-examples/pms/generate.ts uploads/publishes a sample guest-invoice template,
-submits booking.json plus logo.png, polls, and downloads the result.
+examples/invoice/client.ts is a dependency-free server-side TypeScript HTTP client.
+examples/invoice/generate.ts uploads/publishes a sample invoice template,
+submits data.json plus logo.png, polls, and downloads the result.
 The checked-in DOCX and XLSX examples include repeated line items; XLSX uses
 native number cells and calculated line/subtotal formulas. Replace logo.png
-and edit the templates in Office for your property. DOCX displays amounts
-formatted by the PMS; this service does not perform currency rounding for it.
+and edit the templates in Office for your organization. DOCX displays amounts
+formatted by the application; this service does not perform currency rounding for it.
 
-With Node.js 24 on your PMS/development machine:
+With Node.js 24 on your development machine:
 
-  IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts pdf
-  IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts docx
-  IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts xlsx
+  IMPRINT_URL=http://127.0.0.1:8088 node examples/invoice/generate.ts pdf
+  IMPRINT_URL=http://127.0.0.1:8088 node examples/invoice/generate.ts docx
+  IMPRINT_URL=http://127.0.0.1:8088 node examples/invoice/generate.ts xlsx
 
-Set IMPRINT_API_KEY to the provisioned PMS tenant key before running. Outputs
-are artifacts/booking-invoice.<format>. The demo creates a new template each
-run; your PMS should upload only when editing a template and keep its IDs.
+Set IMPRINT_API_KEY to the provisioned application tenant key before running. Outputs
+are artifacts/example-invoice.<format>. The demo creates a new template each
+run; your application should upload only when editing a template and keep its IDs.
 
 Backup and updates
 ------------------
@@ -213,8 +213,8 @@ backup. This release introduces schema version 1 and no destructive migration.
 
 Current deployment limits
 -------------------------
-This is a tested preview for managed PMS templates, not a public anonymous
-upload service or a claim of feature parity with Carbone. No built-in TLS,
+This is a tested preview for managed application templates, not a public anonymous
+upload service. No built-in TLS,
 customer billing, UI, JWT/SSO, webhook delivery, remote storage, HA, or full
 Excel calculation engine. Registry releases are amd64 until arm64 gets its
 own integration gate. Automated restart tests are not sustained-load or

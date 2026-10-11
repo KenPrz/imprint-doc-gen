@@ -1,4 +1,4 @@
-import { carboneImageResolver } from './image-binding.ts';
+import { standardImageResolver } from './image-binding.ts';
 import { RenderError } from './errors.ts';
 import { compileStory, renderStory, identityAttributes, type RenderBudget } from './docx-story.ts';
 import { lookup, scalar } from './scope.ts';
@@ -34,7 +34,7 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
     validateData(data);
     const attachmentMap = Object.assign(Object.create(null), options.attachments ?? {}) as Record<string, Uint8Array>;
     const output = createRenderPackage(original, mainPart, attachmentMap);
-    const imageKey = carboneImageResolver(attachmentMap);
+    const imageKey = standardImageResolver(attachmentMap);
     const usedIdentities = new Set(reservedIdentities); let nextIdentity = 1;
     const freshIdentity = (hex: boolean) => {
       while (usedIdentities.has(nextIdentity)) nextIdentity++;
@@ -46,7 +46,7 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
       const result = await renderStory(plan, data, budget, async (binding, scope): Promise<Edit[]> => {
         // Literal attachment keys retain milestone-1 behavior at root scope.
         // Inside loops, image paths resolve from the current item or explicit ../ parent.
-        if (binding.carbone) {
+        if (binding.standard) {
           const key = imageKey(binding.path, scope, plan.part);
           if (!key) return [{ start: binding.description.start, end: binding.description.end, value: 'Image placeholder' }];
           const id = await output.addImage(plan.part, key);

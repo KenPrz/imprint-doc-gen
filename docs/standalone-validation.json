@@ -71,7 +71,7 @@
     "at-least-once job execution; idempotent submissions",
     "amd64 registry publication; arm64 not integration-tested",
     "PostgreSQL/S3 adapters remain planned",
-    "real PMS pilot and sustained-load tests remain pending"
+    "end-to-end client deployment and sustained-load tests remain pending"
   ],
   "guide": "standalone-guide.txt"
 }
