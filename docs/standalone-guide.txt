@@ -18,15 +18,14 @@ and sufficient disk for the image, SQLite database/WAL and backups.
 Pulling a published image
 ------------------------
 GitHub Actions publishes only after the fixture, conversion and standalone
-integration jobs pass. The development branch publishes standalone-preview;
-main publishes standalone. Every publication also has an immutable sha-<commit>
+integration jobs pass. Only main publishes the standalone tag. Every publication also has an immutable sha-<commit>
 tag. Prefer the printed registry digest for deployment pinning and rollback.
 A tag is not available until its publish job succeeds. The package remains
 private; authenticate Docker with a GitHub token that has read:packages access
 to KenPrz/imprint-doc-gen. Do not put tokens in source control or command args.
 
   docker login ghcr.io -u YOUR_GITHUB_USERNAME
-  docker pull ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+  docker pull ghcr.io/kenprz/imprint-doc-gen:standalone
 
 Set IMPRINT_API_KEY to a randomly generated secret of at least 24 characters
 in your shell or secret manager. It is the installation administrator key and
@@ -38,7 +37,7 @@ also authenticates the default tenant. Use a dedicated tenant key for your PMS.
     --cap-drop ALL --security-opt no-new-privileges:true \
     -p 127.0.0.1:8088:3000 -e IMPRINT_API_KEY \
     -v imprint-data:/data \
-    ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+    ghcr.io/kenprz/imprint-doc-gen:standalone
 
 The named volume is initialized for UID/GID 1001. A host bind mount must be
 writable by that UID/GID. The API is loopback-bound on the host; attach it to

@@ -6,7 +6,7 @@ export function buildXlsx(level: number, data: Data, rendered: boolean): Parts {
   const [basic, shared, pictures, layout, formulas, repeats, multi, ranges, disorder, stress] = Array.from({ length: 10 }, (_, i) => amount(level, i + 1));
   const sharedStrings: string[] = [];
   let sharedReferences = 0;
-  const binding = (key: string, value: string) => rendered ? value : `{{${key}}}`;
+  const binding = (key: string, value: string) => rendered ? value : `{d.${key}}`;
   const rich = (value: string) => {
     const chars = Array.from(value), count = Math.min(chars.length, Math.max(1, shared));
     const runs = [];
@@ -28,7 +28,7 @@ export function buildXlsx(level: number, data: Data, rendered: boolean): Parts {
     return `<c ${attrs} t="inlineStr"><is><t xml:space="preserve">${esc(value)}</t></is></c>`;
   };
   const row = (n: number, cells: string, height?: number) => `<row r="${n}"${height ? ` ht="${height}" customHeight="1"` : ''}>${cells}</row>`;
-  const endRow = repeats ? 39 + (rendered ? data.items.length : 1) : 30;
+  const endRow = repeats ? 39 + (rendered ? data.items.length : 2) : 30;
   const sheetCount = multi ? 2 + multi : formulas ? 2 : 1;
   const types: Record<string, string> = { 'xl/workbook.xml': 'spreadsheetml.sheet.main', 'xl/styles.xml': 'spreadsheetml.styles' };
   const bookRels = [{ id: 'rId50', type: 'styles', target: 'styles.xml' }];
@@ -41,8 +41,8 @@ export function buildXlsx(level: number, data: Data, rendered: boolean): Parts {
       put(parts, name, `<worksheet xmlns="${NS.s}"><dimension ref="A1:B2"/><sheetData>${row(1, cell('A1', sheetNames[sheetIndex]!) + cell('B1', 7))}${row(2, cell('A2', binding('customer', data.customer)) + cell('B2', binding('title', data.title)))}</sheetData></worksheet>`);
       continue;
     }
-    let rows = row(1, cell('A1', `Imprint Doc Gen XLSX level ${level}`) + cell('B1', binding('title', data.title))) + row(2, cell('A2', binding('customer', data.customer)) + cell('B2', rendered ? data.count : '{{count}}'));
-    rows += row(3, cell('A3', binding('spaced', data.spaced)) + cell('B3', rendered ? data.enabled : '{{enabled}}'));
+    let rows = row(1, cell('A1', `Imprint Doc Gen XLSX level ${level}`) + cell('B1', binding('title', data.title))) + row(2, cell('A2', binding('customer', data.customer)) + cell('B2', rendered ? data.count : '{d.count}'));
+    rows += row(3, cell('A3', binding('spaced', data.spaced)) + cell('B3', rendered ? data.enabled : '{d.enabled}'));
     rows += row(4, cell('A4', binding('literal', data.literal)) + cell('B4', 12.5, layout ? 2 : 0));
     for (let i = 0; i < basic; i++) rows += row(5 + i, cell(`A${5 + i}`, binding('customer', data.customer), layout ? 1 : 0));
     for (let i = 0; i < layout; i++) rows += row(15 + i, cell(`A${15 + i}`, binding('title', data.title), 1), 24 + i);
@@ -55,14 +55,15 @@ export function buildXlsx(level: number, data: Data, rendered: boolean): Parts {
       const items = rendered ? data.items : data.items.slice(0, 1);
       items.forEach((item, i) => {
         const n = 40 + i;
-        rows += row(n, cell(`A${n}`, rendered ? item.name : '{{#each items}}{{name}}') + cell(`B${n}`, rendered ? item.quantity : '{{quantity}}') + cell(`C${n}`, rendered ? item.price : '{{price}}', 2) + cell(`D${n}`, rendered ? item.quantity * item.price : 0, 2, `B${n}*C${n}`) + (rendered ? '' : cell(`E${n}`, '{{/each}}', 0, undefined, true)));
+        rows += row(n, cell(`A${n}`, rendered ? item.name : '{d.items[i].name}') + cell(`B${n}`, rendered ? item.quantity : '{d.items[i].quantity}') + cell(`C${n}`, rendered ? item.price : '{d.items[i].price}', 2) + cell(`D${n}`, rendered ? item.quantity * item.price : 0, 2, `B${n}*C${n}`));
       });
+      if (!rendered) rows += row(41, cell('A41', '{d.items[i+1].name}'));
     }
     for (let i = 0; i < stress * 40; i++) {
-      const n = 100 + (rendered && repeats ? data.items.length - 1 : 0) + i;
+      const n = 100 + (repeats ? rendered ? data.items.length - 1 : 1 : 0) + i;
       rows += row(n, cell(`A${n}`, `Stress ${i + 1}`) + cell(`B${n}`, binding('customer', data.customer)) + cell(`C${n}`, i));
     }
-    const actualLastRow = stress ? 100 + (rendered && repeats ? data.items.length - 1 : 0) + stress * 40 - 1 : Math.max(repeats ? endRow : 0, 4 + basic, layout ? 14 + layout : 0, formulas ? 24 + formulas : 0);
+    const actualLastRow = stress ? 100 + (repeats ? rendered ? data.items.length - 1 : 1 : 0) + stress * 40 - 1 : Math.max(repeats ? endRow : 0, 4 + basic, layout ? 14 + layout : 0, formulas ? 24 + formulas : 0);
     let suffix = '';
     if (ranges) suffix += `<autoFilter ref="A39:D${endRow}"/>`;
     if (layout) suffix += `<mergeCells count="${layout}">${Array.from({ length: layout }, (_, i) => `<mergeCell ref="A${15 + i}:C${15 + i}"/>`).join('')}</mergeCells>`;
@@ -83,7 +84,7 @@ export function buildXlsx(level: number, data: Data, rendered: boolean): Parts {
     for (let i = 0; i < pictures; i++) {
       const color = i % 2 ? 'blue' : 'red', id = `rId${i + 1}`;
       drawingLinks.push({ id, type: 'image', target: `../media/${rendered ? color : 'placeholder'}.png` });
-      drawings += `<xdr:oneCellAnchor><xdr:from><xdr:col>${5 + i % 3}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${i * 3}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext cx="${914400 + i * 45720}" cy="609600"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="${i + 1}" name="Picture ${i + 1}" descr="${esc(rendered ? `Attachment ${color}` : `{{image:${color}}}`)}"/><xdr:cNvPicPr/></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="${id}"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${914400 + i * 45720}" cy="609600"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>`;
+      drawings += `<xdr:oneCellAnchor><xdr:from><xdr:col>${5 + i % 3}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${i * 3}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext cx="${914400 + i * 45720}" cy="609600"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="${i + 1}" name="Picture ${i + 1}" descr="${esc(rendered ? `Attachment ${color}` : `{d.${color}}`)}"/><xdr:cNvPicPr/></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="${id}"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${914400 + i * 45720}" cy="609600"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>`;
     }
     put(parts, 'xl/drawings/drawing1.xml', `<xdr:wsDr xmlns:xdr="${NS.xdr}" xmlns:a="${NS.a}" xmlns:r="${NS.r}">${drawings}</xdr:wsDr>`);
     put(parts, 'xl/drawings/_rels/drawing1.xml.rels', rels(drawingLinks));

@@ -126,16 +126,29 @@ test('Carbone-compatible endpoint accepts the PMS request shape and retains auth
   } finally { await app.close(); }
 });
 
-test('XLSX Carbone tags fail explicitly instead of leaving an apparently successful unrendered file', async () => {
-  const parts = await readPackage(await readFile(new URL('../corpus/xlsx/level-001/template.xlsx', import.meta.url)));
-  const part = 'xl/worksheets/sheet1.xml';
-  parts.set(part, Buffer.from(parts.get(part)!.toString().replace('{{title}}', '{d.title}')));
-  await assert.rejects(compile(await writePackage(parts)), errorCode('UNSUPPORTED_CARBONE_TEMPLATE'));
-});
 
 for (const name of ['folio_statement', 'task_sheet', 'trial_balance']) test(`Carbone independent 0/1/3-item repetition oracle: ${name}`, async () => {
   const input = await readFile(new URL(`${name}-template.docx`, fixtures));
   const data = JSON.parse(await readFile(new URL(`${name}.json`, fixtures), 'utf8'));
   const expected = JSON.parse(await readFile(new URL(`${name}.variants.expected.json`, fixtures), 'utf8'));
   for (const count of [0, 1, 3]) assert.deepEqual(await snapshot(await render(input, withArrayLength(data, count) as Record<string, unknown>)), expected[String(count)], `Array length ${count}`);
+});
+
+test('Carbone XLSX invoice content matches independent zero/one/three-item oracle outputs', async () => {
+  const { xlsxContent } = await import('../scripts/pms/xlsx-content.ts');
+  const template = await readFile(new URL('../examples/pms/invoice.xlsx', import.meta.url));
+  const data = JSON.parse(await readFile(new URL('../examples/pms/booking.json', import.meta.url), 'utf8'));
+  const expected = JSON.parse(await readFile(new URL('./fixtures/carbone-xlsx-invoice.expected.json', import.meta.url), 'utf8'));
+  for (const count of [0, 1, 3]) assert.deepEqual(await xlsxContent(await render(template, withArrayLength(data, count) as Record<string, unknown>)), expected[String(count)]);
+});
+
+test('Carbone root picture bindings retain attachment lookup inside a repeated row', async () => {
+  const base = await readPackage(await readFile(new URL('registration_form-template.docx', fixtures)));
+  const source = base.get('word/document.xml')!.toString();
+  const drawing = source.match(/<w:drawing>[\s\S]*?<\/w:drawing>/)![0].replace('{d.guest_signature}', '{d.logo}');
+  base.set('word/document.xml', Buffer.from(source.replace(/<w:body>[\s\S]*?<w:sectPr/, `<w:body><w:tbl><w:tr><w:tc>${p('{d.rows[i].name}')}<w:p><w:r>${drawing}</w:r></w:p></w:tc></w:tr>${row('{d.rows[i+1].name}')}</w:tbl><w:sectPr`)));
+  const logo = await readFile(new URL('../examples/pms/logo.png', import.meta.url));
+  const result = await readPackage(await render(await writePackage(base), { rows: [{ name: 'one' }, { name: 'two' }] }, { attachments: { logo } }));
+  assert([...result.values()].some(bytes => bytes.equals(logo)));
+  assert(!result.get('word/document.xml')!.toString().includes('Image placeholder'));
 });
