@@ -1,52 +1,71 @@
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { RenderError } from './errors.ts';
-import { renderDocumentInWorker } from './jobs.ts';
 import { mediaTypes } from './types.ts';
-import { convertToPdf } from './converter.ts';
+import { StandaloneStore } from './store.ts';
+import { DurableQueue } from './queue.ts';
+import { ServiceError } from './service-error.ts';
+import { decodeBase64, RenderService, type RenderInput } from './render-service.ts';
+import { registerServiceRoutes, inputProperties, type Principal } from './service-routes.ts';
 
-interface RenderBody { template: string; data: Record<string, unknown>; attachments?: Record<string, string>; output?: 'docx' | 'xlsx' | 'pdf' }
-export function createApp(config: { apiKey: string; converterUrl?: string; logger?: boolean; concurrency?: number }) {
+interface AppConfig { apiKey: string; converterUrl?: string; logger?: boolean; concurrency?: number; dataDir?: string; runQueue?: boolean }
+export function createApp(config: AppConfig) {
   if (config.apiKey.length < 24) throw new Error('IMPRINT_API_KEY must contain at least 24 characters');
+  if (config.concurrency !== undefined && (!Number.isSafeInteger(config.concurrency) || config.concurrency < 1 || config.concurrency > 8)) throw new Error('Concurrency must be between 1 and 8');
   const app = Fastify({ bodyLimit: 16 * 1024 * 1024, requestTimeout: 100_000, logger: config.logger ? { redact: ['req.headers.authorization'] } : false });
-  const secret = Buffer.from(`Bearer ${config.apiKey}`); let active = 0;
-  const decode = (value: string) => {
-    if (!value || value.length % 4 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new RenderError('INVALID_DATA', 'Expected canonical base64 bytes');
-    return Buffer.from(value, 'base64');
-  };
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 4, formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation'] }));
-  app.addHook('onRequest', async (request, reply) => {
-    if (request.routeOptions.url === '/health') return;
-    const supplied = Buffer.from(request.headers.authorization ?? '');
-    if (supplied.length !== secret.length || !timingSafeEqual(supplied, secret)) return reply.code(401).send({ error: 'UNAUTHORIZED' });
+  const secret = Buffer.from(`Bearer ${config.apiKey}`);
+  const renderer = new RenderService(config.concurrency, config.converterUrl);
+  const store = config.dataDir ? new StandaloneStore(config.dataDir) : undefined;
+  const identities = new WeakMap<object, Principal>();
+  app.addHook('onSend', async (_request, reply) => { reply.header('Cache-Control', 'no-store'); });
+  app.setErrorHandler((error, request, reply) => {
+    reply.type('application/json');
+    if (error instanceof ServiceError) {
+      if (error.status === 503) reply.header('Retry-After', '1');
+      return reply.code(error.status).send({ error: error.code, message: error.message });
+    }
+    if (error instanceof RenderError) {
+      const status = error.code === 'LIMIT_EXCEEDED' ? 413 : error.code === 'RENDER_TIMEOUT' ? 504 : error.code.startsWith('CONVER') ? 502 : 422;
+      return reply.code(status).send({ error: error.code, message: error.message, part: error.part });
+    }
+    if (error instanceof Error && 'statusCode' in error && typeof error.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 500) return reply.code(error.statusCode).send({ error: 'code' in error ? error.code : 'INVALID_REQUEST' });
+    request.log.error({ err: error }, 'Request failed');
+    return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
-  app.post<{ Body: RenderBody }>('/v1/render', {
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 5, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
+  app.get('/ready', async (_request, reply) => {
+    if (store) store.db.prepare('SELECT 1').get();
+    if (config.converterUrl) {
+      try {
+        const response = await fetch(new URL('/health', config.converterUrl), { signal: AbortSignal.timeout(2000) });
+        await response.body?.cancel();
+        if (!response.ok) throw new Error('Converter not ready');
+      } catch { return reply.code(503).send({ status: 'unavailable' }); }
+    }
+    return { status: 'ready' };
+  });
+  app.addHook('onRequest', async (request, reply) => {
+    if (['/health', '/ready'].includes(request.routeOptions.url ?? '')) return;
+    const supplied = Buffer.from(request.headers.authorization ?? '');
+    if (supplied.length === secret.length && timingSafeEqual(supplied, secret)) { identities.set(request, { tenant: 'default', admin: true }); return; }
+    const authorization = request.headers.authorization ?? '';
+    const tenant = authorization.startsWith('Bearer ') ? store?.authenticate(authorization.slice(7)) : undefined;
+    if (!tenant) return reply.code(401).send({ error: 'UNAUTHORIZED' });
+    identities.set(request, { tenant, admin: false });
+  });
+  app.post<{ Body: RenderInput & { template: string } }>('/v1/render', {
     schema: { body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
-      template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: { type: 'object', additionalProperties: true },
-      attachments: { type: 'object', maxProperties: 32, additionalProperties: { type: 'string', maxLength: 12 * 1024 * 1024 } }, output: { type: 'string', enum: ['docx', 'xlsx', 'pdf'] },
+      template: { type: 'string', maxLength: 12 * 1024 * 1024 }, ...inputProperties,
     } } },
   }, async (request, reply) => {
-    if (active >= (config.concurrency ?? 2)) return reply.code(503).header('Retry-After', '1').send({ error: 'BUSY' });
-    active++;
-    try {
-      const attachments: Record<string, Uint8Array> = Object.create(null);
-      for (const [key, value] of Object.entries(request.body.attachments ?? {})) attachments[key] = decode(value);
-      const output = await renderDocumentInWorker(decode(request.body.template), request.body.data, attachments, 30_000, request.body.output);
-      if (request.body.output === 'pdf') {
-        if (!config.converterUrl) throw new RenderError('CONVERTER_UNAVAILABLE', 'PDF conversion is not configured');
-        const pdf = await convertToPdf(output.bytes, config.converterUrl, `document.${output.format}`);
-        return reply.type('application/pdf').header('Content-Disposition', 'attachment; filename="document.pdf"').send(pdf);
-      }
-      return reply.type(mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
-    } catch (error) {
-      reply.type('application/json');
-      if (error instanceof RenderError) {
-        const status = error.code === 'LIMIT_EXCEEDED' ? 413 : error.code === 'RENDER_TIMEOUT' ? 504 : error.code.startsWith('CONVER') ? 502 : 422;
-        return reply.code(status).send({ error: error.code, message: error.message, part: error.part });
-      }
-      request.log.error({ err: error }, 'Render failed');
-      return reply.code(500).send({ error: 'RENDER_FAILED' });
-    } finally { active--; }
+    const output = await renderer.render(decodeBase64(request.body.template), request.body);
+    return reply.type(output.format === 'pdf' ? 'application/pdf' : mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
   });
+  if (store) {
+    registerServiceRoutes(app, store, renderer, request => identities.get(request)!);
+    const queue = new DurableQueue(store, renderer, error => app.log.error({ err: error }, 'Queue failed'));
+    if (config.runQueue !== false) app.addHook('onReady', async () => queue.start());
+    app.addHook('onClose', async () => { await queue.stop(); store.close(); });
+  }
   return app;
 }

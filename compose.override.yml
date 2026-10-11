@@ -13,6 +13,7 @@ services:
       - ./scripts:/app/scripts:ro
       - ./corpus:/app/corpus
       - ./docs:/app/docs:ro
+      - ./examples:/app/examples:ro
     restart: "no"
   gotenberg:
     restart: "no"

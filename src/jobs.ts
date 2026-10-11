@@ -4,10 +4,10 @@ import type { DocumentFormat } from './types.ts';
 
 export interface RenderedDocument { bytes: Buffer; format: DocumentFormat }
 
-export function renderDocumentInWorker(template: Uint8Array, data: Record<string, unknown>, attachments: Record<string, Uint8Array>, timeoutMs = 30_000, output?: DocumentFormat | 'pdf'): Promise<RenderedDocument> {
+export function renderDocumentInWorker(template: Uint8Array, data: Record<string, unknown>, attachments: Record<string, Uint8Array>, timeoutMs = 30_000, output?: DocumentFormat | 'pdf', validateOnly = false): Promise<RenderedDocument> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL(import.meta.url.endsWith('.ts') ? './render-worker.ts' : './render-worker.js', import.meta.url), {
-      workerData: { template, data, attachments, output }, resourceLimits: { maxOldGenerationSizeMb: 256, maxYoungGenerationSizeMb: 32 },
+      workerData: { template, data, attachments, output, validateOnly }, resourceLimits: { maxOldGenerationSizeMb: 256, maxYoungGenerationSizeMb: 32 },
       execArgv: [], // Do not inherit the development server's --watch protocol.
     });
     let finished = false;

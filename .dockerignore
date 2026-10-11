@@ -8,3 +8,6 @@ corpus/results
 .env.*
 !.env.example
 *.log
+
+*.sqlite
+*.sqlite-*
