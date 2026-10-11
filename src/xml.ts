@@ -32,13 +32,18 @@ export interface ElementSpan {
   attributes: AttributeSpan[]; parent?: ElementSpan; namespaces: Map<string, string>;
 }
 export interface Edit { start: number; end: number; value: string }
-export function applyEdits(source: string, edits: Edit[]): string {
-  let boundary = source.length;
-  for (const edit of [...edits].sort((a, b) => b.start - a.start || b.end - a.end)) {
-    if (edit.end > boundary || edit.start > edit.end) throw new RenderError('INTERNAL', 'Overlapping XML edits');
-    source = source.slice(0, edit.start) + edit.value + source.slice(edit.end); boundary = edit.start;
+export function applyEdits(source: string, edits: Edit[], maxBytes = Infinity): string {
+  const chunks: string[] = []; let cursor = 0, bytes = 0;
+  const append = (value: string) => {
+    bytes += Buffer.byteLength(value);
+    if (bytes > maxBytes) throw new RenderError('LIMIT_EXCEEDED', 'Rendered XML exceeds its byte budget');
+    chunks.push(value);
+  };
+  for (const edit of [...edits].sort((a, b) => a.start - b.start || a.end - b.end)) {
+    if (edit.start < cursor || edit.start > edit.end || edit.end > source.length) throw new RenderError('INTERNAL', 'Overlapping XML edits');
+    append(source.slice(cursor, edit.start)); append(edit.value); cursor = edit.end;
   }
-  return source;
+  append(source.slice(cursor)); return chunks.join('');
 }
 // Validate with an XML parser, then index source spans. Untouched bytes are never reserialized.
 export function indexXml(source: string, part: string): ElementSpan[] {
