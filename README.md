@@ -210,6 +210,19 @@ Content-Type: application/json
 | 503 | Render capacity is full |
 | 504 | Render or conversion deadline exceeded |
 
+## Synthetic PMS testing without a PMS pilot
+
+Run the original 30 seeded PMS DOCX templates against fake guest, billing and housekeeping data, plus logo-bearing DOCX/XLSX invoice examples:
+
+```bash
+npm run pms:synthetic
+# Optional: use a running Imprint service and inspect PDFs.
+# Set IMPRINT_URL and IMPRINT_API_KEY in your environment first.
+npm run pms:synthetic -- --api --pdf
+```
+
+The suite has **128 cases** covering normal data, empty lists, multilingual/long text and larger reports. It supplies synthetic PNG/JPEG signatures and a hotel logo. Open `artifacts/pms-synthetic/index.html` for documents, data, images, previews and results. PDF checks require Poppler tools; the default run performs offline document checks. See the [synthetic test guide](docs/synthetic-pms-guide.txt).
+
 ## Test corpus and CI
 
 Browse [`corpus/index.html`](corpus/index.html) locally for **100 DOCX and 100 XLSX levels**. Each level contains a template, JSON input, attachment mapping and reference document: 400 document files in total.
@@ -231,7 +244,7 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 181 passed |
+| Automated tests | 312 passed |
 | Original PMS Carbone templates | 30 unchanged DOCX files match independent snapshots; 9 extra array-length cases |
 | Selected PMS PDF comparison | Five reports, seven pages: identical pixels at 96 DPI |
 | Fixture validation | 200 cases / 400 document packages passed |

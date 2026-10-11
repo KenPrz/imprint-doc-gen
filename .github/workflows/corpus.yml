@@ -111,6 +111,10 @@ jobs:
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
       - name: Verify PMS integration, forced restart recovery and converter supervision
         run: node scripts/standalone-smoke.ts
+      - name: Install PDF inspection tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Validate synthetic PMS reports and images through the standalone API
+        run: npm run pms:synthetic -- --api --pdf --smoke --output corpus/results/synthetic-pms
       - name: Verify converter timeouts recover in the standalone image
         run: |
           GOTENBERG_API_TIMEOUT=5s docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
@@ -131,6 +135,7 @@ jobs:
             corpus/results/standalone-validation.json
             corpus/results/converter-recovery.json
             corpus/results/standalone.log
+            corpus/results/synthetic-pms/
       - name: Stop standalone services
         if: always()
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
