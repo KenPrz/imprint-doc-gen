@@ -1,3 +1,4 @@
+import { compileRowRenderer } from './xlsx-rows.ts';
 import { RenderError } from './errors.ts';
 import { validateData } from './data.ts';
 import { checkPath, lookup, scalar } from './scope.ts';
@@ -8,8 +9,8 @@ import type { CompiledTemplate, RenderOptions } from './types.ts';
 import { ns, indexXml, parseXml, descendants, ancestor, applyEdits, escapeXml, type ElementSpan, type AttributeSpan, type Edit } from './xml.ts';
 import { compileCellText, renderCellText, readLeaf, attributeEdit, type CellText } from './xlsx-text.ts';
 
-interface CellPlan { node: ElementSpan; payload: ElementSpan; text: CellText; shared?: number }
-interface SheetPlan { part: string; source: string; cells: CellPlan[] }
+export interface CellPlan { node: ElementSpan; payload: ElementSpan; text: CellText; shared?: number }
+export interface SheetPlan { part: string; name: string; source: string; nodes: ElementSpan[]; cells: CellPlan[] }
 interface Picture { path: string; description: AttributeSpan; reference: AttributeSpan }
 interface DrawingPlan { part: string; source: string; pictures: Picture[] }
 const attr = (node: ElementSpan, name: string) => node.attributes.find(a => a.name === name)?.value;
@@ -107,13 +108,34 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
       if (!link) throw new RenderError('INVALID_PACKAGE', 'Worksheet references an undefined drawing', part);
       drawingParts.add(resolvePart(part, link.getAttribute('Target')!));
     }
-    sheets.push({ part, source, cells });
+    sheets.push({ part, name: attr(sheet, 'name') ?? '', source, nodes, cells });
   }
   if (!sheets.length) throw new RenderError('INVALID_PACKAGE', 'Workbook has no worksheets', mainPart);
   const drawings = [...drawingParts].map(part => compileDrawing(original, part));
+  const rows = compileRowRenderer({ original, mainPart, workbook, bookNodes, sheets, sharedPart, sharedSource, sharedNodes, shared });
+  if (!rows && sheets.some(s => s.cells.some(c => c.text.bindings.some(b => b.path.startsWith('../'))))) throw new RenderError('TEMPLATE_EXPRESSION', 'Parent paths require a repeated row');
+  const renderPictures = async (output: ReturnType<typeof createRenderPackage>, attachments: Record<string, Uint8Array>, data: Record<string, unknown>, drawingEdits = new Map<string, Edit[]>()) => {
+    for (const drawing of drawings) {
+      const edits: Edit[] = [...(drawingEdits.get(drawing.part) ?? [])];
+      for (const picture of drawing.pictures) {
+        const key = Object.hasOwn(attachments, picture.path) ? picture.path : scalar(lookup([data], picture.path, drawing.part), picture.path, drawing.part);
+        const id = await output.addImage(drawing.part, key);
+        edits.push({ start: picture.reference.start, end: picture.reference.end, value: id }, { start: picture.description.start, end: picture.description.end, value: escapeXml(`Attachment ${key}`) });
+      }
+      if (edits.length) output.setPart(drawing.part, Buffer.from(applyEdits(drawing.source, edits, limits.entry)));
+    }
+  };
   return Object.freeze({ format: 'xlsx' as const, async render(data: Record<string, unknown>, options: RenderOptions = {}) {
     validateData(data);
-    const attachments = options.attachments ?? {}, output = createRenderPackage(original, mainPart, attachments);
+    const attachments = options.attachments ?? {};
+    if (rows) {
+      const expanded = rows(data), output = createRenderPackage(expanded.parts, mainPart, attachments);
+      const source = expanded.parts.get(mainPart)!.toString();
+      output.setPart(mainPart, Buffer.from(recalculate(source, indexXml(source, mainPart))));
+      await renderPictures(output, attachments, data, expanded.drawingEdits);
+      return output.finish();
+    }
+    const output = createRenderPackage(original, mainPart, attachments);
     let sharedInsertedBytes = 0;
     const renderedShared = shared.map(plan => {
       if (!plan.bindings.length) return undefined;
@@ -150,15 +172,7 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
       output.setPart(sharedPart, Buffer.from(applyEdits(sharedSource, edits, limits.entry)));
     }
     if (changed) output.setPart(mainPart, Buffer.from(recalculate(workbook, bookNodes)));
-    for (const drawing of drawings) {
-      const edits: Edit[] = [];
-      for (const picture of drawing.pictures) {
-        const key = Object.hasOwn(attachments, picture.path) ? picture.path : scalar(lookup([data], picture.path, drawing.part), picture.path, drawing.part);
-        const id = await output.addImage(drawing.part, key);
-        edits.push({ start: picture.reference.start, end: picture.reference.end, value: id }, { start: picture.description.start, end: picture.description.end, value: escapeXml(`Attachment ${key}`) });
-      }
-      if (edits.length) output.setPart(drawing.part, Buffer.from(applyEdits(drawing.source, edits, limits.entry)));
-    }
+    await renderPictures(output, attachments, data);
     return output.finish();
   } });
 }

@@ -4,7 +4,7 @@
 
 Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Convert the result to PDF through a private LibreOffice service.
 
-The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX levels 1–100 and XLSX levels 1–50 passing**; it is not feature-complete or template-syntax compatible with either product.
+The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete or template-syntax compatible with either product.
 
 ## Current capabilities
 
@@ -14,10 +14,10 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - Independent image placements even when pictures share their original media; existing drawing dimensions are preserved.
 - Repeated table rows and paragraph blocks, nested object scopes, parent lookups and per-item images.
 - Reusable compiled templates, JSON-only data and explicit errors for missing or unsupported bindings.
-- XLSX shared/rich strings, native numeric and boolean cells, and anchored picture replacement.
+- XLSX shared/rich strings, typed cells, repeated rows, formula/range updates and anchored picture replacement.
 - Authenticated DOCX/XLSX/PDF API with bounded worker execution and request concurrency.
 
-**Not implemented yet:** XLSX row loops and formula/range rewriting, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, tenant accounts, durable jobs, template storage or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, tenant accounts, durable jobs, template storage or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
 
 ## Quick start: Docker development
 
@@ -100,7 +100,25 @@ Only a tag occupying the entire cell gets native typing. Other replacements rema
 
 Existing picture anchors, sizes, crop and rotation are preserved. Pictures can use one-cell, two-cell or absolute anchors. Replacing a bound picture does not change another picture sharing its original image.
 
-Existing formulas and their cached results are preserved. Changed worksheets request automatic full recalculation when opened in Excel or converted by LibreOffice; the SDK does **not** calculate new formula results. Row loops, formula placeholders, date conversion and bound phonetic strings require later adapters. A workbook containing XLSX loop markers fails explicitly.
+For workbooks without row loops, existing formulas and cached results are preserved and full recalculation is requested on opening. Formula placeholders, automatic date conversion and bound phonetic strings require later adapters.
+
+### XLSX row loops and formulas
+
+Place `{{#each items}}` and `{{/each}}` in the **same worksheet row**. Every binding in that row uses its current item; `{{../title}}` reads the root object. Put ordinary Excel formulas in other cells of the row, for example:
+
+| A40 | B40 | C40 | D40 | E40 |
+| --- | --- | --- | --- | --- |
+| `{{#each items}}{{name}}` | `{{quantity}}` | `{{price}}` | `=B40*C40` | `{{/each}}` |
+
+The renderer repeats the row, keeps cell styles and row height, removes marker-only cells, and writes fresh formula results. Empty arrays remove the row. Multiple independent row loops can appear in a workbook; rows below each loop move by its expansion amount.
+
+- Formula copies adjust relative rows while preserving `$` locks. Structural row insertion/deletion also moves absolute targets and cross-sheet references. An outside single-cell reference to a repeated row targets its first copy; range ends expand across all copies. A reference to a deleted cell becomes `#REF!`.
+- Tables, filters, defined names, validation and conditional-formatting ranges follow row changes. Qualified workbook names and sheet-local A1 names are supported. Merged ranges below loops move; merges intersecting a loop are rejected.
+- Existing pictures below a loop move with their cell anchors. Pictures intersecting a repeated row need a later cloning adapter and fail explicitly.
+- In workbooks containing loops, all formulas must fit the bounded calculator: A1 cells/ranges, quoted sheet names, arithmetic, comparisons, text concatenation, and `SUM`, `MIN`, `MAX`, `AVERAGE`, `COUNT`, `IF`. Dependencies are recalculated across worksheets, and obsolete calculation chains are removed. Circular references fail explicitly. This is not a general Excel engine; advanced functions, named operands, structured references and shared/array/data-table formulas are rejected. Boolean concatenation and zero raised to a nonpositive power also return `UNSUPPORTED_FORMULA` instead of guessing at application-specific behavior.
+- Nesting/multi-row loops, charts, pivots, comments, legacy drawings and unsupported extension metadata need later adapters. Loop workbooks require explicit ascending row coordinates. Limits include 10,000 total iterations, Excel row/column bounds, 8 MiB per part, 32 MiB per expanded package, 128 levels of formula/dependency depth and one million calculation operations.
+
+The independent LibreOffice check in CI verifies cached results for representative supported expressions; see [XLSX loop validation](docs/xlsx-rows-validation.json).
 
 See the [corpus guide](docs/corpus-guide.txt) for implemented and planned semantics.
 
@@ -186,22 +204,23 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 82 passed |
+| Automated tests | 104 passed |
 | Fixture validation | 200 cases / 400 document packages passed |
 | DOCX renderer | All 100 levels passed |
-| XLSX renderer | Levels 1–50 passed; 51–100 unsupported |
+| XLSX renderer | All 100 levels passed |
 | LibreOffice fixture conversion | 385 converted, 3 failed, 12 not run |
 | Converter recovery | Repeated timeout → successful conversion, including the production API |
-| Selected XLSX PDF comparison | Levels 1, 20, 30, 40 and 50: all 10 pages matched at 96 DPI |
+| Selected XLSX loop PDF comparison | Levels 60, 80, 90 and 100: all 64 pages matched at 96 DPI |
+| Independent formula calculation | 52 cached results match LibreOffice recalculation |
 | Selected DOCX PDF comparison | Levels 1, 20, 50, 60, 70, 80 and 90: all 232 pages matched at 96 DPI |
 
-These measurements do not establish complete OOXML schema conformance, repair-free Microsoft Office opening or general visual fidelity. Current XLSX evidence: [XLSX validation](docs/xlsx-cells-images-validation.json). Loop evidence: [DOCX loop validation](docs/docx-loops-validation.json). Baseline evidence: [milestone validation](docs/milestone-1-validation.json), [Office results](docs/office-validation.json).
+These measurements do not establish complete OOXML schema conformance, repair-free Microsoft Office opening or general visual fidelity. Current XLSX evidence: [XLSX loop validation](docs/xlsx-rows-validation.json). Earlier cell/image evidence: [XLSX validation](docs/xlsx-cells-images-validation.json). Loop evidence: [DOCX loop validation](docs/docx-loops-validation.json). Baseline evidence: [milestone validation](docs/milestone-1-validation.json), [Office results](docs/office-validation.json).
 
 ## Roadmap
 
 1. **Implemented:** bounded conversion failures, automatic LibreOffice recycling and Docker recovery tests. Continue investigating the upstream layout stall without changing the reference documents to hide it.
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
-3. **Implemented:** XLSX typed cells and images. Next: row repetition with formula/range rewriting and independently verified calculated results.
+3. **Implemented:** XLSX typed cells, images, repeated rows, formula/range rewriting and bounded calculated results. Expand real-world fixtures, picture cloning and advanced formula adapters.
 4. Add durable jobs, tenant authentication, template versions and object storage.
 5. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 

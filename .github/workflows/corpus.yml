@@ -17,9 +17,9 @@ jobs:
       - run: git diff --exit-code -- corpus
       - run: npm run corpus:validate
       - run: npm run corpus:render
-      - run: npm run corpus:score || test $? -eq 2
+      - run: npm run corpus:score
       - name: Enforce DOCX and XLSX corpus coverage
-        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==100 || r.summary.docx.failed!==0 || r.summary.xlsx.passed!==50 || r.summary.xlsx.failed!==0 || r.summary.xlsx.unsupported!==50) process.exit(1)'
+        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==100 || r.summary.docx.failed!==0 || r.summary.xlsx.passed!==100 || r.summary.xlsx.failed!==0 || r.summary.xlsx.unsupported!==0) process.exit(1)'
       - name: Validate production and development Compose
         run: |
           docker compose -f compose.yml config --quiet
@@ -55,6 +55,13 @@ jobs:
           -e SMOKE_API_URL=http://app:3000
           -v "$PWD:/work" -w /work
           app node scripts/converter-recovery.ts
+      - name: Compare calculated XLSX values with independent LibreOffice recalculation
+        run: |
+          docker compose -f compose.yml run --rm --no-deps --user "$(id -u):$(id -g)" -v "$PWD:/app/work" -w /app/work app node scripts/check-xlsx-calculation.ts --prepare
+          docker compose -f compose.yml exec -T gotenberg sh -c 'mkdir -p /tmp/imprint-calc-input /tmp/imprint-calc-output && cat > /tmp/imprint-calc-input/imprint-calculated.xlsx' < corpus/results/calculation/imprint-calculated.xlsx
+          docker compose -f compose.yml exec -T gotenberg timeout 60 libreoffice -env:UserInstallation=file:///tmp/imprint-calc-profile --headless --convert-to xlsx --outdir /tmp/imprint-calc-output /tmp/imprint-calc-input/imprint-calculated.xlsx
+          docker compose -f compose.yml exec -T gotenberg cat /tmp/imprint-calc-output/imprint-calculated.xlsx > corpus/results/calculation/libreoffice-calculated.xlsx
+          docker compose -f compose.yml run --rm --no-deps --user "$(id -u):$(id -g)" -v "$PWD:/app/work" -w /app/work app node scripts/check-xlsx-calculation.ts --compare corpus/results/calculation/libreoffice-calculated.xlsx
       - name: Collect converter logs
         if: always()
         run: |
@@ -65,6 +72,7 @@ jobs:
         with:
           name: conversion-validation
           path: |
+            corpus/results/calculation/formula-comparison.json
             corpus/results/converter-recovery.json
             corpus/results/docker-conversion.log
       - name: Stop test services

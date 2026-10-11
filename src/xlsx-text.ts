@@ -1,9 +1,9 @@
 import { RenderError } from './errors.ts';
-import { checkPath, lookup, scalar } from './scope.ts';
+import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { limits } from './package.ts';
 import { ns, applyEdits, decodeXml, escapeXml, type ElementSpan, type Edit } from './xml.ts';
 
-interface Binding { start: number; end: number; path: string }
+interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close' }
 interface TextSpan { node: ElementSpan; value: string; offset: number }
 export interface CellText { text: string; spans: TextSpan[]; bindings: Binding[]; whole?: string }
 export const decodeXstring = (text: string) => text.replace(/_x([\da-fA-F]{4})_/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
@@ -37,18 +37,20 @@ export function compileCellText(source: string, container: ElementSpan, children
     const start = text.indexOf('{{', cursor); if (start < 0) break;
     const close = text.indexOf('}}', start + 2);
     if (close < 0 || text.slice(start + 2, close).includes('{{')) throw new RenderError('TEMPLATE_SYNTAX', 'Unclosed or nested cell placeholder', part);
-    const path = text.slice(start + 2, close).trim();
-    if (/^[#\/^]/.test(path)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'XLSX row loops require the next rendering milestone', part);
-    checkPath(path, part);
-    if (path.startsWith('../')) throw new RenderError('TEMPLATE_EXPRESSION', 'XLSX scalar bindings use root data paths', part);
-    bindings.push({ start, end: close + 2, path }); cursor = close + 2;
+    const tag = text.slice(start + 2, close).trim();
+    const kind = tag === '/each' ? 'close' : tag.startsWith('#each ') ? 'open' : 'value';
+    const path = kind === 'open' ? tag.slice(6).trim() : kind === 'close' ? '' : tag;
+    if (kind !== 'close') checkPath(path, part);
+    bindings.push({ start, end: close + 2, path, kind }); cursor = close + 2;
   }
   if (bindings.length && contents.some(n => n.uri === ns.spreadsheet && ['rPh', 'phoneticPr'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Bound phonetic strings require a later adapter', part);
-  const whole = bindings.length === 1 && bindings[0]!.start === 0 && bindings[0]!.end === text.length ? bindings[0]!.path : undefined;
+  const values = bindings.filter(b => b.kind === 'value');
+  const residue = applyEdits(text, bindings.map(b => ({ ...b, value: '' })));
+  const whole = values.length === 1 && residue === '' ? values[0]!.path : undefined;
   return { text, spans, bindings, whole };
 }
-export function renderCellText(plan: CellText, data: Record<string, unknown>, part: string): { edits: Edit[]; value: unknown } {
-  const replacements = plan.bindings.map(binding => ({ ...binding, value: scalar(lookup([data], binding.path, part), binding.path, part, true) }));
+export function renderCellText(plan: CellText, data: Record<string, unknown>, part: string, scope: Scope = [data]): { edits: Edit[]; value: unknown } {
+  const replacements = plan.bindings.map(binding => ({ ...binding, value: binding.kind === 'value' ? scalar(lookup(scope, binding.path, part), binding.path, part, true) : '' }));
   const result = applyEdits(plan.text, replacements, limits.entry);
   if (result.length > 32767) throw new RenderError('LIMIT_EXCEEDED', 'Spreadsheet cell text exceeds 32767 UTF-16 code units', part);
   const edits: Edit[] = [];
@@ -59,5 +61,5 @@ export function renderCellText(plan: CellText, data: Record<string, unknown>, pa
     // Every edited text node is nonempty in the input, so insertion before '>' is safe.
     edits.push(attributeEdit(span.node, 'xml:space', 'preserve'));
   }
-  return { edits, value: plan.whole ? lookup([data], plan.whole, part) : result };
+  return { edits, value: plan.whole ? lookup(scope, plan.whole, part) : result };
 }

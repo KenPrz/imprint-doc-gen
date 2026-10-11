@@ -10,7 +10,7 @@ assert(key, 'IMPRINT_API_KEY is required');
 assert.equal((await fetch(new URL('/health', endpoint))).status, 200);
 assert.equal((await fetch(new URL('/v1/render', endpoint), { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status, 401);
 const attachments = { red: (await readFile(join(root, 'corpus/attachments/red.png'))).toString('base64'), blue: (await readFile(join(root, 'corpus/attachments/blue.png'))).toString('base64') };
-for (const format of ['docx', 'xlsx']) for (const level of format === 'docx' ? [20, 61, 100] : [1, 30, 50]) {
+for (const format of ['docx', 'xlsx']) for (const level of format === 'docx' ? [20, 61, 100] : [1, 30, 50, 61, 80, 100]) {
   const dir = join(root, `corpus/${format}/level-${String(level).padStart(3, '0')}`);
   const input = JSON.parse(await readFile(join(dir, 'input.json'), 'utf8'));
   const template = (await readFile(join(dir, `template.${format}`))).toString('base64');
