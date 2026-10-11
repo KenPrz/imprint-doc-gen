@@ -1,3 +1,5 @@
+import { carboneLookup } from './carbone.ts';
+import { checkPath } from './scope.ts';
 import { RenderError } from './errors.ts';
 import { lookup, type Scope } from './scope.ts';
 import { limits, relsPath, resolvePart, type PackageParts } from './package.ts';
@@ -7,7 +9,7 @@ import { address, a1, maxRow, RowMap } from './xlsx-references.ts';
 import { parseFormula, rewriteFormula, evaluateFormula, type Value } from './xlsx-formula.ts';
 import type { CellPlan, SheetPlan } from './xlsx.ts';
 
-interface Row { node: ElementSpan; number: number; cells: ElementSpan[]; bindings: CellPlan[]; path?: string }
+interface Row { node: ElementSpan; number: number; cells: ElementSpan[]; bindings: CellPlan[]; path?: string; carbone?: boolean; discard?: boolean }
 interface Sheet extends SheetPlan { rows: Row[] }
 interface LinkedPart { part: string; sheet: string; source: string; nodes: ElementSpan[] }
 interface Context { original: PackageParts; mainPart: string; workbook: string; bookNodes: ElementSpan[]; sheets: SheetPlan[]; sharedPart?: string; sharedSource: string; sharedNodes: ElementSpan[]; shared: CellText[] }
@@ -71,7 +73,7 @@ function inlineShared(source: string, entry: ElementSpan, result: ReturnType<typ
 }
 export function compileRowRenderer(context: Context) {
   const { original, sheets: inputSheets, mainPart, workbook, bookNodes, shared, sharedSource, sharedNodes, sharedPart } = context;
-  if (!inputSheets.some(s => s.cells.some(c => c.text.bindings.some(b => b.kind !== 'value')))) return undefined;
+  if (!inputSheets.some(s => s.cells.some(c => c.text.bindings.some(b => b.kind !== 'value' || (b.carbone && b.path.includes('[i')))))) return undefined;
   const remainingShared = shared.filter(text => !text.bindings.length);
   let nextShared = 0;
   const sharedRemap = shared.map(text => text.bindings.length ? -1 : nextShared++);
@@ -94,13 +96,41 @@ export function compileRowRenderer(context: Context) {
       rows.push({ node, number, cells, bindings, path: markers[0]?.path });
     }
     if (sheet.cells.some(c => !rows.some(r => r.node === c.node.parent))) throw new RenderError('INVALID_PACKAGE', 'Cell binding is outside a worksheet row', sheet.part);
+    const hasCarboneRepeat = rows.some(row => row.bindings.some(c => c.text.bindings.some(b => b.carbone && b.path.includes('[i'))));
+    if (hasCarboneRepeat && rows.some(row => row.path)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Do not mix Carbone and legacy repeats in one worksheet', sheet.part);
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index]!;
+      const tags = row.bindings.flatMap(c => c.text.bindings).filter(b => b.carbone && b.path.includes('[i'));
+      if (!tags.length || row.discard) continue;
+      const paths = new Set(tags.map(tag => tag.path.split('[i]')[0]!));
+      if (paths.size !== 1 || tags.some(tag => !/^[\w$.]+\[i\]\.[\w$.]+$/.test(tag.path))) throw new RenderError('UNSUPPORTED_CARBONE_TEMPLATE', 'XLSX repeats support one object array per row', sheet.part);
+      const path = [...paths][0]!, marker = rows[index + 1];
+      if (!marker || marker.number !== row.number + 1) throw new RenderError('TEMPLATE_STRUCTURE', 'Expected an adjacent [i+1] marker row', sheet.part);
+      const markerTags = marker.bindings.flatMap(c => c.text.bindings);
+      if (!markerTags.length || markerTags.some(tag => !tag.carbone || !(tag.path === `${path}[i+1]` || tag.path.startsWith(`${path}[i+1].`)))) throw new RenderError('TEMPLATE_STRUCTURE', 'Expected matching [i+1] bindings in the marker row', sheet.part);
+      row.path = path; row.carbone = true; marker.discard = true;
+      // Each shared-string use needs its own scope; never mutate the shared plan.
+      row.bindings = row.bindings.map(cell => {
+        const bindings = cell.text.bindings.map(binding => {
+          if (!binding.carbone) return binding;
+          const scoped = binding.path.startsWith(`${path}[i].`) ? binding.path.slice(path.length + 4) : '../' + binding.path;
+          checkPath(scoped, sheet.part); return { ...binding, path: scoped };
+        });
+        return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
+      });
+    }
+    for (const row of rows) if (row.path && !row.carbone) row.bindings = row.bindings.map(cell => {
+      const bindings = cell.text.bindings.map(binding => binding.carbone ? { ...binding, path: '../' + binding.path } : binding);
+      return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
+    });
+    for (const row of rows) if (!row.path && !row.discard) for (const cell of row.bindings) for (const binding of cell.text.bindings) if (binding.carbone) checkPath(binding.path, sheet.part);
     return { ...sheet, rows };
   });
   const knownNames = new Set<string>();
   for (const sheet of sheets) { if (knownNames.has(sheet.name.toLowerCase())) throw new RenderError('INVALID_PACKAGE', 'Duplicate worksheet name'); knownNames.add(sheet.name.toLowerCase()); }
   const tables: LinkedPart[] = [], drawings: LinkedPart[] = [], linkedOwners = new Set<string>();
   for (const sheet of sheets) {
-    const loopRows = sheet.rows.filter(r => r.path).map(r => r.number);
+    const loopRows = sheet.rows.filter(r => r.path || r.discard).map(r => r.number);
     for (const node of sheet.nodes) {
       if (node.uri !== ns.spreadsheet) continue;
       if (['extLst', 'rowBreaks', 'legacyDrawing', 'legacyDrawingHF', 'oleObjects', 'controls', 'pivotTableParts'].includes(node.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', `XLSX loops with ${node.local} require a later adapter`, sheet.part);
@@ -145,8 +175,8 @@ export function compileRowRenderer(context: Context) {
     const maps = new Map<string, RowMap>(), scopes = new Map<Row, Scope[]>(); let iterations = 0;
     for (const sheet of sheets) {
       const expansions = [];
-      for (const row of sheet.rows) if (row.path) {
-        const items = lookup([data], row.path, sheet.part);
+      for (const row of sheet.rows) if (row.path || row.discard) {
+        const items = row.discard ? [] : row.carbone ? carboneLookup([data], row.path!, sheet.part) ?? [] : lookup([data], row.path!, sheet.part);
         if (!Array.isArray(items)) throw new RenderError('INVALID_DATA', `Expected an array at ${row.path}`, sheet.part);
         iterations += items.length;
         if (iterations > 10_000) throw new RenderError('LIMIT_EXCEEDED', 'Spreadsheet expansion exceeds 10000 iterations');

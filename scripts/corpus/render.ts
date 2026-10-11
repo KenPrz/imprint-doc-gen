@@ -30,6 +30,6 @@ for (const entry of manifest.cases) {
   if (entry.level % 25 === 0) console.log(`Attempted ${entry.format} levels 1–${entry.level}`);
 }
 await mkdir(join(root, 'results'), { recursive: true });
-await writeFile(join(root, 'results/renderer-attempts.json'), JSON.stringify({ engine: 'imprint-doc-gen', milestone: 4, results }, null, 2) + '\n');
+await writeFile(join(root, 'results/renderer-attempts.json'), JSON.stringify({ engine: 'imprint-doc-gen', milestone: 7, results }, null, 2) + '\n');
 console.log(JSON.stringify({ rendered: results.filter(r => r.status === 'rendered').length, unsupported: results.filter(r => r.status === 'unsupported').length, failed: results.filter(r => r.status === 'failed').length }));
 if (results.some(r => r.status === 'failed')) process.exitCode = 1;

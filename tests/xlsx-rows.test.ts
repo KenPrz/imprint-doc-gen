@@ -180,3 +180,64 @@ test('XLSX calculation rejects ambiguous cross-application coercion rather than 
   const output = await sheet(await render(await book([{ rows: row(1, f('A1', 'IF("TRUE",1,2)')) + loop() }]), { items }));
   assert.equal(output.cells.get('A1')!.value, '1');
 });
+
+const carboneRow = (number = 2, path = 'items') => row(number, t(`A${number}`, `{d.${path}[i].name} / {d.title}`) + t(`B${number}`, `{d.${path}[i].quantity}`) + t(`C${number}`, `{d.${path}[i].price}`) + f(`D${number}`, `B${number}*C${number}`)) + row(number + 1, t(`A${number + 1}`, `{d.${path}[i+1].name}`));
+test('Carbone XLSX rows discard the increment exemplar, preserve root scope and calculate typed formulas', async () => {
+  const input = await book([{ rows: carboneRow() + row(4, t('A4', 'After') + f('D4', 'SUM(D2:D3)')) }]);
+  const compiled = await compile(input);
+  for (const count of [0, 1, 3]) {
+    const data = Array.from({ length: count }, (_, n) => ({ name: `Item ${n}`, quantity: n + 1, price: 10 }));
+    const output = await sheet(await compiled.render({ title: 'ROOT', items: data }));
+    assert.equal(output.rows.length, count + 1);
+    assert.equal(output.cells.get(`A${count + 2}`)!.text, 'After');
+    for (let n = 0; n < count; n++) {
+      assert.equal(output.cells.get(`A${n + 2}`)!.text, `Item ${n} / ROOT`);
+      assert.equal(output.cells.get(`B${n + 2}`)!.type, 'n');
+      assert.equal(output.cells.get(`D${n + 2}`)!.value, String((n + 1) * 10));
+    }
+    if (count) assert.equal(output.cells.get(`D${count + 2}`)!.value, String(count * (count + 1) * 5));
+    assert(!output.source.includes('{d.'));
+  }
+  assert.equal((await sheet(await compiled.render({}))).rows.length, 1);
+  await assert.rejects(compiled.render({ items: 4 }), code('INVALID_DATA'));
+  await assert.rejects(compiled.render({ items: [1] }), code('INVALID_DATA'));
+  await assert.rejects(compiled.render({ items: Array.from({ length: 10001 }, () => ({})) }), code('LIMIT_EXCEEDED'));
+});
+test('Carbone XLSX independent repetitions and cross-sheet formulas follow marker-row removal', async () => {
+  const input = await book([{ rows: carboneRow(2) + carboneRow(6, 'other') + row(8, t('A8', 'End')) }, { name: 'Totals', rows: row(1, f('A1', 'SUM(Main!D2:D3)+SUM(Main!D6:D7)')) }]);
+  const output = await render(input, { title: 'R', items, other: [items[0]] });
+  const main = await sheet(output), totals = await sheet(output, 1);
+  assert.equal(main.cells.get('A7')!.text, 'End');
+  assert.equal(totals.cells.get('A1')!.value, '110');
+});
+test('Carbone XLSX shared rich strings have independent item/root scopes across repeated and ordinary cells', async () => {
+  const sharedCell = (ref: string, index: number) => `<s:c r="${ref}" t="s"><s:v>${index}</s:v></s:c>`;
+  const input = await book([{ rows: row(1, sharedCell('A1', 1)) + row(2, sharedCell('A2', 0) + sharedCell('B2', 1)) + row(3, t('A3', '{d.items[i+1].name}')) + row(4, sharedCell('A4', 1)) }], {
+    'xl/_rels/workbook.xml.rels': rels(link('s0', 'worksheet', 'worksheets/s0.xml') + link('sst', 'sharedStrings', 'sharedStrings.xml')),
+    'xl/sharedStrings.xml': `<q:sst xmlns:q="${ns.spreadsheet}" count="4" uniqueCount="2"><q:si><q:r><q:rPr><q:b/></q:rPr><q:t>{d.items[i].na</q:t></q:r><q:r><q:t>me}</q:t></q:r></q:si><q:si><q:t>{d.title}</q:t></q:si></q:sst>`,
+  });
+  const output = await sheet(await render(input, { title: 'ROOT', items }));
+  assert.deepEqual(['A1', 'B2', 'B3', 'A4'].map(ref => output.cells.get(ref)!.text), Array(4).fill('ROOT'));
+  assert.equal(output.cells.get('A2')!.text, 'First'); assert.equal(output.cells.get('A3')!.text, 'Second');
+  assert(output.source.includes('<q:b/>')); assert(!output.parts.get('xl/sharedStrings.xml')!.toString().includes('{d.'));
+});
+test('Carbone XLSX rejects unsupported nesting, unmatched or distant markers and mixed repeat syntax', async () => {
+  for (const rows of [row(2, t('A2', '{d.items[i].name}')), row(2, t('A2', '{d.items[i+1].name}')), row(2, t('A2', '{d.items[i].name}')) + row(4, t('A4', '{d.items[i+1].name}')), row(2, t('A2', '{d.items[i].children[i].name}')) + row(3, t('A3', '{d.items[i].children[i+1].name}')), carboneRow() + loop(5)]) {
+    await assert.rejects(compile(await book([{ rows }])), error => error instanceof RenderError && ['UNSUPPORTED_CARBONE_TEMPLATE', 'TEMPLATE_STRUCTURE', 'UNSUPPORTED_TEMPLATE'].includes(error.code));
+  }
+});
+test('Carbone XLSX missing values become blank while false, zero, multiline text and literal tags survive', async () => {
+  const input = await book([{ rows: row(1, t('A1', '{d.zero}') + t('B1', '{d.flag}') + t('C1', '{d.missing}') + t('D1', '{d.text}')) }]);
+  const output = await sheet(await render(input, { zero: 0, flag: false, text: 'A & B\n\t{d.literal}' }));
+  assert.equal(output.cells.get('A1')!.value, '0'); assert.equal(output.cells.get('B1')!.type, 'b'); assert.equal(output.cells.get('B1')!.value, '0');
+  assert.equal(output.cells.get('C1')!.value, undefined); assert.equal(output.cells.get('D1')!.text, 'A & B\n\t{d.literal}');
+});
+test('Carbone XLSX formulas and numeric payloads cannot silently contain unresolved tags', async () => {
+  for (const cell of [f('A1', '{d.formula}'), '<s:c r="A1"><s:v>{d.value}</s:v></s:c>']) await assert.rejects(compile(await book([{ rows: row(1, cell) }])), code('UNSUPPORTED_TEMPLATE'));
+});
+
+test('Carbone scalar paths keep root meaning inside a legacy XLSX loop', async () => {
+  const input = await book([{ rows: row(2, t('A2', '{{#each items}}{d.title}: {{name}}') + t('B2', '{d.total}') + t('C2', '{{/each}}')) }]);
+  const output = await sheet(await render(input, { title: 'ROOT', total: 7, items: [{ title: 'wrong scope', name: 'item', total: 99 }] }));
+  assert.equal(output.cells.get('A2')!.text, 'ROOT: item'); assert.equal(output.cells.get('B2')!.value, '7');
+});

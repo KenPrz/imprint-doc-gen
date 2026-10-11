@@ -136,7 +136,7 @@ jobs:
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
 
   publish:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/standalone-service' || github.ref == 'refs/heads/feat/carbone-template-compat')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [fixtures, conversion, standalone]
     runs-on: ubuntu-latest
     permissions:
@@ -159,7 +159,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/kenprz/imprint-doc-gen:sha-${{ github.sha }}
-            ghcr.io/kenprz/imprint-doc-gen:${{ github.ref == 'refs/heads/main' && 'standalone' || 'standalone-preview' }}
+            ghcr.io/kenprz/imprint-doc-gen:standalone
           cache-from: type=gha,scope=standalone
           provenance: mode=max
           sbom: true

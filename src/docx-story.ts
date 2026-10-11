@@ -122,6 +122,7 @@ export function compileStory(part: string, source: string): StoryPlan {
   const carboneLoops = inferCarboneLoops(paragraphs, part);
   const nativeLoops = loopsFor(paragraphs, nodes, part);
   if (carboneLoops.length && nativeLoops.length) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Do not mix Carbone and Imprint repetition markers in one story', part);
+  if (nativeLoops.length) for (const paragraph of paragraphs) for (const binding of paragraph.bindings) if (binding.carbone) binding.path = scopedCarbonePath(binding.path, paragraph.node.start, nativeLoops, part);
   const images: ImagePlan[] = [], owners = new Set<number>();
   for (const node of nodes) {
     if (!((node.uri === ns.wordDrawing && node.local === 'docPr') || (node.uri === ns.picture && node.local === 'cNvPr'))) continue;
@@ -130,7 +131,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       const carbone = !binding;
       const match = /^\s*\{([^{}]+)\}\s*$/.exec(description.value);
       if (!binding && !match) throw new RenderError('TEMPLATE_SYNTAX', 'Image binding must occupy the whole picture description', part);
-      const path = binding ? binding[1]!.trim() : scopedCarbonePath(parseCarbonePath(match![1]!, part), node.start, carboneLoops, part); checkPath(path, part);
+      const path = binding ? binding[1]!.trim() : scopedCarbonePath(parseCarbonePath(match![1]!, part), node.start, [...carboneLoops, ...nativeLoops], part); checkPath(path, part);
       const owner = ancestor(node, ns.wordDrawing, 'inline') ?? ancestor(node, ns.wordDrawing, 'anchor');
       if (!owner || owners.has(owner.start)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Ambiguous image binding', part);
       const blips = nodes.filter(n => n.uri === ns.drawing && n.local === 'blip' && n.start > owner.start && n.end < owner.end);

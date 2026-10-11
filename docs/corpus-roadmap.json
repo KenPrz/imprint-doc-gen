@@ -13,7 +13,8 @@
     "milestone3": "XLSX typed cells and image attachments implemented; all 50 scalar/image/layout/formula-preservation levels pass. See xlsx-cells-images-validation.json.",
     "milestone4": "All 100 XLSX levels pass: single-row loops, A1 formula and range rewriting, moved picture anchors and bounded calculated results. See xlsx-rows-validation.json.",
     "milestone5": "Single-image standalone deployment, tenant keys, immutable template versions, durable jobs and PMS invoice example. See standalone-guide.txt.",
-    "milestone6": "Carbone DOCX compatibility for 30 unchanged seeded PMS reports; independent semantic and selected PDF evidence. See carbone-compatibility.txt."
+    "milestone6": "Carbone DOCX compatibility for 30 unchanged seeded PMS reports; independent semantic and selected PDF evidence. See carbone-compatibility.txt.",
+    "milestone7": "Carbone-style syntax standard for DOCX/XLSX, all 200 corpus templates and PMS examples. Expected documents unchanged; legacy syntax retained."
   },
   "phases": [
     {
@@ -190,5 +191,16 @@
       "PostgreSQL/S3 adapters and separate workers when scaling requires them"
     ],
     "guide": "standalone-guide.txt"
+  },
+  "templateSyntax": {
+    "standard": "carbone-style-v1",
+    "newTemplates": "Use {d.path}, [i]/[i+1] repetition and {d.image} picture metadata",
+    "legacy": "Double-brace bindings remain compatible; not the default",
+    "futureFormats": "Reuse the same syntax; add format-specific structure adapters, never a new placeholder dialect",
+    "next": [
+      "Formatter/filter adapters with independent fixtures",
+      "Advanced XLSX repetition and picture cloning",
+      "Audit custom PMS templates"
+    ]
   }
 }

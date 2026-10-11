@@ -19,7 +19,8 @@
     3
   ],
   "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
-  "dialect": "imprint-doc-gen-corpus-v1",
+  "syntax": "carbone",
+  "dialect": "carbone-style-v1",
   "expectedOutcome": "render-success",
   "input": "input.json",
   "template": "template.xlsx",
@@ -33,11 +34,11 @@
     "customXml/fixture.xml"
   ],
   "sha256": {
-    "template": "67739944011ed8075f02167adb87add068b485cff6d3b733a922d7abe648f785",
+    "template": "4287d4fcdfde42002e917ba22a9a6c855e00958b75685ee3cb00246a15911e4f",
     "expected": "d8e2f4cfbdb71be2f7c9e81de95231d2295c17f0e3361c58251b27e292f54df9"
   },
   "bytes": {
-    "template": 17784,
+    "template": 17794,
     "expected": 21636
   },
   "checks": [
