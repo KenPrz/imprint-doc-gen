@@ -17,12 +17,16 @@
     "ods": 100,
     "odp": 100,
     "failed": 0,
-    "selectedIndependentPdfTextComparisons": 12
+    "selectedIndependentPdfTextComparisons": 12,
+    "standaloneApiPdfComparisons": 12
   },
   "syntheticInvoices": {
     "sdkPassed": 12,
     "sdkFailed": 0,
-    "standalonePdf": "pending final run"
+    "standalonePdf": {
+      "passed": 12,
+      "failed": 0
+    }
   },
   "cluster": {
     "realPostgresAndS3": true,
@@ -32,11 +36,36 @@
     "idempotency": true,
     "signedWebhookRetry": true,
     "missingObjectRejection": true,
-    "orphanCleanup": true
+    "orphanCleanup": true,
+    "independentWorkerProcess": true,
+    "objectServicesTested": ["RustFS 1.0.1", "Local cached S3-compatible service"]
   },
   "operations": {
     "sqliteBackupRestore": "passed",
-    "load": "see implementation-plan.json; final container run pending"
+    "load": {
+      "requests": 100,
+      "concurrency": 2,
+      "output": "docx",
+      "elapsedSeconds": 25.45378776,
+      "successful": 100,
+      "rejected": 0,
+      "failures": 0,
+      "successfulPerSecond": 3.928688372154479,
+      "latencyMs": {
+        "p50": 468.52912899999865,
+        "p95": 856.3049569999966,
+        "p99": 935.9206510000004
+      },
+      "peakApiRssBytes": 235171840,
+      "runner": {
+        "node": "v24.16.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpus": 22,
+        "memoryBytes": 15665319936
+      },
+      "scope": "Isolated standalone image, 2 CPU / 2 GiB container limits; this is a smoke load, not sustained production certification"
+    }
   },
   "documentation": {
     "pages": 9,
@@ -51,5 +80,9 @@
     "Known DOCX stress level 93 converter timeout remains explicitly bounded",
     "Local load measurements do not establish production capacity",
     "Cluster API metrics do not aggregate independent worker metrics"
-  ]
+  ],
+  "standalone": {
+    "forcedRestartRecovery": "passed",
+    "converterFailureSupervision": "passed"
+  }
 }

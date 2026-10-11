@@ -1,3 +1,6 @@
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID, createHmac } from 'node:crypto';
@@ -6,8 +9,6 @@ import { S3Client, CreateBucketCommand, DeleteObjectCommand } from '@aws-sdk/cli
 import { PostgresStore } from '../../src/postgres-store.ts';
 import { S3Objects } from '../../src/object-store.ts';
 import { WebhookDispatcher } from '../../src/webhooks.ts';
-import { DurableQueue } from '../../src/queue.ts';
-import { RenderService } from '../../src/render-service.ts';
 import { createApp } from '../../src/app.ts';
 import { fixture, sample } from '../../scripts/formats/fixtures.ts';
 const url = process.env.TEST_DATABASE_URL;
@@ -100,11 +101,25 @@ test('PostgreSQL/S3: tenants, versions, concurrent claims, leases, durable webho
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
-    // API and workers are separate objects sharing only PostgreSQL and S3.
+    // Exercise the actual independent worker entry point in another OS process.
+    now = Date.now();
     const api = createApp({ apiKey: 'cluster-admin-key-with-32-characters', store: second, runQueue: false });
-    const errors: unknown[] = [],
-      queue = new DurableQueue(first, new RenderService(2), (e) => errors.push(e));
-    queue.start();
+    const worker = spawn(process.execPath, [fileURLToPath(new URL('../../src/worker.ts', import.meta.url))], {
+      env: {
+        ...process.env,
+        DATABASE_URL: url!,
+        S3_ENDPOINT: endpoint,
+        S3_BUCKET: bucket,
+        IMPRINT_DATA_DIR: '',
+        WEBHOOK_URL: '',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let workerErrors = '';
+    worker.stderr.on('data', (chunk) => {
+      workerErrors += String(chunk).slice(0, 10000);
+    });
+    const exited = once(worker, 'exit');
     try {
       const headers = { authorization: `Bearer ${owner.apiKey}` };
       const submitted = await api.inject({ method: 'POST', url: '/v1/jobs', headers, payload: input });
@@ -119,9 +134,20 @@ test('PostgreSQL/S3: tenants, versions, concurrent claims, leases, durable webho
       const download = await api.inject({ url: state.downloadUrl, headers });
       assert.equal(download.statusCode, 200);
       assert(download.rawPayload.subarray(0, 2).equals(Buffer.from('PK')));
-      assert.deepEqual(errors, []);
+      assert.equal(workerErrors, '');
     } finally {
-      await queue.stop();
+      worker.kill('SIGTERM');
+      const result = await Promise.race([
+        exited,
+        new Promise((_, reject) => {
+          const timer = setTimeout(() => {
+            worker.kill('SIGKILL');
+            reject(new Error('Worker failed to drain'));
+          }, 10000);
+          timer.unref();
+        }),
+      ]);
+      assert.equal((result as unknown[])[0], 0);
       await api.close();
     }
     const key = (await first.pool.query('SELECT result_key FROM jobs WHERE id=$1', [reclaimed.id])).rows[0]
