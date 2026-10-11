@@ -1,0 +1,201 @@
+{
+  "title": "Imprint Doc Gen — Café & Tea <2026>",
+  "customer": "Zoë 山田 & Sons",
+  "spaced": "  preserve these spaces  ",
+  "literal": "=1+1",
+  "enabled": false,
+  "count": 0,
+  "items": [
+    {
+      "name": "Item 1 — Ω",
+      "quantity": 1,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 2 — Ω",
+      "quantity": 2,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 3 — Ω",
+      "quantity": 3,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 4 — Ω",
+      "quantity": 4,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 5 — Ω",
+      "quantity": 5,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 6 — Ω",
+      "quantity": 6,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 7 — Ω",
+      "quantity": 7,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 8 — Ω",
+      "quantity": 8,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 9 — Ω",
+      "quantity": 9,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 10 — Ω",
+      "quantity": 10,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 11 — Ω",
+      "quantity": 11,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 12 — Ω",
+      "quantity": 12,
+      "price": 12.5,
+      "image": "blue"
+    }
+  ],
+  "groups": [
+    {
+      "name": "Group 1",
+      "items": [
+        {
+          "name": "Child 1.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 1.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 2",
+      "items": [
+        {
+          "name": "Child 2.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 2.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 3",
+      "items": [
+        {
+          "name": "Child 3.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 3.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 4",
+      "items": [
+        {
+          "name": "Child 4.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 4.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 5",
+      "items": [
+        {
+          "name": "Child 5.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 5.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 6",
+      "items": [
+        {
+          "name": "Child 6.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 6.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 7",
+      "items": [
+        {
+          "name": "Child 7.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 7.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 8",
+      "items": [
+        {
+          "name": "Child 8.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 8.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 9",
+      "items": [
+        {
+          "name": "Child 9.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 9.2",
+          "image": "blue"
+        }
+      ]
+    }
+  ]
+}

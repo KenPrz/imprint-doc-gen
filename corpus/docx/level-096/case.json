@@ -1,0 +1,54 @@
+{
+  "id": "docx-096",
+  "format": "docx",
+  "level": 96,
+  "tier": 10,
+  "step": 6,
+  "title": "Combined bounded stress",
+  "focus": "All preceding features plus increasing long-content and repeated-row load",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    6
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "7882226e1e27ef822ba1b19a839d027eaffb55472eb383c0e1b4e24b44a5fbc5",
+    "expected": "74c7e3165667b13f5765653cee74ea21cf9d0f28366553556af3e01aa6560a2f"
+  },
+  "bytes": {
+    "template": 11903,
+    "expected": 13581
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

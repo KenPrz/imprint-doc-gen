@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-091",
+  "format": "xlsx",
+  "level": 91,
+  "tier": 10,
+  "step": 1,
+  "title": "Combined bounded stress",
+  "focus": "All preceding features plus increasing repeated rows and populated cells",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    1
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "c27fd3e10a40682f714fff98cab0fdc9b23fbe51dade8adad7c18e49f9096da7",
+    "expected": "64909cb24284b1aa774f3328a8a5243271908b2a2ecd645b7770413c6805d465"
+  },
+  "bytes": {
+    "template": 14075,
+    "expected": 15998
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

@@ -1,0 +1,31 @@
+name: Document corpus
+on: [push, pull_request]
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - run: npm run corpus:generate
+      - run: git diff --exit-code -- corpus
+      - run: npm run corpus:validate
+      - run: npm run corpus:render
+      - run: npm run corpus:score || test $? -eq 2
+      - name: Enforce milestone 1 coverage
+        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==50 || r.summary.docx.failed!==0 || r.summary.xlsx.failed!==0) process.exit(1)'
+      - name: Validate production and development Compose
+        run: |
+          docker compose -f compose.yml config --quiet
+          docker compose -f compose.yml -f compose.override.yml config --quiet
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-validation
+          path: corpus/results/*.json

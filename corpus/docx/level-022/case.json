@@ -1,0 +1,54 @@
+{
+  "id": "docx-022",
+  "format": "docx",
+  "level": 22,
+  "tier": 3,
+  "step": 2,
+  "title": "Tables",
+  "focus": "Increasing rows and columns with cell-local placeholders",
+  "dimensions": [
+    10,
+    10,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "2a347c2324b08ea699c4bc1c90ce432f8dcaf1d9c301b073461cb83b96438c8d",
+    "expected": "9c4d464849fcd586aeab7c3471975e0093e2db793aa1542ee06f127b7b431842"
+  },
+  "bytes": {
+    "template": 3077,
+    "expected": 3430
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

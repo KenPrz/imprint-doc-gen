@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-073",
+  "format": "xlsx",
+  "level": 73,
+  "tier": 8,
+  "step": 3,
+  "title": "Dependent ranges",
+  "focus": "Increasing range consumers: tables, filters, names, validation and conditional formatting",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    3,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "f890bcb4cb6b084c6434df076c21fbfdbac94bc9fda0efc662775df51d46a620",
+    "expected": "67cbb43fb32bae9a1c62963e6e4fb1775eb42275e8333099af0abc845c1a32e7"
+  },
+  "bytes": {
+    "template": 10014,
+    "expected": 10800
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

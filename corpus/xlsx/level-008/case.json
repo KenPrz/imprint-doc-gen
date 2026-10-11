@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-008",
+  "format": "xlsx",
+  "level": 8,
+  "tier": 1,
+  "step": 8,
+  "title": "Cells and types",
+  "focus": "Increasing text bindings with numbers, booleans, Unicode and formula-like literal strings",
+  "dimensions": [
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "0603ff25175d8db50c6ef785e3ea4a49bc756ea8007966b9ba46a7f3b25654bd",
+    "expected": "3d10ad5b2c90849b602dd3307d28e21a602c539f0d537af6270c2293bb91ed31"
+  },
+  "bytes": {
+    "template": 2702,
+    "expected": 2750
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

@@ -1,0 +1,36 @@
+{
+  "name": "imprint-doc-gen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "bin": { "imprint-doc-gen": "dist/cli.js" },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "node --watch src/server.ts",
+    "start": "node dist/server.js",
+    "render": "node src/cli.ts",
+    "corpus:render": "node scripts/corpus/render.ts",
+    "corpus:office": "node scripts/corpus/office.ts",
+    "corpus:generate": "node scripts/corpus/generate.ts",
+    "corpus:validate": "node scripts/corpus/validate.ts",
+    "corpus:score": "node scripts/corpus/score.ts",
+    "test": "node --test --test-isolation=none scripts/corpus/tests/*.test.ts tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "@zip.js/zip.js": "2.8.26",
+    "fastify": "5.12.5",
+    "sharp": "0.35.4"
+  }
+}

@@ -1,0 +1,18 @@
+services:
+  app:
+    image: imprint-doc-gen:development
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+      IMPRINT_API_KEY: ${IMPRINT_API_KEY:-imprint-local-development-key}
+    command: [npm, run, dev]
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+      - ./scripts:/app/scripts:ro
+      - ./corpus:/app/corpus
+      - ./docs:/app/docs:ro
+    restart: "no"
+  gotenberg:
+    restart: "no"

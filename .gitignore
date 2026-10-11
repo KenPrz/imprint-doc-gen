@@ -1,0 +1,9 @@
+node_modules/
+corpus/results/
+corpus/actual/
+*.tsbuildinfo
+artifacts/
+dist/
+.env
+.env.*
+!.env.example
