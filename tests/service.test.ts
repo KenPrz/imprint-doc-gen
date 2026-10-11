@@ -203,13 +203,13 @@ test('HTTP service validates uploads, enforces admin boundaries and renders a pe
 
 test('queue drains in-flight work on shutdown, preserving real render errors without retries', async () => fixture(async directory => {
   const store = new StandaloneStore(directory), first = version(store);
-  const job = store.enqueue('default', { templateId: first.templateId, data: {} }).job;
+  const job = store.enqueue('default', { templateId: first.templateId, data: { title: {} } }).job;
   const errors: unknown[] = [], queue = new DurableQueue(store, new RenderService(), error => errors.push(error));
   try {
     queue.start(); await queue.stop();
     assert.deepEqual(errors, []);
     const result = store.job('default', job.id);
-    assert.equal(result.status, 'failed'); assert.equal(result.error, 'MISSING_DATA'); assert.equal(result.attempts, 1);
+    assert.equal(result.status, 'failed'); assert.equal(result.error, 'INVALID_DATA'); assert.equal(result.attempts, 1);
   } finally { store.close(); }
 }));
 
@@ -219,7 +219,7 @@ test('synchronous and queued work share one admission limit', async () => {
   await assert.rejects(renderer.render(template, { data }), code('BUSY'));
   await rendering;
   assert.equal(renderer.available, true);
-  await assert.rejects(renderer.render(template, { data: {} }), error => error instanceof RenderError && error.code === 'MISSING_DATA');
+  await assert.rejects(renderer.render(template, { data: { title: {} } }), error => error instanceof RenderError && error.code === 'INVALID_DATA');
   assert.equal(renderer.available, true);
 });
 

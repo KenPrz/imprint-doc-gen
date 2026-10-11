@@ -1,10 +1,10 @@
-import { carboneBindings } from './carbone.ts';
+import { carboneBindings, carboneLookup } from './carbone.ts';
 import { RenderError } from './errors.ts';
 import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { limits } from './package.ts';
 import { ns, applyEdits, decodeXml, escapeXml, type ElementSpan, type Edit } from './xml.ts';
 
-interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close' }
+interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; carbone?: boolean }
 interface TextSpan { node: ElementSpan; value: string; offset: number }
 export interface CellText { text: string; spans: TextSpan[]; bindings: Binding[]; whole?: string }
 export const decodeXstring = (text: string) => text.replace(/_x([\da-fA-F]{4})_/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
@@ -33,7 +33,6 @@ export function compileCellText(source: string, container: ElementSpan, children
     const value = decodeXstring(readLeaf(source, node));
     spans.push({ node, value, offset: text.length }); text += value;
   }
-  if (carboneBindings(text, part).length) throw new RenderError('UNSUPPORTED_CARBONE_TEMPLATE', 'Carbone template compatibility currently supports DOCX; XLSX uses Imprint syntax', part);
   const bindings: Binding[] = []; let cursor = 0;
   while (true) {
     const start = text.indexOf('{{', cursor); if (start < 0) break;
@@ -45,6 +44,7 @@ export function compileCellText(source: string, container: ElementSpan, children
     if (kind !== 'close') checkPath(path, part);
     bindings.push({ start, end: close + 2, path, kind }); cursor = close + 2;
   }
+  bindings.push(...carboneBindings(text, part)); bindings.sort((a, b) => a.start - b.start);
   if (bindings.length && contents.some(n => n.uri === ns.spreadsheet && ['rPh', 'phoneticPr'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Bound phonetic strings require a later adapter', part);
   const values = bindings.filter(b => b.kind === 'value');
   const residue = applyEdits(text, bindings.map(b => ({ ...b, value: '' })));
@@ -52,7 +52,7 @@ export function compileCellText(source: string, container: ElementSpan, children
   return { text, spans, bindings, whole };
 }
 export function renderCellText(plan: CellText, data: Record<string, unknown>, part: string, scope: Scope = [data]): { edits: Edit[]; value: unknown } {
-  const replacements = plan.bindings.map(binding => ({ ...binding, value: binding.kind === 'value' ? scalar(lookup(scope, binding.path, part), binding.path, part, true) : '' }));
+  const replacements = plan.bindings.map(binding => ({ ...binding, value: binding.kind === 'value' ? scalar(binding.carbone ? carboneLookup(scope, binding.path, part) : lookup(scope, binding.path, part), binding.path, part, true) : '' }));
   const result = applyEdits(plan.text, replacements, limits.entry);
   if (result.length > 32767) throw new RenderError('LIMIT_EXCEEDED', 'Spreadsheet cell text exceeds 32767 UTF-16 code units', part);
   const edits: Edit[] = [];
@@ -63,5 +63,5 @@ export function renderCellText(plan: CellText, data: Record<string, unknown>, pa
     // Every edited text node is nonempty in the input, so insertion before '>' is safe.
     edits.push(attributeEdit(span.node, 'xml:space', 'preserve'));
   }
-  return { edits, value: plan.whole ? lookup(scope, plan.whole, part) : result };
+  return { edits, value: plan.whole ? (plan.bindings.find(b => b.kind === 'value')!.carbone ? carboneLookup(scope, plan.whole, part) : lookup(scope, plan.whole, part)) : result };
 }

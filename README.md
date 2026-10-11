@@ -4,14 +4,14 @@
 
 Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Run it as one Docker image with bundled PDF conversion, persistent templates and durable jobs, or use the separate development services.
 
-The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete. A tested Carbone syntax adapter renders the **30 original seeded PMS DOCX reports without editing their templates**; see the [compatibility guide](docs/carbone-compatibility.txt) for supported syntax and limits.
+The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete. **Carbone-style syntax is the standard for DOCX and XLSX**, all 200 corpus templates, and the PMS examples. The 30 original seeded PMS DOCX reports also render unchanged. See the [syntax contract](docs/template-syntax.txt) and [PMS compatibility guide](docs/carbone-compatibility.txt) for the supported subset.
 
 ## Current capabilities
 
-- PMS Carbone DOCX keys such as `{d.property_name}`, `[i]`/`[i+1]` row and nested block repetition, and signature-image bindings.
-- Scalar placeholders such as `{{customer.name}}`, including tags split across formatted text runs.
+- Carbone-style `{d.customer.name}` placeholders in Word and Excel, including tags split across formatted text runs.
+- `[i]`/`[i+1]` row repetition in both formats, nested DOCX blocks, and picture alternative text `{d.logo}`.
 - Text replacement in document bodies, tables, hyperlinks, content controls, headers and footers.
-- Replacement of existing pictures using alternative text such as `{{image:logo}}` and PNG/JPEG attachments.
+- Replacement of existing pictures using alternative text such as `{d.logo}` and PNG/JPEG attachments.
 - Independent image placements even when pictures share their original media; existing drawing dimensions are preserved.
 - Repeated table rows and paragraph blocks, nested object scopes, parent lookups and per-item images.
 - Reusable compiled templates, JSON-only data and explicit errors for missing or unsupported bindings.
@@ -20,15 +20,15 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - Tenant API keys, immutable template versions, publish/rollback, and durable jobs with restart recovery.
 - Single-container deployment with SQLite persistence and a working PMS invoice example.
 
-**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, multiline/tabbed values in native DOCX `{{...}}` bindings, full Carbone formatter and XLSX syntax, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, multiline/tabbed values in native DOCX `{{...}}` bindings, full Carbone formatter/filter syntax, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
 
 ## Quick start: one container
 
-The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. `standalone-preview` follows the active standalone/compatibility feature branches; reviewed `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
+The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. Tested `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
 
 ```bash
 docker login ghcr.io -u YOUR_GITHUB_USERNAME
-docker pull ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+docker pull ghcr.io/kenprz/imprint-doc-gen:standalone
 # Export IMPRINT_API_KEY from your secret manager: at least 24 characters.
 docker run -d --name imprint-doc-gen --restart unless-stopped \
   --stop-timeout 120 --memory 2g --cpus 2 --pids-limit 384 \
@@ -36,7 +36,7 @@ docker run -d --name imprint-doc-gen --restart unless-stopped \
   --cap-drop ALL --security-opt no-new-privileges:true \
   -p 127.0.0.1:8088:3000 -e IMPRINT_API_KEY \
   -v imprint-data:/data \
-  ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+  ghcr.io/kenprz/imprint-doc-gen:standalone
 curl http://127.0.0.1:8088/ready
 ```
 
@@ -91,77 +91,63 @@ Node and Gotenberg base images are pinned by digest. The converter image replace
 
 **Known conversion limitation:** LibreOffice still stalls on DOCX stress reference level 93. Compose now recycles LibreOffice after every conversion attempt, including timeouts, so the following document can render without a manual restart. A timed-out request returns JSON with HTTP `504`; the failing document is not retried automatically or reported as converted. Recycling trades some throughput for predictable recovery. See [recovery evidence](docs/converter-recovery.json).
 
-## Template and image bindings
+## Standard template syntax
 
-In Word, add `{{customer.name}}` as ordinary text. To replace an image, insert a placeholder picture and set its alternative-text description to `{{image:logo}}`. Pass the replacement bytes under the attachment key `logo`. This replaces the picture while preserving its placement and dimensions.
+Use **Carbone-style syntax** for every new template. No syntax flag or preprocessing is required; the SDK, CLI, synchronous endpoints and durable jobs use the same compiler.
 
-### Existing PMS / Carbone templates
+| Purpose | Template |
+| --- | --- |
+| Root or nested field | `{d.customer.name}` |
+| Repeated row field | `{d.items[i].name}` |
+| Next-row marker | `{d.items[i+1].name}` |
+| Nested DOCX field | `{d.groups[i].items[i].name}` |
+| Picture alternative text | `{d.logo}` |
 
-Keep `{d.property_name}` and the existing `{d.rows[i].field}` / `{d.rows[i+1].field}` rows in your DOCX files. Nested task-sheet arrays and image alternative text `{d.guest_signature}` are supported. Missing values become blank, and empty arrays remove their repeat region.
+Missing/null scalars become blank; zero and false remain meaningful. Missing/null/empty arrays remove the repeated region. Replacements are escaped, support line breaks/tabs, and never execute JavaScript or recursively interpret data as tags. Loops accept arrays of objects.
 
-The authenticated `POST /render/template?download=true` endpoint accepts the PMS request body (`template`, `data`, `convertTo`) and returns the generated file. Migration needs a service URL and Bearer key change; the 30 audited report templates stay unchanged. Custom uploaded templates still need auditing. Formatter chains and Carbone XLSX syntax remain unsupported. See [scope, evidence and migration details](docs/carbone-compatibility.txt).
+### Pictures
 
-### DOCX loops
+Insert a placeholder picture and set its alternative-text description to `{d.logo}`. Supply PNG/JPEG bytes under the attachment key `logo`, or set `data.logo` to another attachment key or a PNG/JPEG data URL. Missing optional images preserve their placeholder. Geometry is retained and shared original media is replaced independently for each placement. Remote URLs and SVG are unsupported.
 
-To repeat paragraph blocks, put the opening and closing markers in separate paragraphs with no other content:
+DOCX repeated pictures can use `{d.items[i].image}` with an attachment key or data URL on each item. XLSX pictures outside repeated rows support the same root binding syntax; pictures intersecting repeated rows still require a cloning adapter.
 
-```text
-{{#each items}}
-{{name}} — {{quantity}}
-{{/each}}
-```
+### DOCX repetition
 
-The marker paragraphs are removed. To repeat a **single table row**, put `{{#each items}}` and `{{/each}}` inside that same row, usually in its first and last cells. Other bindings in the row use the current item. Nested blocks can appear inside repeated rows or other blocks.
+Put `{d.items[i].name}` and other item fields in the row to repeat. Follow it with a marker row containing `{d.items[i+1].name}`. The marker row is discarded. Root fields such as `{d.customer.name}` retain their root meaning inside repeats.
 
-```json
-{"items": [{"name": "First item", "quantity": 2, "image": "red"}]}
-```
+Paragraph blocks use the same pattern: the first `[i]` paragraph begins the block, and its matching `[i+1]` paragraph ends it and is discarded. Nested arrays use full paths such as `{d.groups[i].items[i].name}`; parent fields use `{d.groups[i].name}`.
 
-A picture with alternative text `{{image:image}}` resolves the current item's `image` field to an attachment key. Inside a loop, image paths always use the current scope; use `{{image:../logo}}` to read a parent's `logo` field. Outside loops, direct attachment keys such as `{{image:logo}}` remain supported.
+Sibling multi-row DOCX patterns are supported. Inline repeats, repeated bookmarks/comments/notes, tracked changes, vertical merges, bound controls and VML/OLE need later adapters. Basic controls and DrawingML pictures get fresh identities when cloned. Limits include 16 nested loops, 10,000 total iterations, 8 MiB per XML part and 32 MiB per expanded package.
 
-- `{{name}}` reads the current object; `{{../name}}` reads its parent. There is no implicit fallback to root data.
-- Loops accept arrays of objects. Empty arrays remove the repeated region; missing/null arrays and non-object items produce errors.
-- Text and image bindings are compiled once. Data containing `{{...}}` stays literal and is never interpreted as another template.
-- Expansion is limited to 16 nested loops, 10,000 total iterations per document, 8 MiB per XML part and 32 MiB per expanded package.
-- Native multi-row loop regions, inline text loops, repeated bookmarks/comments/notes, tracked changes, vertical merges, bound content controls and VML/OLE content require later adapters and fail explicitly. Basic content controls and DrawingML pictures get fresh identities when repeated.
+### XLSX repetition, types and formulas
 
-### XLSX cells and pictures
+Use a pattern row followed immediately by its marker row:
 
-Use the same scalar tags in Excel cells and the same `{{image:logo}}` alternative text on existing pictures. The renderer follows workbook relationships across worksheets, including hidden sheets, and handles tags split across rich-text runs or stored in shared strings.
+| Cell | Template |
+| --- | --- |
+| A40 | `{d.items[i].name}` |
+| B40 | `{d.items[i].quantity}` |
+| C40 | `{d.items[i].price}` |
+| D40 | `=B40*C40` (ordinary Excel formula) |
+| A41 | `{d.items[i+1].name}` |
 
-| Cell template | JSON value | Output |
-| --- | --- | --- |
-| `{{count}}` | `12.5` | Numeric cell |
-| `{{enabled}}` | `false` | Boolean cell |
-| `{{optional}}` | `null` | Blank cell, with its style retained |
-| `{{label}}` | `"=1+1"` | Literal text, never a formula |
-| `Total: {{count}}` | `12.5` | Text `Total: 12.5` |
+The renderer repeats row 40 and removes row 41. It updates following row coordinates, formulas, tables, filters, names, validation ranges, conditional formatting and picture anchors. Multiple independent repeats are supported. Nested, horizontal and multi-row XLSX patterns remain unsupported.
 
-Only a tag occupying the entire cell gets native typing. Other replacements remain text; rich-text replacements use the first placeholder character's formatting. XLSX strings support line breaks and tabs and are limited to 32,767 UTF-16 code units. Text is escaped for both XML and Excel's `_xHHHH_` representation.
+A whole-cell scalar preserves JSON numbers and booleans as native Excel values; null/missing becomes a blank cell with its style retained. Embedded bindings produce text. Strings beginning with `=` stay literal. Shared/rich strings, hidden worksheets, line breaks, tabs and Excel escape sequences are supported; strings are limited to 32,767 UTF-16 code units.
 
-Existing picture anchors, sizes, crop and rotation are preserved. Pictures can use one-cell, two-cell or absolute anchors. Replacing a bound picture does not change another picture sharing its original image.
+Formula copies adjust relative rows while preserving `$` locks; structural insertion and marker removal also move absolute and cross-sheet targets. A single-cell reference to the pattern targets its first output row. Ranges expand over the output rows; a reference to a deleted cell becomes `#REF!`.
 
-For workbooks without row loops, existing formulas and cached results are preserved and full recalculation is requested on opening. Formula placeholders, automatic date conversion and bound phonetic strings require later adapters.
+Without repeats, existing formulas and caches are preserved and recalculation is requested. With repeats, Imprint calculates supported A1 formulas: arithmetic, comparisons, text concatenation, `SUM`, `MIN`, `MAX`, `AVERAGE`, `COUNT` and `IF`. This remains a bounded calculator; advanced functions, structured/named operands, shared/array/data-table formulas and cycles fail explicitly. Formula/dependency depth is limited to 128 with one million operations. Repeats also enforce Excel bounds, 10,000 total iterations and the package byte budgets.
 
-### XLSX row loops and formulas
+Merged cells or pictures intersecting changed rows, charts, pivots, comments and unsupported extensions need later adapters. See [XLSX calculation evidence](docs/xlsx-rows-validation.json).
 
-Place `{{#each items}}` and `{{/each}}` in the **same worksheet row**. Every binding in that row uses its current item; `{{../title}}` reads the root object. Put ordinary Excel formulas in other cells of the row, for example:
+### Existing PMS templates and legacy bindings
 
-| A40 | B40 | C40 | D40 | E40 |
-| --- | --- | --- | --- | --- |
-| `{{#each items}}{{name}}` | `{{quantity}}` | `{{price}}` | `=B40*C40` | `{{/each}}` |
+The 30 seeded PMS DOCX templates keep their existing bytes and keys. `POST /render/template?download=true` accepts the existing `template`, `data`, `convertTo` request shape; migration needs a service URL and Bearer credentials. Custom uploaded templates still need auditing. See the [PMS migration guide](docs/carbone-compatibility.txt).
 
-The renderer repeats the row, keeps cell styles and row height, removes marker-only cells, and writes fresh formula results. Empty arrays remove the row. Multiple independent row loops can appear in a workbook; rows below each loop move by its expansion amount.
+Earlier `{{name}}`, `{{#each items}}` and `{{image:logo}}` bindings remain supported for compatibility. Their strict missing-data and scope rules are unchanged. They are no longer used in the corpus or examples. Do not mix legacy and Carbone repeat markers in one Word story or worksheet.
 
-- Formula copies adjust relative rows while preserving `$` locks. Structural row insertion/deletion also moves absolute targets and cross-sheet references. An outside single-cell reference to a repeated row targets its first copy; range ends expand across all copies. A reference to a deleted cell becomes `#REF!`.
-- Tables, filters, defined names, validation and conditional-formatting ranges follow row changes. Qualified workbook names and sheet-local A1 names are supported. Merged ranges below loops move; merges intersecting a loop are rejected.
-- Existing pictures below a loop move with their cell anchors. Pictures intersecting a repeated row need a later cloning adapter and fail explicitly.
-- In workbooks containing loops, all formulas must fit the bounded calculator: A1 cells/ranges, quoted sheet names, arithmetic, comparisons, text concatenation, and `SUM`, `MIN`, `MAX`, `AVERAGE`, `COUNT`, `IF`. Dependencies are recalculated across worksheets, and obsolete calculation chains are removed. Circular references fail explicitly. This is not a general Excel engine; advanced functions, named operands, structured references and shared/array/data-table formulas are rejected. Boolean concatenation and zero raised to a nonpositive power also return `UNSUPPORTED_FORMULA` instead of guessing at application-specific behavior.
-- Nesting/multi-row loops, charts, pivots, comments, legacy drawings and unsupported extension metadata need later adapters. Loop workbooks require explicit ascending row coordinates. Limits include 10,000 total iterations, Excel row/column bounds, 8 MiB per part, 32 MiB per expanded package, 128 levels of formula/dependency depth and one million calculation operations.
-
-The independent LibreOffice check in CI verifies cached results for representative supported expressions; see [XLSX loop validation](docs/xlsx-rows-validation.json).
-
-See the [corpus guide](docs/corpus-guide.txt) for implemented and planned semantics.
+Standardizing syntax does not imply complete Carbone feature parity. Formatter chains, filters/conditions, arbitrary iterators, translations and aliases require future adapters. Every future document-format adapter must use the same standard syntax; unsupported operations must fail explicitly.
 
 ## SDK and CLI
 
@@ -245,7 +231,7 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 169 passed |
+| Automated tests | 181 passed |
 | Original PMS Carbone templates | 30 unchanged DOCX files match independent snapshots; 9 extra array-length cases |
 | Selected PMS PDF comparison | Five reports, seven pages: identical pixels at 96 DPI |
 | Fixture validation | 200 cases / 400 document packages passed |
@@ -265,7 +251,7 @@ These measurements do not establish complete OOXML schema conformance, repair-fr
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
 3. **Implemented:** XLSX typed cells, images, repeated rows, formula/range rewriting and bounded calculated results. Expand real-world fixtures, picture cloning and advanced formula adapters.
 4. **Implemented for standalone:** one image, tenant keys, SQLite storage, immutable template versions, durable jobs and a PMS invoice example. Add a real PMS pilot, operational metrics and measured load limits next; PostgreSQL/S3 and separate workers follow when multiple-server deployment is needed.
-5. **Implemented for seeded PMS reports:** Carbone DOCX syntax and the PMS one-shot API contract. Audit custom uploaded templates and pilot the URL/auth change next; see [compatibility evidence](docs/carbone-compatibility.json).
+5. **Implemented:** Carbone-style syntax is standard across DOCX, XLSX, all 200 corpus templates and PMS examples; legacy syntax remains supported. The original 30 PMS reports stay unchanged. Audit custom uploads and pilot the URL/auth change next; formatter/filter support and advanced repeats follow real-template requirements.
 6. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 
 See the [corpus roadmap](docs/corpus-roadmap.json), [stack decisions](docs/stack-proposal.json) and [core-engine research](docs/core-engine-research.json) for the longer-term plan.

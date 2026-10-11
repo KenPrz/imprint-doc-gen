@@ -1,4 +1,4 @@
-PMS template compatibility — milestone 6
+PMS template compatibility — milestones 6 and 7
 
 The original 30 seeded PMS DOCX reports now render without changing their
 bytes or placeholder keys. The independent TypeScript renderer recognizes
@@ -64,8 +64,9 @@ Outside this claim
 - The legacy default-templates/res_conf_card.docx uses {GUEST_NAME}-style
   tokens, a different templating language, and is not part of the 30 reports.
 - The inspected Form A 2026 spreadsheet contains no template tags. Carbone
-  XLSX tags/repetition are not implemented and fail explicitly; native
-  Imprint XLSX bindings remain supported. PMS revenue XLSX uses its own path.
+  XLSX root/image bindings and adjacent [i]/[i+1] row repetition are now
+  supported. All 100 XLSX corpus levels use them. Nested/horizontal/multi-row
+  XLSX repeats remain unsupported. PMS revenue XLSX uses its own path.
 - Formatter chains, conditions/filters, aliases, translations, complements,
   arbitrary indices/iterators, horizontal repetition, remote image URLs and
   advanced OOXML cloning structures need explicit adapters and fixtures.
@@ -88,6 +89,16 @@ and an uploaded/published template rendered through a durable job.
 
 Next gate
 Audit a representative export of property-uploaded templates and pilot the
-PMS client URL/auth change in a test environment. Add formatter or XLSX
-compatibility when real templates require it; preserve the existing corpus
+PMS client URL/auth change in a test environment. Extend formatter/filter
+compatibility and advanced repetition using real templates; preserve the existing corpus
 and original-template regression gates throughout.
+
+Standard syntax update
+All 200 generated corpus templates and both PMS invoice examples now use
+Carbone-style syntax. The 200 expected corpus documents remain byte-identical.
+XLSX invoice scalar/repeated content matches the existing Carbone installation
+for zero, one and three items (record-xlsx-oracle.ts). This oracle excludes
+formula caches, cell storage types and empty cells: Imprint preserves native
+numeric/boolean typing and calculates supported formulas; the observed Carbone
+output uses text cells and leaves formula caches for later recalculation.
+Formula correctness remains independently checked through LibreOffice in CI.

@@ -1,7 +1,7 @@
 name: imprint-standalone
 services:
   app:
-    image: ${IMPRINT_IMAGE:-ghcr.io/kenprz/imprint-doc-gen:standalone-preview}
+    image: ${IMPRINT_IMAGE:-ghcr.io/kenprz/imprint-doc-gen:standalone}
     build:
       context: .
       dockerfile: Dockerfile.standalone

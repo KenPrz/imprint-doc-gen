@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureRevision": 2,
-  "dialect": "imprint-doc-gen-corpus-v1",
+  "dialect": "carbone-style-v1",
   "seed": "imprint-doc-gen-corpus-v1-fixed",
   "counts": {
     "docx": 100,
@@ -30,7 +30,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-001",
       "sha256": {
-        "template": "cbb3b2593df404b637f60442e73253d9af05ccd662148f08da567b9e63980b5c",
+        "template": "eab2775e5963b025a750631caf143ac5d7d1b8485464db771a8b6c195ea037d8",
         "expected": "dff60818b32e5b2c4992ee5deb9f49c2f1377f8b816968382853a059cb592ae5"
       }
     },
@@ -43,7 +43,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-002",
       "sha256": {
-        "template": "0aecfcde286c2e06a81d9c0a5cab3c8e648a6dd1389fd78e0ea2365e83a56c0b",
+        "template": "0bd176d84d758671504954360c43e495743a35602098ff983a22806a97a11a43",
         "expected": "9747928d09038f27483e72699e5da0ebcee5429303646b702bcd91360cc0c92c"
       }
     },
@@ -56,7 +56,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-003",
       "sha256": {
-        "template": "e69dad847b7c97ef79096a40714cde64bc2b2b1a76acdce4b27c3e252bc3708f",
+        "template": "bb8ddada1c75199b9561fb97360f3ce29d75caf60700dce1f2b4c15be1499320",
         "expected": "1dc1430fc88ef4f8658114b01fca9fcc95edfd6b3cfe993adf291c76b6fa2c7b"
       }
     },
@@ -69,7 +69,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-004",
       "sha256": {
-        "template": "dc083cb25f51fc3222697a6d7e59ac023798a3c53d501671888f0356bf3e7a94",
+        "template": "95c5940925a6efa9144bb272a04042234e0059442e905453517914ac6f693693",
         "expected": "cf59d0abf37fd28d37e75fc8ab03cb35e93df11c9919a8a1b7f3fc9419b96ffe"
       }
     },
@@ -82,7 +82,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-005",
       "sha256": {
-        "template": "b81b0bb8ffd2a398a4821ef287cb3d52ceac77e813706ad564344691d3f150e1",
+        "template": "542ae5613459a4ea0fe66e6d0ac716391280d034fe53efc479ed197fc466dfc0",
         "expected": "2da820773f0ef9e3671eb9ce6fb3cd3b7c0bf8941ea6b0874d925d964b3536c8"
       }
     },
@@ -95,7 +95,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-006",
       "sha256": {
-        "template": "e9549aa9d335f825f49be4dca55f4d538a3a9a6f75ea8221282cbcbed30ecdc4",
+        "template": "deb97b7f1ea7559ac1c19512ee52f04a9e70fe4897714481618aae71c7eb3d51",
         "expected": "baf54fc46b42ad8e185fe9159b4fac45ea0efcd77f8aea2d100ad18308f847a2"
       }
     },
@@ -108,7 +108,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-007",
       "sha256": {
-        "template": "3c60e67790f253dfd8d17cf7bab4b80e44bfa49ced6acfdda73b7337c2961118",
+        "template": "574683af3752b3a909ecb3a69e1b466834f6a123a508d8a9105aff0d405e5c27",
         "expected": "199226be446d629cf90bee3e5a22115ba5769da567c3cc74904c717af0b0bea8"
       }
     },
@@ -121,7 +121,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-008",
       "sha256": {
-        "template": "987f697ca4d4a4a97ce15a09deb7875add2778d05844d86f2afe5db0470e62dc",
+        "template": "c58c182abc35c1ec74502573062f93de65d7443b7649e27fb6f56be248dce4a9",
         "expected": "ea49a14589a170c603fc57ada7bf9459859d51873aa2b1980f733b0c6d6f7bb8"
       }
     },
@@ -134,7 +134,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-009",
       "sha256": {
-        "template": "2106cb82bb0f2328fa38714e6c63720491f46d28bb08ce5653b2b206ffffa4a8",
+        "template": "2271eebc6a0a735fc542420771729b815348de1d4ee0ae8fb253276003c29a59",
         "expected": "1be9164117e7c6ab044b08880987e942d3a744f5d3d356ca4f5b31f225d9f377"
       }
     },
@@ -147,7 +147,7 @@
       "title": "Text fragmentation",
       "path": "docx/level-010",
       "sha256": {
-        "template": "2f31c2d6160ccf05284ee1fc705ad8419f29734217a70cd5b3d624bf21130b9e",
+        "template": "dbedd24dadfc0525aa3023676afecc52140cf31d256d1bf5ed6d51c29fc40152",
         "expected": "664aaf5118e62a437ef26ec73aec3696349c59da959c3866665a74cf1aa0eb78"
       }
     },
@@ -160,7 +160,7 @@
       "title": "Picture attachments",
       "path": "docx/level-011",
       "sha256": {
-        "template": "c478750ddb44a222217746df41aa7852f9b5858c2c4722e471e81596871d75b6",
+        "template": "f91e8fae0a49ac14f87b8f9a7ac28717931b5ee55c2e4107863835170b13b869",
         "expected": "6a5fd4c919036bb79447d774e696f90d8cc84eb646dbecf7b6272a47192335f2"
       }
     },
@@ -173,7 +173,7 @@
       "title": "Picture attachments",
       "path": "docx/level-012",
       "sha256": {
-        "template": "91a212dc4903c4b10e867aa648d27a470ca602e3cbdee59f5d74ba8d7c80357a",
+        "template": "e1c69b7482baa98e8f203ec6583d7197659ca09bf353a5c3156a970b9c4c2d01",
         "expected": "23515ae88c899acc71a3809b7a95f175ce84244c2ec118c526db0a77f967c417"
       }
     },
@@ -186,7 +186,7 @@
       "title": "Picture attachments",
       "path": "docx/level-013",
       "sha256": {
-        "template": "b70dbfa786bcfc7c1609872618bced5904e4a4d5d2eb8a1be214a3ed3c156d69",
+        "template": "55d3d56c521f1a60ead88ff6bfaefb8b456117f1720c22b7a7164cc31a16f821",
         "expected": "96f80da609a1cb7a87a8f9a70414f869e830ee53d08b105be9fd015541a02c70"
       }
     },
@@ -199,7 +199,7 @@
       "title": "Picture attachments",
       "path": "docx/level-014",
       "sha256": {
-        "template": "c753748ef237cd6479bf1e8f0cb35d075f67652dde54b4e57e76a2488481eff8",
+        "template": "b38bf9ef03e2d7ee52de87c80bb907e56bf1234e14e3d201300a5f28e55bc922",
         "expected": "d963b8282ef895930d8bb952d53e5346bc357883cc2e124d7429efcbcbe583aa"
       }
     },
@@ -212,7 +212,7 @@
       "title": "Picture attachments",
       "path": "docx/level-015",
       "sha256": {
-        "template": "988fc5b9cdc911ec50fa5f7b997d2eb1d2fee4f1c3e9cbb3aa62a8684b2072b1",
+        "template": "39b6e5604525a29386f48a6cf5a6209317d71fd6ffa5cdbf02604f351d9a8828",
         "expected": "404427a2927bc6fc903f95ef1227d99f0824f353da8a8c1aef09a91ebc9d6363"
       }
     },
@@ -225,7 +225,7 @@
       "title": "Picture attachments",
       "path": "docx/level-016",
       "sha256": {
-        "template": "f1a310168819d63d245fc82600bdeb7ae1527ddd59ae65786893a49168db8793",
+        "template": "dc60b8e81cff0f3ae26c05df0ad8a9f078ec432092492c2c377813dcea03835b",
         "expected": "7481359ca14112b9d1c8ae4d98857f3ecc792ea31a8db019ba6c81831b013df6"
       }
     },
@@ -238,7 +238,7 @@
       "title": "Picture attachments",
       "path": "docx/level-017",
       "sha256": {
-        "template": "d817555c8473ba98cb1bc503d95caef5043452b993967042601c8c499f7045fe",
+        "template": "57c02f939e300562267043a9cf649a8aad583147856847a8075079fbe5ead376",
         "expected": "c308b38df5c3485c6f016cdec852dc0db4953a20697756084f948c78672390ee"
       }
     },
@@ -251,7 +251,7 @@
       "title": "Picture attachments",
       "path": "docx/level-018",
       "sha256": {
-        "template": "e5d66f80990ebd6c80d692c19c0416f6c87e1b1e26c4ff57e3c198a137318f06",
+        "template": "e0b5df034e24738e4355ebcb5ff8280aaf8c3d296d37a9ed6034448b42441669",
         "expected": "603cd91b9bebb0756a7ee17bb9f9f124bfad7f24ddb18f211aa891e75dd3abac"
       }
     },
@@ -264,7 +264,7 @@
       "title": "Picture attachments",
       "path": "docx/level-019",
       "sha256": {
-        "template": "352cfb6666697c4f198d0bf552264dca4e96469e090c36cfe72bfdf7b378b86d",
+        "template": "2252d600f62b40c0911cb76006ce46af949cac0e10e47fa9e058938112eb2e3e",
         "expected": "a727d78f1bf9f8a0044eb2f8d7fecb2caf98a038a545e8922fb4d555fc0486fe"
       }
     },
@@ -277,7 +277,7 @@
       "title": "Picture attachments",
       "path": "docx/level-020",
       "sha256": {
-        "template": "8f9d7152589f81c63e90fb40dcf2ab1b83fd626bb472dcf4b13afa8c68cbc633",
+        "template": "d6a36187268d386bf326466eb399054479423a00914aca54bc55f5c524c30a7f",
         "expected": "103e9bb2b8b54ea65c59e5f0011a716d5649166d3edfaa30de4d8b823b10f9c0"
       }
     },
@@ -290,7 +290,7 @@
       "title": "Tables",
       "path": "docx/level-021",
       "sha256": {
-        "template": "0bc9e77924fc97bb58c54cecabc10405668d7b6d451680298fb20a9ad794c272",
+        "template": "8c9c328858d51c9f649fd24c423488b8a8d40ce6c0a179046167e74a5ec54357",
         "expected": "732983819f0f25998920c2ce0603a738d52650028b4321f96d6b63ba3984955a"
       }
     },
@@ -303,7 +303,7 @@
       "title": "Tables",
       "path": "docx/level-022",
       "sha256": {
-        "template": "2a347c2324b08ea699c4bc1c90ce432f8dcaf1d9c301b073461cb83b96438c8d",
+        "template": "4f5b827dfc89318a2bf230129c4b98d2be5245728af93d8e0c95a270f6efd45c",
         "expected": "9c4d464849fcd586aeab7c3471975e0093e2db793aa1542ee06f127b7b431842"
       }
     },
@@ -316,7 +316,7 @@
       "title": "Tables",
       "path": "docx/level-023",
       "sha256": {
-        "template": "b79a343350ca8af0d8dc443df004e4070bcbf5b786be1e904bfaf7e6c012cc4a",
+        "template": "14af74579a11a06625a51b2c05c0cc01c5019bf1a65747fe28aedb5cc5417da6",
         "expected": "7f9ffcf39a56175b5031e9645595940f538c89e3b81673663e1a32e2ad6e25e4"
       }
     },
@@ -329,7 +329,7 @@
       "title": "Tables",
       "path": "docx/level-024",
       "sha256": {
-        "template": "1d395f22a16c5b6a2874a279e1775402e899ca1e4960bda477d8944ad7710c04",
+        "template": "84e284926ec106ac1ed07263990cb04b6deb0a8d1aeeebb7c0c1c8b190f86758",
         "expected": "1500f754b34edd16846fad9ad454584d831d5cde6c50ab6c63e9f68a5c2b1094"
       }
     },
@@ -342,7 +342,7 @@
       "title": "Tables",
       "path": "docx/level-025",
       "sha256": {
-        "template": "a1006c4b0f7cd9c51cf0435316fdb900bafad161d3c40fad19440c4a9b3a6c59",
+        "template": "163beae941f08e0cef4329ea6f1aa63470b53143bf12d2bd8bc9fdeadc19690f",
         "expected": "55986b67c3320c59b43890cfcaf7f4f97e711f3cbbd6f8e94df2f789891b658b"
       }
     },
@@ -355,7 +355,7 @@
       "title": "Tables",
       "path": "docx/level-026",
       "sha256": {
-        "template": "b1a291746d4c243a3ff0080243efe4cc58a90476f39159f841c2c02c85c2ab35",
+        "template": "5255a9ca43e1a98097f1ee457df02907fd99d3317372eb568cb70b44dd5d7e12",
         "expected": "5e8d0dab5aad0d50a3cb4b5bc3fe356ce40e6e3c6f12c2ba981e6141a81c7537"
       }
     },
@@ -368,7 +368,7 @@
       "title": "Tables",
       "path": "docx/level-027",
       "sha256": {
-        "template": "622c6d96f4147d743693b1415b48cd2e9356b230afe57ae1fe9401507959ff64",
+        "template": "a4b840ae7c9a6f8e2277957be40a80f3deeeec8ca9f254bc4ca44d3dd7aaf1a1",
         "expected": "b3a25e0d0d9acbbc8007be85decae33b92dab640611b972ed3368197c38d17d9"
       }
     },
@@ -381,7 +381,7 @@
       "title": "Tables",
       "path": "docx/level-028",
       "sha256": {
-        "template": "76165d0123dff45e3bb7d71e973439a5e585da74567463ae83d5b0048ad4485f",
+        "template": "9743840e58ff93ce9bcf81c93a371bba78961724154227f56ca0b100687ec82b",
         "expected": "2685d9af067ee8fd7ecd5c8b08b458744a0ff6f34f563aac749354b88b615400"
       }
     },
@@ -394,7 +394,7 @@
       "title": "Tables",
       "path": "docx/level-029",
       "sha256": {
-        "template": "2dae207d52e659a9bb940e98faa06680ab2c4a7dbb40f4b467c8cad4bd656628",
+        "template": "ae2de9fd36f9e32884ffaf0f15a497982a23a1550dacb040d2fdd7e759e7628f",
         "expected": "e68cca19ac01a2be5bcddde91e7ebdf1117a6f13afc6da17b604b64fcf36659e"
       }
     },
@@ -407,7 +407,7 @@
       "title": "Tables",
       "path": "docx/level-030",
       "sha256": {
-        "template": "eac2cca84ce508b0d80aa0d9bd2dc30032313edf6909655ff263e0a6e11f235d",
+        "template": "6897af9dbdd0e0b13dbedb20dac1dbbccf333428daf4b9996e959719862094c5",
         "expected": "455fcf7ded1bccd62fc912c8a6544fd23f21f72f6a7cff39ff4c6a06c42684c4"
       }
     },
@@ -420,7 +420,7 @@
       "title": "Inline structure",
       "path": "docx/level-031",
       "sha256": {
-        "template": "44beb1394c7a952f0f61437f73b21759e4d4919ded244290fea6601e99ef9248",
+        "template": "dbf04a7ddf8ca77afc1fb94ee48310670bf6b70d27204069ca69949715bf3802",
         "expected": "ecbc4fb9c262a0e45bfe0c633618918b22e107d19c427c24cfd234f346601716"
       }
     },
@@ -433,7 +433,7 @@
       "title": "Inline structure",
       "path": "docx/level-032",
       "sha256": {
-        "template": "48ae4af4eddb5d56b4292a949636a62c74bb7e98d163f9b938afef428a317681",
+        "template": "c548edf3170b4453e48e16af8d33925feb2e6d191fe741010959e468fb33a7ab",
         "expected": "13eb73740ffdccdc344bb1830813579895a89602e21b9c458c23d5847e3370a8"
       }
     },
@@ -446,7 +446,7 @@
       "title": "Inline structure",
       "path": "docx/level-033",
       "sha256": {
-        "template": "cbfdea24c033b409ccaf1e594a7b5a12055eaacb909cd6ffc70c2d82944b7ada",
+        "template": "a54d7b21a8639e5755ee975905e4e6bebd64cc0e69a2f0611521fc38f6a5cb49",
         "expected": "a6d028948d2d1bb4b668cf1c59f6d67f38ea58c8568220ac00610a89b02c4aa3"
       }
     },
@@ -459,7 +459,7 @@
       "title": "Inline structure",
       "path": "docx/level-034",
       "sha256": {
-        "template": "b2728af844cf9faefd8d833eff5083875e023e1369f61cb130d66c70a9656f7d",
+        "template": "9358792f531672abc2f98a3e52c6519294ecdb2bac16b506123a2abf672e109a",
         "expected": "9c5f55d7852274d2b4d1221c233a586af5e06b4ba758310502ecce0e3168fe03"
       }
     },
@@ -472,7 +472,7 @@
       "title": "Inline structure",
       "path": "docx/level-035",
       "sha256": {
-        "template": "8c1704fb983b625d94943d6ea5389ea93eeb2c35d47ec0c47456a2ba2d9597bf",
+        "template": "ede894d7b4b7633f31e43363af23779a744feb9f9ca83ac0b488f2f10334752c",
         "expected": "dc203f11f278193db4b1d1395cfec49935dec7b49389b4bed1c0bdc8d1a76d4f"
       }
     },
@@ -485,7 +485,7 @@
       "title": "Inline structure",
       "path": "docx/level-036",
       "sha256": {
-        "template": "c9d72394953bbab0b993745d282900507063c9098368198fdfd075b7ac1e85d1",
+        "template": "04db6f311028acc42fba106a4eee56fbabd74c0643907bbd8ae30814cc5bd6ee",
         "expected": "36dfe6031c797a5545bfe449dde6502be98b839f52da3cddc172c1b6f18a521b"
       }
     },
@@ -498,7 +498,7 @@
       "title": "Inline structure",
       "path": "docx/level-037",
       "sha256": {
-        "template": "ab834e55e69459ca8030f1a1a606cf8bf6bf8eae6296dd3c1270497ae341d22c",
+        "template": "df5c1b1658eb4ec78c2223947ae2d9882e26d436b6919924d16768ea4afae1ff",
         "expected": "2d41b12042863859ecd76e9e490584deb5b3acdc028316712a306c4a54d58f53"
       }
     },
@@ -511,7 +511,7 @@
       "title": "Inline structure",
       "path": "docx/level-038",
       "sha256": {
-        "template": "e04bb52740a7d83c324ed643fd034c4d8141b4f4b0089a9d25352f4db904f392",
+        "template": "0ef9b8c44a2e3731604334a793626be8a311c74939cb8262b6d8274dbe4209f1",
         "expected": "50aaacbe5ea9c252c73ac1dc90900430b1c75a8b5b76336088903cae233afe90"
       }
     },
@@ -524,7 +524,7 @@
       "title": "Inline structure",
       "path": "docx/level-039",
       "sha256": {
-        "template": "b4bc74bcdf7ef563f8076a8d2d5a4854159a07eefc8f7240cdf0bf880f1f828a",
+        "template": "6ad32416a84cbe9a73ae8e45b5b60d5da30db31d65ad4396624e6df1cf28c8cb",
         "expected": "058b1e15c5ad65294b1ccd06f6ebd1a2e6cfefe6e6e595bfdf5039046e2024c9"
       }
     },
@@ -537,7 +537,7 @@
       "title": "Inline structure",
       "path": "docx/level-040",
       "sha256": {
-        "template": "4af669682077d02948e2c92bd44e03124b6df222c0c91354daad047c6254d02d",
+        "template": "5e213cb1c0d2f29d979d44e8c2bc2ff6a01b769779ef2193a3ca71dc77b649bd",
         "expected": "753ed1b5fb5b4e92fa9ac38af9124c48d0a902a592600cecb46923337285f271"
       }
     },
@@ -550,7 +550,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-041",
       "sha256": {
-        "template": "d60c1f25b615acdb05ceb1f8c872ae4603202064c06440ee88d719757ee4edab",
+        "template": "13385e1786457823efa123c454e186072cb93f4ef067309a868e0a4f1b39c1b9",
         "expected": "82a3d6c476e57127add10ca04bfa200e1e3980e2ab87611cd29fab648cbb018a"
       }
     },
@@ -563,7 +563,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-042",
       "sha256": {
-        "template": "ebf3e92a8005ec0e3720d868e1355d3a091a3daf14907a863462e39759b76c9b",
+        "template": "24082791ab1c3c13b505cf23ff3b2c5242605ec81ec214286a61ef9c3d8a4670",
         "expected": "cf7ec3026fa9744387a7a50e2c0bcf9fbce0b738cfe081e51a42b918361b9ccc"
       }
     },
@@ -576,7 +576,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-043",
       "sha256": {
-        "template": "aa35a37f37a09242c30372240577edc2f0ac1a6bb33c91c2890ed4672eb0edd5",
+        "template": "640285e064316ad7d72325b4a45d6b4c7d08ab7f8311ac28ee68ef2b4c39cffd",
         "expected": "966c73a2e36926f207234aae7f809509bc4d4759824b92760ed94a88a71e7643"
       }
     },
@@ -589,7 +589,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-044",
       "sha256": {
-        "template": "eb11f13c19e90e761b9cdb4a4d601d6a0cc4f42fd513ed188063100f5ecd3fb9",
+        "template": "45f0cafa86dfd21bf5c9202b2344a9802d890c25b14b37667074b4452a780e8e",
         "expected": "ca3459d30cbd35024ddce2c4ff55cb8c10a781a02b5e33b9ad31194bbcbafe46"
       }
     },
@@ -602,7 +602,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-045",
       "sha256": {
-        "template": "2a6e5726e337459b82dad8c656a037edded4e736c70541df0e31574175713c46",
+        "template": "093932431e2490f61c660fa0d2ffa4e2b9c7d11f1b8108b0445624cf7facc825",
         "expected": "1655c78b9270335dfb2f1a70298d6a2e8778f15fd338c46122e861209d3dda64"
       }
     },
@@ -615,7 +615,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-046",
       "sha256": {
-        "template": "db49a58fe91d3e2a0069eba16f6c3f5b3f1045439ce6e252ce32f1be1cdb8f33",
+        "template": "cbffe7186ef1cd4eb0cb1eb6c6087897e22e3d44e874c2875a5f4459aa219737",
         "expected": "b43c9f579a4b3bc18c223470f443d8e313d0d40970289307f5fc9f95b57d7e2a"
       }
     },
@@ -628,7 +628,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-047",
       "sha256": {
-        "template": "1d7c99e9b8999815557ccae512053abe5d8311e1d8bbbac974adbca1df0daabd",
+        "template": "8881d2ea23abd3bce0e9afeabb6442420c3e19f290223dc18cdd9028cfdc1511",
         "expected": "de5faf111685b53c452bc09c09f9789a7820bc71d1c5d7f842c156ce5b0ea5d5"
       }
     },
@@ -641,7 +641,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-048",
       "sha256": {
-        "template": "11a14868c9eb6bb246e7d48c1d48dd4f89f7ca89ed226ae68c5736ab13d18ff1",
+        "template": "9b7936cd91a7e9bc3027afaa9c74488a24d4694ac296d73712e3f3f26b632377",
         "expected": "a03ceb297a396b81711edd8fb8129be0de8c42e8449da6a51ef792c5a4eface0"
       }
     },
@@ -654,7 +654,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-049",
       "sha256": {
-        "template": "8cd278f408817e9aef9e8f5e74f073f04a2ea3208b479a7ea9bcaf86be043997",
+        "template": "d56a8d8e3ba709bb4eb78a3ce75e2e5cb927a4de3976b824e47548c9160bf5b3",
         "expected": "389e09d759f72b172a2c1b3d38aa6f7fe7599364e36f1411bc4aaa812e784c5d"
       }
     },
@@ -667,7 +667,7 @@
       "title": "Header and footer stories",
       "path": "docx/level-050",
       "sha256": {
-        "template": "b55781419b290357060ac76299e1990b7969d966fa1a2342eea0f53832faab13",
+        "template": "f43210b167e8ee68cd086d6f8dba4fbf8399c980e311905af340c3efc481487e",
         "expected": "988f319ccddcecd4aa3aa81e7b4ddc15edd650a48abb2c3f765b9c27bccc0851"
       }
     },
@@ -680,7 +680,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-051",
       "sha256": {
-        "template": "43a574a21cfc5c2c517dbdf190ec7075aeed1a22ff0f137a8b985a9edaa62031",
+        "template": "2d0a63ec35a71871612130bf31dd9d5e735466428310b1aca8e4d84475dba284",
         "expected": "325268f570909348fe0ce726287be17d385048ed8fc68cc5d9860e42ea0df97b"
       }
     },
@@ -693,7 +693,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-052",
       "sha256": {
-        "template": "d9cc331c1e1db5ed9b4631a28954435920d8401358027dc2901edbec838e1039",
+        "template": "02de01cc69ee727ce458c1c1109ab80c778be5d57426e99f61c72b961ef90368",
         "expected": "f337608c33ca75ae1eab22ebb2f0c7fc2d8d60d9dc3bf7f4594f2607902c0aa1"
       }
     },
@@ -706,7 +706,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-053",
       "sha256": {
-        "template": "d3d0308fc8455abb2d1ea0b974de8bca935ae71260d3025768003ea8f468f863",
+        "template": "8cf8a81023e33982fea872b74ced65238a66961c913441fa05e0dd2c10c193cd",
         "expected": "58e3cb61fcd990ba3f57bda4c97a52bcc15c7e6e0d8245b19120c97c02d21bce"
       }
     },
@@ -719,7 +719,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-054",
       "sha256": {
-        "template": "627f26eeba6fbcd1ced16dc9d7f128c27c2a92f2920b1e6f82b330a751b4c762",
+        "template": "2904fe1372e11aaa1657694e78a075c6306e75766b7ea67930570557a4cb7a2a",
         "expected": "842213fa24a9dbce5e1278dca64e73369e00e482198949d7467968b608cad1de"
       }
     },
@@ -732,7 +732,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-055",
       "sha256": {
-        "template": "f48dd817872088d6196831542ccca86d8909188a7f871d3747051eabe25a333c",
+        "template": "41e85f03be701c4adb386de7e7a3043fadbf75506f7ec9890a318f88b3edcb60",
         "expected": "0740f04a38747fb7136de0b43ab78fb935be2ad1429bf770784adcdb465c78b1"
       }
     },
@@ -745,7 +745,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-056",
       "sha256": {
-        "template": "0614cc01d0dff3284786a4bec78ad464cc3ef19b5241d493586f805465db3e4b",
+        "template": "367eb3bdda5c27336ea218f7fee6cef28d11fe8478d2a8b753e4f7ad6eea9816",
         "expected": "e6ad9d22e3ce92091c9a3d581d220b61ba36ee8406d1fe62103c600d480d98f3"
       }
     },
@@ -758,7 +758,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-057",
       "sha256": {
-        "template": "ed3c13ec102aa7a326530cbf0906787d61cbc2f81def1aef79b31e8e613bc17b",
+        "template": "03c9e3681dcf7ff320f21ece1b5d49caee1f57d7a14f421d9297871a0be026e0",
         "expected": "7cb39e0980718bea9fefb13537a399c1700771e5bfcf77bb260aa7e58646f3ff"
       }
     },
@@ -771,7 +771,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-058",
       "sha256": {
-        "template": "4b49f8ee2f8264dc861361279c2bbed3a77c908e1108a13c8066274f949b61ae",
+        "template": "9e7352c4d426bf039cca8dfd078ca25da22d59afb0f8bd6084f3568fae712fa8",
         "expected": "43a14101dbbbcebeee4973385c79263a308f2475f81329b6c9b1e175e9a4be0d"
       }
     },
@@ -784,7 +784,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-059",
       "sha256": {
-        "template": "b2c30c299518c5ba26053ac3ec4eecf36afb4b84cb7a5b189d96475c5728d4d5",
+        "template": "44b30f2f4eb63f898a52254dc916a687563b20ec43dd0f9fb454d150cadb1748",
         "expected": "a66f2ae84e399e6450c00671882cb3c4a539e3f87d4de7b68f4edab5214fce73"
       }
     },
@@ -797,7 +797,7 @@
       "title": "Repeated table rows",
       "path": "docx/level-060",
       "sha256": {
-        "template": "ac8fd15bc1b32b3eb28f654f26851b6905841e90a5fac83dd3e7d50ebb04a113",
+        "template": "395115f3fe4c2543d2f090af791ba5ab778cc3f9e0a48637306a7ae47e110fed",
         "expected": "34e0e39db6e9f822e6580500f9e034bff35cfdb231e62eb82fbe4b9df4c92324"
       }
     },
@@ -810,7 +810,7 @@
       "title": "Nested repetition",
       "path": "docx/level-061",
       "sha256": {
-        "template": "8de307a1c1268306567c651b9f62aa4ff04566c5f2d0036d928c11fb527f655d",
+        "template": "28cc7c147bc17f0ef77f924f19b08958111b8ccfb180eee5e21a2b6ba7db5fb7",
         "expected": "5d44aef75904588fa50f0684258e22c2d170edff1d08e4dc3f10a5e3a7ab0d7e"
       }
     },
@@ -823,7 +823,7 @@
       "title": "Nested repetition",
       "path": "docx/level-062",
       "sha256": {
-        "template": "e8755fb87a10aca11906b71bf0a3041fa91c66c4c9c4a2dacc98e06db0ca553a",
+        "template": "fe907a2dd080f6a34b8d1c7d696055b3d537a96138a1cb776147eeabf6fb1372",
         "expected": "31b318751d18bb50446767c0ccc96530f6e338f8a67c8520c0641026599d30df"
       }
     },
@@ -836,7 +836,7 @@
       "title": "Nested repetition",
       "path": "docx/level-063",
       "sha256": {
-        "template": "5f6e4297182d82a7ee7e9d2bfbddadca6f455e14548d8094004ac84723df435e",
+        "template": "e7cd79510e34bb48231d21cd721d93df8d335cb5d9643da1a44f089e05c918af",
         "expected": "c410adb62a231898020aa3720feb269a1ecd7ff2d2548bc7c1aff68a316e9c37"
       }
     },
@@ -849,7 +849,7 @@
       "title": "Nested repetition",
       "path": "docx/level-064",
       "sha256": {
-        "template": "a212369e316c924da542954a74ba87e90a48fbad032b77753f8007e52e8f157f",
+        "template": "ea8c85dc39617fcf7b8659a44a7f09635a2b910ac76cd98c61613b99cdd07d96",
         "expected": "f29f3c65f7fd3d55bfa65f1ee0d71cf4e2d645416d95e0a5b39cdf268cb141c8"
       }
     },
@@ -862,7 +862,7 @@
       "title": "Nested repetition",
       "path": "docx/level-065",
       "sha256": {
-        "template": "26ad5c26505737d95be3985ef46349ef59d08495d43816554dff251afa6b1cd0",
+        "template": "2f13d43a55c9f0b38ff3e7a981333b322dc65eda20298e017ec0cbfb01443208",
         "expected": "810778c6998094e3f7f4aafc2694f8d2c89fb2980f5eb457ce984bbf8bd71180"
       }
     },
@@ -875,7 +875,7 @@
       "title": "Nested repetition",
       "path": "docx/level-066",
       "sha256": {
-        "template": "4f22551a7322e11e67f2742c75f971036e5128e06b79dd23baed174187834d89",
+        "template": "826813eaab524be5b22331b4a5833af6b0c8f824fcb0153ae57885bfbe130551",
         "expected": "db09a1720aecc7176d86ed3a31011b9d4262bf35690680f2d47f08e5891ddc52"
       }
     },
@@ -888,7 +888,7 @@
       "title": "Nested repetition",
       "path": "docx/level-067",
       "sha256": {
-        "template": "cba4e2cd728ee19426419963112a0acbd1987805db2ed6eaceae7cafe94939c7",
+        "template": "f39f1a4cbf6e73751bc0c8eaf3297d38ed1d766ba5906015ec7c7968a917c2a1",
         "expected": "3809fa52a209afe62b199560a85505fc6e21e6a4ee98cf3db31d183c65244db6"
       }
     },
@@ -901,7 +901,7 @@
       "title": "Nested repetition",
       "path": "docx/level-068",
       "sha256": {
-        "template": "b9c45d1ccd6ecb806492e645a7f588dcd25ca8386cc39f065ab4ebb9a9a46e4b",
+        "template": "4db1891bf9b2b92e896f4cee496d18db4960fb8137609e4967cfdc3cc0860c84",
         "expected": "735c82699a1c47d40fba7bd8f2e74978c573c269821050cd5bda9e0534edbd78"
       }
     },
@@ -914,7 +914,7 @@
       "title": "Nested repetition",
       "path": "docx/level-069",
       "sha256": {
-        "template": "0ff3969a3d8e5ac3dad3f8537fe61228ca52401b0e88cd678cb7882f00b28092",
+        "template": "e827df27b728ab4bb9698edab1d6b12058674afc25bd261ad18d769af83ba077",
         "expected": "b50ab246be59c990cf801174439a216535201f3b0d793831e9f0ac284ba4be01"
       }
     },
@@ -927,7 +927,7 @@
       "title": "Nested repetition",
       "path": "docx/level-070",
       "sha256": {
-        "template": "0d08c15bb3f33d647d12e56e2915355779a069cd1c94071d1a1f102c3ce67385",
+        "template": "78526d1426465845ef79c0b1c748793a4722b683e65c533c29df1e1398f72fd6",
         "expected": "aea7efc3127149607b2106f6d76ae89f57cc6424511cc929614ea149674c731b"
       }
     },
@@ -940,7 +940,7 @@
       "title": "Page and section structure",
       "path": "docx/level-071",
       "sha256": {
-        "template": "150cc1187775547af0954276cadf0601c90426544a68e7b6b5d929ac9454fe22",
+        "template": "8d8625c8ceb8dc7751894d518d544af2d3d0fdb68b1068755c38d0ad4fe609df",
         "expected": "7009f9d8c58993bfd51cd098f3ad73cd66326af51442ce949d7b893a35fab8dc"
       }
     },
@@ -953,7 +953,7 @@
       "title": "Page and section structure",
       "path": "docx/level-072",
       "sha256": {
-        "template": "3da7c0ea20834a844246d10416896e24fd41f022aec29d9a2156d28add3992b2",
+        "template": "6aa134063458b15fe3a6bc3b4427aa167baff7776dd11eb1e404c03213e35e57",
         "expected": "7bcc4905f91065be5272fdff4b2757a055a68e9c5f3c764e86d793dcba3d38ac"
       }
     },
@@ -966,7 +966,7 @@
       "title": "Page and section structure",
       "path": "docx/level-073",
       "sha256": {
-        "template": "088894cb71f4c7c377b269326e43b4a14e71fcdb5825d772b5728afaf08bf984",
+        "template": "549bc888dfa5fe080c4dd6a411fae967a7a01b18a47ef69b8885230d80eb1aa5",
         "expected": "9fc26db1eecab5bc9d228bfc669a30693ecd6aa6d919e20f24685974ae460efe"
       }
     },
@@ -979,7 +979,7 @@
       "title": "Page and section structure",
       "path": "docx/level-074",
       "sha256": {
-        "template": "7b09fa65882e04f79b1ccc0dbc8d9a95eb3332a911d67725c4ce9c80f69db90c",
+        "template": "22c529d256cdb73e5360f7b2ce21590cac15c9c13fc21542d5dd6ab1944c1cb7",
         "expected": "48f7e594f12be455edd00997a114a599bbe462d2b4b98ed3df56e3c4aa570cf0"
       }
     },
@@ -992,7 +992,7 @@
       "title": "Page and section structure",
       "path": "docx/level-075",
       "sha256": {
-        "template": "529736dec361fd1f85555a6c0da011bd33d844e06aff93ffec1c455bd071dbad",
+        "template": "126edf8b61ea4136ee381ec19ee72657c49b634473a655b5fb99553ba739961c",
         "expected": "d0fe223e0e48f91de24624dd78af13305a1c6e310032b7c19bc5dc5b05848827"
       }
     },
@@ -1005,7 +1005,7 @@
       "title": "Page and section structure",
       "path": "docx/level-076",
       "sha256": {
-        "template": "5ba295b55af4d1436a76ac0ee6538172e3fbf9d021bf96fcefbd2ff4233ada65",
+        "template": "71d8aaf06cddd645e02f46c6c0db7cdb09a3f4ffd1172d401409d16adcf38e83",
         "expected": "e862fff3c49af8ee738d76e9e643bfa3f34c8834eff99d5f18834845401c0574"
       }
     },
@@ -1018,7 +1018,7 @@
       "title": "Page and section structure",
       "path": "docx/level-077",
       "sha256": {
-        "template": "d81ee3c98ed63aa5ad9ae000eb3de6a494c56e5e99c7b9726c6eb67747b89713",
+        "template": "251c794b8a48e7f8fa5884962f12d7be50da5e7f7a75219e4d8ed5c945d103be",
         "expected": "e8524709ff0c467f5f9345fc8164f22e309e874a88728f0dc3b7bb940a7121c6"
       }
     },
@@ -1031,7 +1031,7 @@
       "title": "Page and section structure",
       "path": "docx/level-078",
       "sha256": {
-        "template": "7c3891670c3db5793d13478f98fea1e7175210e1b973d7a9b450e5882085aa85",
+        "template": "63beb079075482137f9a869871531d6baf0e0230556fce8f6139d232f9736aeb",
         "expected": "949357a6ec03c8e98d6f73f9772e4d740ef966dcd9320b6443d000fc95f3f7e0"
       }
     },
@@ -1044,7 +1044,7 @@
       "title": "Page and section structure",
       "path": "docx/level-079",
       "sha256": {
-        "template": "d658730398ea0738155fa046e986ecad00ca0f71bfe3ebf3c0018ffc8a80c613",
+        "template": "61f975665c49b5adf13a4faa336ad440d0247316fad2c6d0320f182ed69b7ed9",
         "expected": "b291251728dacdceb71741254e1151cc59b50bc29a15d89ff33d2a1b2b756a46"
       }
     },
@@ -1057,7 +1057,7 @@
       "title": "Page and section structure",
       "path": "docx/level-080",
       "sha256": {
-        "template": "bef2a8e6d14ddc4ec36bbdaeda0571c2512507a7d43a41e852108f411e99c68c",
+        "template": "4e4d61832f3cc08456ce8ec3efc80a9d3374d4e50f790ab593e904831a382f76",
         "expected": "f85f698b601bca4bbbeb586136c06f23a1542e5fa79f74945b91629a45197ede"
       }
     },
@@ -1070,7 +1070,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-081",
       "sha256": {
-        "template": "a0810d35d883f7216631347b87846648ad6d51eed9d3cc18c0d6da86ebf18726",
+        "template": "a388f6861d1e650ca65608458f125f0ab8548fa68eaeb8d3e067a363ec1e2b16",
         "expected": "ee2813918ba20eab587d1e05bc304ddd9da107748606cecee32c789abde188a9"
       }
     },
@@ -1083,7 +1083,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-082",
       "sha256": {
-        "template": "7b9ee2d6bb3ebe57fda20b2bd6cd54bb4e341307f37f9a64170ecdebe42da49d",
+        "template": "f0967b7ddbc8065cc63412675bac95bc464160398612b2e93a5ae36cb3a1b39f",
         "expected": "9f221e211015de3e778bfb4c8bd0a0c3230e9b1b674c37746f7a35492b2a7981"
       }
     },
@@ -1096,7 +1096,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-083",
       "sha256": {
-        "template": "8d2fd8b6c9729e59c41262445abd4aec4355b563129df8e89eed930ac883c669",
+        "template": "856d633e058e9f82d837729efadeeb367ee5420f3a8fb2b66fab93602c34c690",
         "expected": "994ad1ba4767a50f037ccca60a4c3fc8294b71ce4dc41f635fd941cd9954a5b3"
       }
     },
@@ -1109,7 +1109,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-084",
       "sha256": {
-        "template": "f8e9ecca0679c4b37472b5f7cd7d1e375248f6a0036848f0cca38e64c5c67635",
+        "template": "cafb3050ce5ed7a71f2cf54f56e5800f6a6e947caa95e9ba7f2ecb7b543ece2a",
         "expected": "cb074e173ef3e28d02937a61c92635493a650de13863f9e1eace18880d476513"
       }
     },
@@ -1122,7 +1122,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-085",
       "sha256": {
-        "template": "1746293e4f4a147ceb3967b16cc02fd73907242569376605cf74cb52e62db6e3",
+        "template": "543b0c33a40766996d02532d8615b9ec6e27d8c396960b111020f3f193e94334",
         "expected": "6da7517633ec8afce687ec9dff1d316791a374c6f51b8e7ee90b00e7f1079224"
       }
     },
@@ -1135,7 +1135,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-086",
       "sha256": {
-        "template": "71c9d9db097f87f2b29e07a6d1517dfc8f5e51401e3f7214e632f3555d6bc9fd",
+        "template": "9617d473bd0604c4ff9e16e1c846fdce2e505196bce8ab4cfc0b85deb588ab89",
         "expected": "2f515c364c2f4bb93c7958cfd4c3c2b66c3f737ac191eb37467b386ec32a20df"
       }
     },
@@ -1148,7 +1148,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-087",
       "sha256": {
-        "template": "43667280813932d7f6b9580d3a2047ac381b762924da2bd3092d7561b2b2b651",
+        "template": "5fa95440a36c5f0cdbdfa9784233d5fc139fb6a78e9543509d8bbb7d98aaafef",
         "expected": "8fde60098c59f0db9287222f2a92a5ddbaf96a2cb12bb06a5b076fbefa4cba4d"
       }
     },
@@ -1161,7 +1161,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-088",
       "sha256": {
-        "template": "b63adfe35093a44def3d6704c6fde86c828ac5ba667d68f51788ed1f5fbdee44",
+        "template": "f9f9ba9f4f69433afff4dbe17884319348e5411208be9a3e4b2a9533bba66cb9",
         "expected": "9e4f62327b4b55c11ba0d3855b353a4ada680849c3b4f833aa5af8bb3c123bb3"
       }
     },
@@ -1174,7 +1174,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-089",
       "sha256": {
-        "template": "d39be65d4cdb34f61275651a90635b169eeee02a81edc183274d05950e48babc",
+        "template": "8d3ae706ecc3af3ab88aaabc5a58f97ac59ed01586cc48a34e5467bfbe04db8b",
         "expected": "f71448169b0c0efcce678bda823966ec1f9ddbd69569d93a75f1eaed604ada96"
       }
     },
@@ -1187,7 +1187,7 @@
       "title": "Package obfuscation",
       "path": "docx/level-090",
       "sha256": {
-        "template": "1afbe001aa52f0a2e03327c22d90e168670dee4880e3e64ff06fea2089f8d83a",
+        "template": "3c3dccc2714263a962304ba6b44039e3f58c2eb3610bf03d0212454720486f5c",
         "expected": "f44971b53276f50f4ea5b51814b4b934562ed985145a9070aa02a9ea01610aaf"
       }
     },
@@ -1200,7 +1200,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-091",
       "sha256": {
-        "template": "cb3ee76f944340175ffc46d27c42387b39177a2dc9ea4facb66011c3a43f3874",
+        "template": "ad6e49cc36f1d522e95b3a4d62ab59e279d472304b2f7b76338ad940abfb6228",
         "expected": "c4b15e8c5f55502986b3d921c5baa4707d05725cd7135363109636366a7c20ed"
       }
     },
@@ -1213,7 +1213,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-092",
       "sha256": {
-        "template": "d44e5af9f22dfefb29c40c5191651ea0f837733a5beb9056cef6786f0ea91f49",
+        "template": "4b60b169587c80bb10946e021c925722b9c697c2ca54a29f9eda9ab0a55c2b0d",
         "expected": "61a3df219c15a5b6e52347c238138b8a0855d7d749f7f31d06d6e261dca39cd8"
       }
     },
@@ -1226,7 +1226,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-093",
       "sha256": {
-        "template": "2f560669ed0ce3b6173683da9748a6c9efed5b25bd361403980dd66e80c27c3b",
+        "template": "c3e0fcffefe3f182eaec372886d96a8bfb1c74dc30a3f1d60247bcd34eb190bf",
         "expected": "1eb42d6bfb7738f7af26bd0f20d28ec0f47e0acb76d0aed2a450f854ff8802e6"
       }
     },
@@ -1239,7 +1239,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-094",
       "sha256": {
-        "template": "3d7f08838fd9a70420c70c2dc38d1d27d57d8582076741bab8ea69455a2999da",
+        "template": "5be8042b43c88a098a4b81582a18d958ab7b9c9fe08bff46bbfd3404fa2524da",
         "expected": "9f751758b12934925f94b2e3e255fdef5c2611df912f80325c2f2998b7be4404"
       }
     },
@@ -1252,7 +1252,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-095",
       "sha256": {
-        "template": "dc8e22637fe0b5b236ae3f98a435aaab3f23299b76ed60435932d56a02d2f914",
+        "template": "d1297cdf4b4947c2262dfec7be26c3646e85cf5611808145d6c7c356190198e1",
         "expected": "84db1d82da5e0f9fbbb999130d9f294fdf2203e489606b346b002f1c0fcdb956"
       }
     },
@@ -1265,7 +1265,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-096",
       "sha256": {
-        "template": "7882226e1e27ef822ba1b19a839d027eaffb55472eb383c0e1b4e24b44a5fbc5",
+        "template": "bf52db0c08f78676789dd6c85ebc79af119093891644063f3adcfc8231d41aac",
         "expected": "74c7e3165667b13f5765653cee74ea21cf9d0f28366553556af3e01aa6560a2f"
       }
     },
@@ -1278,7 +1278,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-097",
       "sha256": {
-        "template": "e9b8f1264be1b8a89ea569ae4336ea1cbbdc68ec1822261b4b77a56bc9837c05",
+        "template": "a1237779c48e347f1a383cfbd5c05e44a1bf7d9fca52746a3c2c08996dbbbd69",
         "expected": "224d16ddd3939ab7721c8a64aa145dd0fa9778bdbdab8c1d41e285abf8a6fa83"
       }
     },
@@ -1291,7 +1291,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-098",
       "sha256": {
-        "template": "c7c1ec461f71ef35f96ccee870501d26d68d3af3bb751f13a8fa81a49f71d89b",
+        "template": "9ed0ecd70d455060f94e54c829a1dcbf2c4513b5fd536ca325d172c68eb0b0c6",
         "expected": "d420167bc95e8b9dfcb76e430fcc6df7eb5152de9c13f2dff3c2f6a0a37ab4e7"
       }
     },
@@ -1304,7 +1304,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-099",
       "sha256": {
-        "template": "7018ab85529754f0d6a86a231cdc6431b107ef8fec963d6a880c471cf6392c9d",
+        "template": "2ba3b24e0c7e817f5866618d95e681bc1fd8a971ef05cd3ad4187d4b6d3f9993",
         "expected": "30b1efa0538417555c2dfa2bdeba724fd9c7279ca852125fa7f1dabd429df2b3"
       }
     },
@@ -1317,7 +1317,7 @@
       "title": "Combined bounded stress",
       "path": "docx/level-100",
       "sha256": {
-        "template": "e65aaa57ba483de2b54c3907136e9b9fab3f425c1f2b8d7934e682665603a1e2",
+        "template": "4354c5d6dff9e0f51f7f52ffa71f7ba8309a52dcf9a61298a5972644a740b1c8",
         "expected": "60365456a2496e7f67283adf3f3ee7a0cc0e12fe96e32c2482c63afb09c7e11d"
       }
     },
@@ -1330,7 +1330,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-001",
       "sha256": {
-        "template": "ea722052949c98c34f1106e68ff203e5fb86f33a277f0ef741e652b38a8bb87d",
+        "template": "265e39041a64ddf9880d40b43ccd6d77c211b38c9e528dd86c3573adf0f1cfba",
         "expected": "ecd25b402c62abb1280251df6221f5158cf6f34d03ceadf7b9bd52734d816065"
       }
     },
@@ -1343,7 +1343,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-002",
       "sha256": {
-        "template": "84480482a81b0449eec819416051ee733c475a638fa3dba56f47f0dc5dc55b4a",
+        "template": "e0df7affbd8fb0630d4664fe41393a2d193226bd38098231e4022da52115048a",
         "expected": "61d7afb194cda6c325e30fa2d22a6ac5268632f785dfd10dd7b136c9a11f90f0"
       }
     },
@@ -1356,7 +1356,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-003",
       "sha256": {
-        "template": "91d2f6ee70890be04e72b371661bb20f8628deb5a4ce8f562c80f3d9d3ecde3f",
+        "template": "54e86dd4619b6d4c1d3d0218157e87a9dbec0e2f06a870dcf0b3d6f3b25f652c",
         "expected": "00a6d477876df13435446cb7ff32064ec179f2e55a42de53a9228c169b1381ff"
       }
     },
@@ -1369,7 +1369,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-004",
       "sha256": {
-        "template": "4165c4c928b72c9d583cd29536958aa8a5fbafa1aa646acb7d6fbc3bdde6bc90",
+        "template": "944fdd80340a36cb5a4a55776fb0e90f06455ffc6ce3ec2287f4a5d9f75124cf",
         "expected": "804003a323fa2ebfb7693a232a2e843174abdbda191c9cb546bf4e0370f754c5"
       }
     },
@@ -1382,7 +1382,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-005",
       "sha256": {
-        "template": "6d6fae6df3229124bd18b84f5f2116ae7864417d95d3326369cc5c5793afeacb",
+        "template": "d41b0537c2fd58420f0572a51d7f27dc0b6e0a13675ddf8b385a93988452e420",
         "expected": "b4dd64e64510f9e654d6ae2747ed11b9fab36970dae46dd0d4c868b8340b45ae"
       }
     },
@@ -1395,7 +1395,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-006",
       "sha256": {
-        "template": "3843f8bc6e2a6c785df315d3d0802574abffb5eb7be92869126205f558d3da7c",
+        "template": "2f20681c7f1ae5b2af6629ac6978e59eb25a1ef6cf5a7d7a34c215b591aff5ba",
         "expected": "72645e835093ebc78432e1324a77197d4d0152f79d76286e79fe5acf9a31f266"
       }
     },
@@ -1408,7 +1408,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-007",
       "sha256": {
-        "template": "90abfeda522738bba1bd9ca55dcb21f21b88a2407c0779c82bee51b9b707e95f",
+        "template": "2043cddd1a186130a418d571e64bd833b0a6f6281bf6d865f7f0986ae11e36e7",
         "expected": "cb8e7f0acace35db8330c2211d6dcf31513ebd70a0f312b0541e77664decec82"
       }
     },
@@ -1421,7 +1421,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-008",
       "sha256": {
-        "template": "0603ff25175d8db50c6ef785e3ea4a49bc756ea8007966b9ba46a7f3b25654bd",
+        "template": "b0c54be0e59e1c87f6463e7a9c1c3fc6180e9fab5cfdb9168c2568560f59448c",
         "expected": "3d10ad5b2c90849b602dd3307d28e21a602c539f0d537af6270c2293bb91ed31"
       }
     },
@@ -1434,7 +1434,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-009",
       "sha256": {
-        "template": "ebc94416b593b1e1338552ba1ddd6c1e866f07150ca420a3b545fa4ca0c36253",
+        "template": "2da483f55f2db86ae29e7810cce50cdf08e74976c7d9dd9cdecadb6e24067ffd",
         "expected": "462038266ede143e8aa329ce89f46f4265fd37b058c49e3e46040736bda1d839"
       }
     },
@@ -1447,7 +1447,7 @@
       "title": "Cells and types",
       "path": "xlsx/level-010",
       "sha256": {
-        "template": "11d2ee7d1668b418bce7a3234360fb800eafceee0997c6c38bf7601af976b619",
+        "template": "c35ef746a2d42f0e7b9830e8efe2158e05bbc8a5bcc1a54345c2ace32d6e7370",
         "expected": "82baaefda7f69865053ed0c06a59e2aba8bc63ff6cf72f1928088e6866668aca"
       }
     },
@@ -1460,7 +1460,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-011",
       "sha256": {
-        "template": "af4543c53571e5a7d96ecd019837440a7f28d85fd31d0fe575731cf0c46df9cb",
+        "template": "66aaf2d6a82561682e2dad8fe0a9edb703b83955566854ebe3189a311c3313e2",
         "expected": "80b0738ce7599395f684c6b5d754d7ea35ab4f4326a7a6abbc0cdf45328e4433"
       }
     },
@@ -1473,7 +1473,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-012",
       "sha256": {
-        "template": "df7976c6fb51f271df8235735adccb4d9963be08dcbb88a742d3e6070c5d6e20",
+        "template": "0e4cacf4894ddaeddee7fb1aa6d239e7821a12739d6c10da46335049ceec523d",
         "expected": "6a4845e13cc8ca8296aefa9768ba640158ea2944d1c3ad0c512d6ffb6ea1ccb0"
       }
     },
@@ -1486,7 +1486,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-013",
       "sha256": {
-        "template": "73438fd49f5d6d37333762b1ee89851f54538ffb8a2cb076e892bc219ba96e28",
+        "template": "1dad5771126c795b1e5056a3dec955b4537d81c0ff223c325686f78635aa04be",
         "expected": "dc19c4d6bae13ef27d5bcfc16f2fcb0d62076b06c39eb0323014c01f4d4805bf"
       }
     },
@@ -1499,7 +1499,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-014",
       "sha256": {
-        "template": "44a990ea12ae656a946af311098965a427464f38e560f5013f2f788931cf148d",
+        "template": "1ab0a0a8a1aded878f2e084f9821c78d0fb01056c4ac59638438b58160f55afd",
         "expected": "ff4eeca7d59eee3af6cf719e672c4acecaeebcfc95a113fcd91c2e82aed23da4"
       }
     },
@@ -1512,7 +1512,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-015",
       "sha256": {
-        "template": "fdcbe1bc7658248149642a6f4c029c9b5218f5361a6d57fa378ec1178398e9d7",
+        "template": "d11a4560f5d90d0675ab6bd8b3cba6171f39fbca1c1654296a054777df56ccd0",
         "expected": "86b1219ed4a85088b9a8f9bfca52a038e86be1ba2b6956fdc1b87361d02ac675"
       }
     },
@@ -1525,7 +1525,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-016",
       "sha256": {
-        "template": "114f4ff3dfbe97178c5898678ed951e196e5a85226089c96116852aa10a62588",
+        "template": "b0390275c8c60d0776be5606c0c74ceef95d99004496b6bd70669bca1d9e308f",
         "expected": "d039b37a3ad8a2cf5b6998847c4a3a34afcf7eaab869476e0b3b13b3fc90129d"
       }
     },
@@ -1538,7 +1538,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-017",
       "sha256": {
-        "template": "4f0a4c7d79493c3e941adb35c39b664ddfed4e3a859f0c98c1608ea50df82281",
+        "template": "427bdfd7ff581f761baa6b754edd63f981c503ffd5a50442c0ab16e361f365bb",
         "expected": "3b7947c9c13e69fadc43c03ce5eefc7897bab19ecac2f3dc88797709d1552259"
       }
     },
@@ -1551,7 +1551,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-018",
       "sha256": {
-        "template": "b99ed0864ec8643eba4692bd755bc8fe9f3b9831676bca9071d2bf86a1ad2934",
+        "template": "c3664ce73d5277d9a84b3c1d932a9c05ec0710a7f1fa9eda6e3f1664e860785d",
         "expected": "4350d087667d92ba8ab5fcbb4a9644a010361bd7b4f3fb5c071af63b114df061"
       }
     },
@@ -1564,7 +1564,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-019",
       "sha256": {
-        "template": "a8fc1a9b4b4c57841b4c728724a5a327d96883c367575194433e1e36ea248a84",
+        "template": "5be23f356296d0012f6d0dd99de8838e072129a664ea34e851fab8e2c5ff597e",
         "expected": "84917567f9d6d6999bfd85e116b2ad619e38a6454f7dda766ee3614cb57872cb"
       }
     },
@@ -1577,7 +1577,7 @@
       "title": "Shared and rich strings",
       "path": "xlsx/level-020",
       "sha256": {
-        "template": "e67e9f24b4a362def92df0715db03029daf0832e9c114de494f83a06e152740f",
+        "template": "55e1259f8a8889494fe3b5cc0a245b12b749de8cc324e0fc61cd3eb1d771ab58",
         "expected": "29c478741bfde1adec79cfb6c136f64e91f4b6ff486ee55264c1833f9b9347e3"
       }
     },
@@ -1590,7 +1590,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-021",
       "sha256": {
-        "template": "4fbd3549014178550658107fe9703ddde1dda82bfb49677a1c642596d2b6f4f9",
+        "template": "b21756c36fa33b743040cf171ad7e2252a46297553ea4cacfdc305f638a89c97",
         "expected": "598532ba77dfb8437e43e829c0008fc5d871323451e97d8d43d2d1de33e9bf68"
       }
     },
@@ -1603,7 +1603,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-022",
       "sha256": {
-        "template": "b5f8fe35271db1b41e18c3fa9987329f83a137d81e3c1b09cf6cadce191e3a4f",
+        "template": "aed8a10d57c311222fc277e89e4e41e7a5bd1de90f4f2ae984b94b0d02caa0b3",
         "expected": "59896e3a397a6855f3c505c9ca21878eb71dc7a189d90a08bbafbb4574256306"
       }
     },
@@ -1616,7 +1616,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-023",
       "sha256": {
-        "template": "af44789e3368dd1bc83b6eda7a7e643f98d272b5c872d6e3b6ab6f3b94120246",
+        "template": "a0a8cdbe030e656ec56c2da1917937987ba52100fe6a63e5e01e8b9fa33a0ea1",
         "expected": "cb4fa329556a67fe6dafb8b0ab535685e5ad58f1a7a2d7141c67b00f4f9c8d20"
       }
     },
@@ -1629,7 +1629,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-024",
       "sha256": {
-        "template": "71242eae184d5ee020b86c0f1a9190880ce507c4915e36997511c610c86ef94c",
+        "template": "44826774c668c9f3c9d2ae87b693bbab72696a0d55d80c59e0ee73975b79ece2",
         "expected": "a782e0f529ca5923579d057827d3f90aca8ebe6ac7d7a959ce08643e4b9a28a7"
       }
     },
@@ -1642,7 +1642,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-025",
       "sha256": {
-        "template": "de6776a04e30c2e7b4a02d7a6cd5f565c7eec37ab000a4b41d5a0bbeaaf47a56",
+        "template": "83bbfe411e2963c3f9e37b89eb2fdb31e91b0383c43f31ff424ba0af3dfaaf18",
         "expected": "27232413c66c6e371061e7d9af1fa29e25677ed0445a5999dfcd15d8c87ced56"
       }
     },
@@ -1655,7 +1655,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-026",
       "sha256": {
-        "template": "bb2cd88eb29ccd53b9174613c4d011c85821b3629ac38389e8d7d487b232e826",
+        "template": "e2282577a39fe3af7a7e1ec8ad18a2b130f52bc7ab123fed932a43354a110c4b",
         "expected": "ea3138a744f02f4bd47242d79b4a1910929f467f1ad255099269e96074e93cca"
       }
     },
@@ -1668,7 +1668,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-027",
       "sha256": {
-        "template": "f9d4e963d9e435740addf2199fcce46d5c353336eb2ea5b0cf9964d022048cfc",
+        "template": "66e0ba8eeea76a23cd7f0ccdfa56876909d9ec603b1e0e76f232ccd47d9fbdd4",
         "expected": "58b96fa5abe6079c78b412c86abc86bfb888834b63e1f39bc9d3f1548b4f977c"
       }
     },
@@ -1681,7 +1681,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-028",
       "sha256": {
-        "template": "c3aac4becee9d45d27eddcccabb3493dc8e7c2bd4f8f8a03ac439874c01e257c",
+        "template": "8e3e784f1d2c1739c1083c3659d9193d96665762630ff2ff90789ddd96cbe568",
         "expected": "8b69bec96c933e96b5350782facf19b3509c2a4ae1d86d2f9674090d610fe2b8"
       }
     },
@@ -1694,7 +1694,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-029",
       "sha256": {
-        "template": "fe41a04f1f2d99e7e6466907f1d773c7bed6c52d3547095b8ae25e4927c0dfc4",
+        "template": "ac011850e3079d202cf3c7ee17339b8c179c3649379826418103a7225a4abb18",
         "expected": "a8735efc5ed16256cdfae80b608bc1f5bfaf1e68b88b45109a6e3a23fab07355"
       }
     },
@@ -1707,7 +1707,7 @@
       "title": "Picture attachments",
       "path": "xlsx/level-030",
       "sha256": {
-        "template": "26654140794cc73cfc11d4aab0b15655e471fa9dd6f126b0278e506d5635688d",
+        "template": "a134a745bc51789cbf51afd2245b489f1e1ba89747ab102ee6834cb5ac555218",
         "expected": "0c45c89d4afb3eef6092416058b9b0c4dea4dab7297c1dc2e43f579abc46850c"
       }
     },
@@ -1720,7 +1720,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-031",
       "sha256": {
-        "template": "152425447fc619dfcd1c27be51efca7c179f6af89a1dd04d0baa05229e7a6696",
+        "template": "200b72e982a143f59c33cf98b8557292c6626071c5d01d02f029ea4441b34c2d",
         "expected": "0e8a88e21be0d44d2823811763f14e96672c2bc1fba583bf62a5fae354c1e778"
       }
     },
@@ -1733,7 +1733,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-032",
       "sha256": {
-        "template": "6b9885befda57ad1f8684b7d0c7dc6dff94fce57d8d811944d099e66e925c67f",
+        "template": "b7f5c6b8aada21cdb35fe812f5b3dfcfd0c6897d95883a527535847ea3ebe5e9",
         "expected": "07eedaa83cc9a6946e7f21c524dbb752c54eac82b90111af61ed437b1e25f5c2"
       }
     },
@@ -1746,7 +1746,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-033",
       "sha256": {
-        "template": "ef8e943e697093c89761378f2072b0de60c0a7b9d92e6cd30f70646b6790798b",
+        "template": "3adaeed1bf4e99854de5a42ef39ebeb149ad235caf6a4063d34d2fa6ff6af8ae",
         "expected": "38f29b44108b7051961dad57c7d0178f4e98f977203d92471079b80931051444"
       }
     },
@@ -1759,7 +1759,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-034",
       "sha256": {
-        "template": "ba9203df1a37c8eecde2b8b6164ad4dc07a38cf695d9c4fac797498c7ffa3be5",
+        "template": "cfe67f0ee9b117846091597179f19de450baaa8e81d05fc22570eb00ac1fd2cd",
         "expected": "f28e9c45d7d17917afbe397cb33254e03d5feb0d6c26a88aea001e6d7b75c312"
       }
     },
@@ -1772,7 +1772,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-035",
       "sha256": {
-        "template": "d2d1f5f8fe66e27bec3dbfd4ff2ff710774fd3793721cb633e99f1efd3b1263e",
+        "template": "fbbca1dc63ad00757f832ab8a3e7ad0db4fa5c9a6ef19b3fc9b2efe3a7e9e9a5",
         "expected": "628d2fdab38b24162a7b6a983f22f99e2d10ac3f616ee5775cd0b5d1830dcd9b"
       }
     },
@@ -1785,7 +1785,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-036",
       "sha256": {
-        "template": "93e06ce59eeb0642dd9895d0179913fa9c264a4f5675b50e40dd83252cd7495f",
+        "template": "b14acc048029bb6a858e27d0cc50f79aa5411e851186125a148e3580cc060a9f",
         "expected": "12218af69bb6470b61c20f92222412dc07b24237de93943bcc7ac5d6c9a73c89"
       }
     },
@@ -1798,7 +1798,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-037",
       "sha256": {
-        "template": "d2c1174a7bacf830eb4580ea72cfb491dd86af089dadda2f9b6c6711f6566377",
+        "template": "8595d833afc06f49d07e51fe2ac97b37bf963f87ef70998a783db62a597513e8",
         "expected": "2937189992f01b268e96444f1644f530b1b31c3d5cb5043fbea93c91b471d264"
       }
     },
@@ -1811,7 +1811,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-038",
       "sha256": {
-        "template": "37cde053b0d4120a9aef58a3001ee65fc623c0b7d0fa7a29c386850da70748b2",
+        "template": "f98a55dc43153a5b001abc5d9c6b23a2c5c93b22b6a56c89e7f8e5aa7266a8cc",
         "expected": "924d680ca96e226083e816b03eb219e2ef412d796a41d1d95f87bf49f44f888d"
       }
     },
@@ -1824,7 +1824,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-039",
       "sha256": {
-        "template": "10da716d5469265bda8551395b9f052c162163e791bf6a6dea89d59f6883227b",
+        "template": "49731fa33fc508486661e1572040762cdb837a836b9143e0f43bef52bcb30f6f",
         "expected": "f322534fb6c632c6f5361ffb8f4d4043b3fdedbd913408b755a4815aa80c944a"
       }
     },
@@ -1837,7 +1837,7 @@
       "title": "Worksheet layout",
       "path": "xlsx/level-040",
       "sha256": {
-        "template": "7d5017dd1352c0e616171fcbe6fd46e71a69b987b67d0705a723c939fb1f40db",
+        "template": "367ad58be2eed3cc2a102c6acd065479704e817ea2182a8fca35bdb7ad1259cd",
         "expected": "f622aaee225afb2548839cd5e0776ab460b93391be87a45a2f5335dbb38f7d54"
       }
     },
@@ -1850,7 +1850,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-041",
       "sha256": {
-        "template": "b8c8269ec3cd8a23bb0cab366141a0defe25f5d3d7b904e1b51972eb7b6a5f12",
+        "template": "b8fe7f527539d307235804dce0872add5b2aca58e3d27d34c2b4889179c53a23",
         "expected": "3723e8a0bf2a0bf931a9968e903ebf88d99a424afcb8b103ff356f5ada06b402"
       }
     },
@@ -1863,7 +1863,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-042",
       "sha256": {
-        "template": "be8f8c79fc562803ac5f9ab57eb7a4abcf4bee0d13d1e5c2057614af32fd5e85",
+        "template": "bf14d1ee01ee33d0f37ea76f8c680229fe05a63fa987b0125c76beb1cd916e3a",
         "expected": "04db5c943b5448d0df5d96ad820c52b8a8acc751e500847166a6abf5c6054068"
       }
     },
@@ -1876,7 +1876,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-043",
       "sha256": {
-        "template": "a92df98d3d3cc816b23d61025ffdce1d8414c950c3c2f663ad0cfc79b57d273d",
+        "template": "868ab8e2a42db4e9fa10950eef5d119eb3e923d816df49e8d089871e35b966ea",
         "expected": "65b39b196350d0e79d3a71187e5e95f355092d5354a17c888aa21eeb2f78c750"
       }
     },
@@ -1889,7 +1889,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-044",
       "sha256": {
-        "template": "2fd220e096b3918c98afa44c924870b6f1235a0b09aee56f75452030dab8ff1c",
+        "template": "da5fc0c31068ca75810475cb1ab9dc3e40a3fbd35e6cc6addd0040c02ba86db4",
         "expected": "9ecc640fb8604a174760f056a4d75aead8790c945af21a1455f81a00caa97e7f"
       }
     },
@@ -1902,7 +1902,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-045",
       "sha256": {
-        "template": "555359ae625903aeaa9cd6641743c40b63ada99827df43864f0ad6d7bdb8d075",
+        "template": "549e05a1ae10b69284879a106f427b5eeda7859cdeb62ce2a588ff7301ebf0be",
         "expected": "cfa7c741c36874340ed1c8c69c25310bd2e4b21bfc2ff9d4874d01b2e7c72086"
       }
     },
@@ -1915,7 +1915,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-046",
       "sha256": {
-        "template": "bacac4aeaff99a3f9653c0bf7f68172ffa975517d989f9451712a51bf2db0b7a",
+        "template": "a22708b8023e184574d4f13d3ad49e7ae80e49670213c1446587434a1d4a1da1",
         "expected": "c29c9a25575fab6b0fc92468d367c512a7021e0a3f0182c200c4e8a3a1b8ed38"
       }
     },
@@ -1928,7 +1928,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-047",
       "sha256": {
-        "template": "2fb3c3665f5e7539a5f3c70b08acc526394c5e38d8c1c0e94fc8810aed78de70",
+        "template": "c6a345de7c59114722d3501116de05812a4117f45a768afcc822af5e3ad18390",
         "expected": "9d37858c916ef923d7217073dc7c45e2655b1622ec48b7313b5c5a5cdb0a0494"
       }
     },
@@ -1941,7 +1941,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-048",
       "sha256": {
-        "template": "6c1b8ca36b6770c3748511423d7d331d138a193ae636879399448c28ac29cebe",
+        "template": "0d9a6ef821a7ac4f8fb968b2ac5744a007de697e4b2920cd2245751f147f745c",
         "expected": "02840a0917d86b76d0b9f02d78723327d584cf0e9eb1986bb1fc3463d54aac1b"
       }
     },
@@ -1954,7 +1954,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-049",
       "sha256": {
-        "template": "f73e54cfa420c1ffa22f0c21dd5de3cabc72b051981e613512f042512a91249b",
+        "template": "6d54d122d896485a3970e3e2d7fa7435de3a5ed7f2a3de1a18b9add722df495a",
         "expected": "c3644d4fc11022ece9a3fcd29a541c6a83b123ace01a7cebbb9fc44e73f9ddf1"
       }
     },
@@ -1967,7 +1967,7 @@
       "title": "Formula preservation",
       "path": "xlsx/level-050",
       "sha256": {
-        "template": "4869609e343fad7d8eb433090bdad04cd4dcb9d3f377512c17aeb01c42ff2091",
+        "template": "556c5e72f15448eda8a151f75406ba49b69ab62d398ec7e6c9cdf08d6d88c36e",
         "expected": "e819edcc361cbe4781a1c45f0b82e6bb7dbed246c81a00509ef07fdd0038981a"
       }
     },
@@ -1980,7 +1980,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-051",
       "sha256": {
-        "template": "bcae4b0b5e7fe1adf588b4992bf14e8f6a202fa5c4c23bb672ee42a34dfc942d",
+        "template": "2bf2d7a1d2c7aed44322266eefad67f04f589e0fff00ba05088daea3398961ae",
         "expected": "fe5c37ce20c98fe2fe3941d815eeb7f0bf39482356b46c744d9af4c6a23d6d18"
       }
     },
@@ -1993,7 +1993,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-052",
       "sha256": {
-        "template": "22f325d37a56fab7ff57d91304fed80e35e67e9c52aec10c56a399c20d310d64",
+        "template": "8154ef4736d6bad36dce850c735605b14ad69617d6a2920553bb274610cc8e1a",
         "expected": "c10b5e64e0ce17ae44e7474a83b1ed2668aa031f7e265b325e4f78016f076355"
       }
     },
@@ -2006,7 +2006,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-053",
       "sha256": {
-        "template": "a89b501c8194054135eee8135c89c23cef98303768a6d88c65166a9651f8a7fa",
+        "template": "395609a86baf7a9f819a0f88df784570cab5333ed358d403dff77dc7a52fd85f",
         "expected": "2d564ed7d37055f108c0185ed671db89df3a5f48d61ce63b480b852bf34de972"
       }
     },
@@ -2019,7 +2019,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-054",
       "sha256": {
-        "template": "a532d5072a61bb7b25b66d9c009d3cf948736f7ef88c68b8f294f661119dda46",
+        "template": "104f83b2725795c992a598ef0863195493e4ddf7501415d3d2f56549e126a425",
         "expected": "7d3fc487b3199af071aa133ab0fa99a25fd908c97809b1384f084db8710eb46f"
       }
     },
@@ -2032,7 +2032,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-055",
       "sha256": {
-        "template": "f77dabba9938c35f9688d2d6b67908b7f0b66c035221400ce42efe622b895038",
+        "template": "239997c33acad098b297ba3947fa9a72cbe1aa41903767df77c190c3be97a08f",
         "expected": "c7d5c6628ac1ba7e40da74d426745db86afaf327dabaa88b87ed3a3939297957"
       }
     },
@@ -2045,7 +2045,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-056",
       "sha256": {
-        "template": "55d5dd1fbf08849d85fc18f76b5c18295c3170e86be43f9ad82948d38edca96e",
+        "template": "8928ad69fd6f10bca8df5e66d79e718999a8e83f82f997915a594a9ca35bb2d1",
         "expected": "4ed788b4bddddb303bd25ca01d3d64dac1a68296c34cb983193d8c0aab67cf79"
       }
     },
@@ -2058,7 +2058,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-057",
       "sha256": {
-        "template": "221b537feb527f78d266dd090f5f963732ccb8242027fe72555e55f7230cf291",
+        "template": "315c93f961f64179c5d3aab9586c85dc588472808bdb0a1993f7330d6985f2f7",
         "expected": "bf221f36fff8b2d2d8659d7b3c5dc9eb0dfe2edb7be8f138048736ab67e2e3ad"
       }
     },
@@ -2071,7 +2071,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-058",
       "sha256": {
-        "template": "b9878d0883593d4f7a10e5b363b339a587e0351620425724142780d7fec72f6a",
+        "template": "1b99657ce6c87aef5a44f053fafb6e8744ceea6a14adc3e61ebbec4191094142",
         "expected": "c70de67ae25be53c4776dcb017639663c546bc674200f5936c76a625b50f8fe2"
       }
     },
@@ -2084,7 +2084,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-059",
       "sha256": {
-        "template": "61d7dc92d90547ec073dd8f2ff8feb14b8cefcd4de0a43563de45878d841c74c",
+        "template": "562b4efb809d69af175caa002d8c622686552d67a068939c0aa7973a83861951",
         "expected": "6dc539f043504af33319e44312ee49b826ff88bd2b7ff10dfb5d70e40ff89956"
       }
     },
@@ -2097,7 +2097,7 @@
       "title": "Repeated rows",
       "path": "xlsx/level-060",
       "sha256": {
-        "template": "3d2313cab27edf4bb86a1de8d51bb001cb86c6e16fc7806cc0f48d760492a3e1",
+        "template": "88471fb4ac37aa222907ca106886eddc437db044e3b08224a55b52372f4a5cfb",
         "expected": "6fdb9797c1fe2bbceaff2218ab7fcb84951cf97727e37a27549adb0d7fb876f6"
       }
     },
@@ -2110,7 +2110,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-061",
       "sha256": {
-        "template": "64b8ec94665a007da45b18b86511f4a2c01976a48715f08f3e0cd2168e2ba147",
+        "template": "6e46785c87a14faee91d936acd2aefaf4f6602a79c118dbe88eabf920b3edbca",
         "expected": "0c72d98bed36b3f97aea647f622852fe240502b84031526aad885af23d9dacc6"
       }
     },
@@ -2123,7 +2123,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-062",
       "sha256": {
-        "template": "306297a8085cf734cf973bd5c69e463fc58e414aae087edc50bd5b0dcdf0e5e4",
+        "template": "3300715a2144c5412039d85b7e052868099d9a591b5a1092fa3a6bd72ea1f84a",
         "expected": "51b5ad080d0c2bf929ff8b9c02fd9924c8916751d114f6eaf4e2e25377a13405"
       }
     },
@@ -2136,7 +2136,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-063",
       "sha256": {
-        "template": "cb1f5ad9a1a87b19fcffd30fc06f23182be3fc4b2c82b585de4d47e572431df9",
+        "template": "e457f3e969681667a95c6b7f92b4cc8e03495500b6b67d76d1794671e272020b",
         "expected": "8a98f6d93072badb3bf558caf8739430445a94163aeb6e715ed7f8dcda6a4c4d"
       }
     },
@@ -2149,7 +2149,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-064",
       "sha256": {
-        "template": "02855285d3df6955218cba29d50a06ad32a5cfe1e2b70c16eeb255beaed2a0a4",
+        "template": "647a303a3f6ea49ab05e3093e3bdd0d4a3bd783728d1cbafb11498da5e9931b8",
         "expected": "facf76ba85da5efcd4e59bef015a24afe266833550ec1d80ee020fd998093c76"
       }
     },
@@ -2162,7 +2162,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-065",
       "sha256": {
-        "template": "a034e18172da8d2f1647d88010c1c26f06f2905e332b084672d67855f24a7046",
+        "template": "5014f291c7fedc529b6be3e5f46dc4a3a582050a35162fbb1b27b42f23391955",
         "expected": "d59b203a40de19c55585f61b79f16353c90466f74ee29df6a984e27c7ef680a3"
       }
     },
@@ -2175,7 +2175,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-066",
       "sha256": {
-        "template": "8fc1d5ffbdb683a13ab5ba6c59f5f06646ade79b74ecf0dde94fe4f0c37f694e",
+        "template": "886874d6fc2b1a72b0ce3abb3daca27901ae431e3bc3fa57ef5e4122134c4900",
         "expected": "c0fe08c257a00aa7b4714bb3f0f1fc871f2e276c3b7ed4add9e948f8d423a6ad"
       }
     },
@@ -2188,7 +2188,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-067",
       "sha256": {
-        "template": "976247658460884f9007febda1ff225b94cb93730875f12e31f4d0149db4d425",
+        "template": "15f5140ecdeb564275de4e958abd80158ff56de850c20bde65f34bc008aa10f2",
         "expected": "93fb672799b8cbcb8b8d0a3edd4a2872e437b5bdcb21d19dd91d233072fc7058"
       }
     },
@@ -2201,7 +2201,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-068",
       "sha256": {
-        "template": "f0c0a02df460bf1b15a45ced0c840670d0b96d8c461b46f45ff3677ef126e615",
+        "template": "052991def58d6ee2e5117c92b9292b00984f8b1fd2e2aa20442da33d7fd25811",
         "expected": "433671b4232db437cfa280cd8030ed0b576236d655de3dd29c2391d11cb42683"
       }
     },
@@ -2214,7 +2214,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-069",
       "sha256": {
-        "template": "80554c1853e096705b69238504db094c96030841a5caecb95894e5089c570d80",
+        "template": "0071a0b797d96eed6c8579efbe1e879a9eb806e4d6edb60de977f690fef287cc",
         "expected": "2ac640675ff2f24f76c822b9607448d9c924b9c5ca8275e159693504a8978b12"
       }
     },
@@ -2227,7 +2227,7 @@
       "title": "Multiple worksheets",
       "path": "xlsx/level-070",
       "sha256": {
-        "template": "1d2b6e2f4309ac6a27b13630c965fb10ac26d841f7f8f5ce4f259b161f995214",
+        "template": "172a75f1e5e6057110c8e6737d2087aa40c7014e6f16d04838f7c100cf9cb1d2",
         "expected": "11fbf2a4bcf28ab75fc0214f44b1bd313c9a3ed6e0093a562909238b6fe63ca8"
       }
     },
@@ -2240,7 +2240,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-071",
       "sha256": {
-        "template": "0c015afd72e3b5b9aff183479d3a8e0bb0d773e02fee960cf7e3fb764cb25f81",
+        "template": "01dc222e93d256bb240b1f9cbdb77f972a76b14213450388230d0e7322c088a9",
         "expected": "a9d66550ffb09c5aca6f4977f191d1fa967d4aa53d7b93b365954093bbaf3d41"
       }
     },
@@ -2253,7 +2253,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-072",
       "sha256": {
-        "template": "2d4dfe5a234ef72d35ddc982e5c5e785922ce04afef942981f243f0df7a371d5",
+        "template": "b19c123c9c7a65c04b8a5905a1147289dc816dc9ae7db1c89fc5f163ab67e915",
         "expected": "dee1954fda19989b040fc5b4a7c861e4ad8a3f49d9779674f61f7b425348363c"
       }
     },
@@ -2266,7 +2266,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-073",
       "sha256": {
-        "template": "f890bcb4cb6b084c6434df076c21fbfdbac94bc9fda0efc662775df51d46a620",
+        "template": "b9730ff72e23014edb65c333372e237141f006bee8989d8d20ebbe73cbff3a68",
         "expected": "67cbb43fb32bae9a1c62963e6e4fb1775eb42275e8333099af0abc845c1a32e7"
       }
     },
@@ -2279,7 +2279,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-074",
       "sha256": {
-        "template": "fe4fcb7020180eb973fea80b0ce94bf363940d3668948a3794db4060d41ec9f8",
+        "template": "44a57cd63e01d7751ca93d80785e0729983e7ba9d2d11561fe9fc8b4608cc42a",
         "expected": "bda3f8b5c3e3491f8747bb925b8968cb3dd731a680da0656dfaf972097ae6a96"
       }
     },
@@ -2292,7 +2292,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-075",
       "sha256": {
-        "template": "6cf219aec6f3c433418d8a5684ea8bf7133484bb915a75af242e60d3d6b9d439",
+        "template": "074b7bede57ef62034c93a0d7aa2459c63382e4ff71170dbde67b2b67c32466e",
         "expected": "f6151678171883605fa94718d903c1474fe2abc44340b7f8eced4433b5ec33c4"
       }
     },
@@ -2305,7 +2305,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-076",
       "sha256": {
-        "template": "3f345c0ad6403f4918cd37b66193a19664f54a7314a7d6a02ad2d7d19dbc59e4",
+        "template": "c216e4997efd7c7bad2190592dee6d45bd59c678b352fe373ea95686050a61f4",
         "expected": "48ec1a6a6d320ea02e4fb7dc673769cce1f6df129a35d2ed0d47140350822505"
       }
     },
@@ -2318,7 +2318,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-077",
       "sha256": {
-        "template": "e5bc37571ed704632afcaefa68e73a9646091babdd9d98846d0ae47672a85d7a",
+        "template": "dc76d4e0facf0bee1a3a2761473d97ec4ccaab49a254cfa5c803734eb8e9d9e0",
         "expected": "5cc5101ce96918273160a6ff474c4a9a5822271849c6d2c8ad33d993c527cf0e"
       }
     },
@@ -2331,7 +2331,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-078",
       "sha256": {
-        "template": "67161195998254f75e90d58e0f2c91df13fe5af4e9a48a6f8149e4e2b505c78d",
+        "template": "070d60ff643a388008d063c7ebacb8d88c1fb00b1c194ced2ebf05076739e4d1",
         "expected": "fcd6039e4f452de546a143da0b3148822f8d5c97312aa288ecaaab283f753406"
       }
     },
@@ -2344,7 +2344,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-079",
       "sha256": {
-        "template": "218749faabb74e8316301f96bdc54038c0cb82ca7a8cb6afe29e3c763dccc517",
+        "template": "ba35d8688be795e5f4c22d7f35bafd5628beba41024ea77f43653c3c09e6b316",
         "expected": "9e2c7d9a67b4aba350d89887f593b5a54e5992cd0358f6152430feb817c80d6e"
       }
     },
@@ -2357,7 +2357,7 @@
       "title": "Dependent ranges",
       "path": "xlsx/level-080",
       "sha256": {
-        "template": "cf2c775e277f5ece18d65e4fda95c9bdb040c0f34031c4dc64b587295beedb0e",
+        "template": "d4e2e03b224db1753d9998e5802cce25a200efe64023a4312b378e4f311973b4",
         "expected": "c5e1c2b439e5b65da085623e3ccf758d9b3307023214bdbc7dbb845b7d410c0c"
       }
     },
@@ -2370,7 +2370,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-081",
       "sha256": {
-        "template": "e2c8ab610fc72b08bd8e34d97ee519f94b6b910f9519e3b35fe294d8ec5fee1a",
+        "template": "cec2536da3dfb6ac0aee0fa75427171c6ea739e314b4b5c182f32ba6e1945e53",
         "expected": "55cc75034eb2a9e65f6342a51cf2c89940bae387f498197bc3cf58071417efc8"
       }
     },
@@ -2383,7 +2383,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-082",
       "sha256": {
-        "template": "a7366fb8a2b4cefec05960872bb4a24623738b307dfc2866d79cae5b845980e2",
+        "template": "e97afa94c8761cf0dc3b84e4ccfb71dc96fa001dd236cebbd8970e16eaf1693a",
         "expected": "020b51376f8dd48c6b41aae4ccca48c3c97f7092dc66f1a8e5a928d853055fb5"
       }
     },
@@ -2396,7 +2396,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-083",
       "sha256": {
-        "template": "3271c3098d3f7f77166abe967a1a16f3cadb7228618dd207551ae4b4c5e538d6",
+        "template": "08c145c70d4daed3651beb283fff163d8cd4836c0fe14a685c78f556ea8f694a",
         "expected": "8c6413cffe2b253e054e9c3ac94541642f69decba70c2ee4342a22ef643fe8c6"
       }
     },
@@ -2409,7 +2409,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-084",
       "sha256": {
-        "template": "aade6755a7eb2ed0edc528a3512355686ba02fefc470ad730111155b7c3449b9",
+        "template": "ef05b512afd1f966b57a7cba5756abcc9d925b7b0ee5b2e773dea3db6dac5727",
         "expected": "66f3857089fe1d1e6a4110c514bf2d2b171a19882e78c655d38ff15e30717fbc"
       }
     },
@@ -2422,7 +2422,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-085",
       "sha256": {
-        "template": "ba3297e0c7b63d7f7369ffd883c6b92814a43a8ab55f053e2b089bc065bbc5c2",
+        "template": "f6804d1eec81380a8a1f3c08da74d964204713a3e49f3309fc2043420b4c7b26",
         "expected": "30364552f9377ae7d5844461247ca80e1019335508a5449a5d3b35c961eefcee"
       }
     },
@@ -2435,7 +2435,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-086",
       "sha256": {
-        "template": "541f19bd9764922da1865046ca6c9b52d9e933083a721ffe7a13fc2afd62dd7e",
+        "template": "a5c5dd9f848e66adafac9bd51cfe9d014021cf8d2884314fdca469b1ad5aa0fc",
         "expected": "da6fce4cb611bfc8be3e2665d58ddadb4d7e792a2d054adc7fe091670550d682"
       }
     },
@@ -2448,7 +2448,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-087",
       "sha256": {
-        "template": "735de9b105a67168d419afc940532a5261275e73cfc06a7e61d02dea0e8922b0",
+        "template": "c63c353bed2a5fe40a522afa978ce089f7b1795dcf074b20e5cef07fd5bbc114",
         "expected": "95024688f65857c120ed8c8c01e527762595be01a6e2a79654a7df10903a93f9"
       }
     },
@@ -2461,7 +2461,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-088",
       "sha256": {
-        "template": "35a94b8b01781c5069f6d4f0b597ed39ed759c64e8d02d9a9b14328e5b732396",
+        "template": "53731aff77b3e0bf79855bf6cfd627f911b5f2bda0596e7f713417f8122a3be2",
         "expected": "5c30d5943b2eba406d81498897a7fa888f62cc76a13b0590ab38b9ebb93e38f9"
       }
     },
@@ -2474,7 +2474,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-089",
       "sha256": {
-        "template": "1889ff70ec9f27e14e47c44d928fc270747395026c5621976ead0945291bbc88",
+        "template": "e3e5296198f65a6da589ef467e68017e55c7facb2b55c411876b58766c1b9dc2",
         "expected": "c317d2d624b6674b4a9fb818a3e483e28f14dd0ff1393a0aa2e6138d7e502548"
       }
     },
@@ -2487,7 +2487,7 @@
       "title": "Package obfuscation",
       "path": "xlsx/level-090",
       "sha256": {
-        "template": "efe102a5d16b411b28f9da2f967081361f938d4a4b42029019ae6d6765ae8cc8",
+        "template": "9e250bb61e17bb4366e320c9b2fd4c050965ab6c4e7c12315cc52e8e865549e5",
         "expected": "aa9aebf232a13cd2476c1b2b91013d89e6aafcd23325b472d9d3de7e7eef7bde"
       }
     },
@@ -2500,7 +2500,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-091",
       "sha256": {
-        "template": "c27fd3e10a40682f714fff98cab0fdc9b23fbe51dade8adad7c18e49f9096da7",
+        "template": "f655a3d6e3502b8bb8f0c05628fdd19ac95934f196b6b0bd6fbf0725e73db4a3",
         "expected": "64909cb24284b1aa774f3328a8a5243271908b2a2ecd645b7770413c6805d465"
       }
     },
@@ -2513,7 +2513,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-092",
       "sha256": {
-        "template": "644865bfa7a25ef58646da5b7c9a8b1ad1b7baf20ab5df91208e8d70bccf10db",
+        "template": "a41088c6e800e6de390b824f84c438fc1be89f52cb20c18b55c87faae734a2c7",
         "expected": "7e4c5712f7023257413546bcf75dd64cfd764eda81970edee893f6b766ab50de"
       }
     },
@@ -2526,7 +2526,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-093",
       "sha256": {
-        "template": "67739944011ed8075f02167adb87add068b485cff6d3b733a922d7abe648f785",
+        "template": "4287d4fcdfde42002e917ba22a9a6c855e00958b75685ee3cb00246a15911e4f",
         "expected": "d8e2f4cfbdb71be2f7c9e81de95231d2295c17f0e3361c58251b27e292f54df9"
       }
     },
@@ -2539,7 +2539,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-094",
       "sha256": {
-        "template": "7402a3c91b9cc09c9d142889bae4b58952f1b6e61b574897e1e75f22dbbd4228",
+        "template": "ea608ca0f1e99e74422d471e69994e11a9ceb9e82f755081a3b3f21cf5d3452b",
         "expected": "8e83ca4525ea5826a967af80ddcbf111451bd492f3a514801751e7882091f7cc"
       }
     },
@@ -2552,7 +2552,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-095",
       "sha256": {
-        "template": "cf57fc326db908e06a317dec3f9b6c39a51b452563e7e133a5fd43cc3f88a203",
+        "template": "06ec70e9613ded547ca922d58958b2a2f048428562b5d7b040352d2ee7f10221",
         "expected": "61b0f2ef6ed8aef787039ac5f085e2b8415ad12cb8ea805d04e99fc0b095c818"
       }
     },
@@ -2565,7 +2565,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-096",
       "sha256": {
-        "template": "425ffcef9512b82159874e4d68cb2773a7ed830c0ac6e1af61c2f893e09e837d",
+        "template": "63c0d3d4d9a13169494fb843d55b41498670a62b77dd8a8eeb53da6926ec4215",
         "expected": "e9c47f75433b5590b4366b6f3b25ae0a43b7cb7f0d6b2c2787515aae6a6d3fe3"
       }
     },
@@ -2578,7 +2578,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-097",
       "sha256": {
-        "template": "728e82d244f173af75d804c5af0302961988dd84d6af8e53f92c018c71cbc7a6",
+        "template": "ec441c7e85ec2fd70e30afe419808be7c8a65c09863a65dcf344f13a4b1aeb01",
         "expected": "8fa4525d0c99a231f37c4e1144d2a15acb2f637d5765756dd6b6176cbe76de4b"
       }
     },
@@ -2591,7 +2591,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-098",
       "sha256": {
-        "template": "acb2f11d6865e18cf1211aae4140fc78422697962d0c0a0aece278d89ffef50e",
+        "template": "a836907846242af10a4e9913b95a4cf6dc7440e2496ba4fa5112b312d4a8a142",
         "expected": "13a9272faaadf825164ceac439025e301f16c512e9c1c554f09a0eca9610f4a1"
       }
     },
@@ -2604,7 +2604,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-099",
       "sha256": {
-        "template": "9df7d5f385dd1f862edb6adbb208d24c3628f51b91bd36d6cb4f01d7d75582a0",
+        "template": "61a228540e0a88bee82f43e6aa522f8297d30e6801afd8ff90b97573541f4602",
         "expected": "f7e64ab446a14a880123196f47bc9e52fc7a750e74fbb768a16a2fd45cad3a70"
       }
     },
@@ -2617,7 +2617,7 @@
       "title": "Combined bounded stress",
       "path": "xlsx/level-100",
       "sha256": {
-        "template": "68b8b22eaab13ae6dd533d42ce4ada9f2b74e27e5e93709750dcab59f5042a05",
+        "template": "3549fd4150f466971956713fcbcb2a67c5e68766b06a27001ec22ba0700244e3",
         "expected": "dda073963dd47b79fc3dfd71dea9da8340966b8cafbf14a8d9a4d55c3d88036c"
       }
     }

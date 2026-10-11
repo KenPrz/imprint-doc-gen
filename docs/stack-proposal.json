@@ -1,7 +1,7 @@
 {
   "project": "Imprint Doc Gen",
   "researched_at": "2026-10-11",
-  "status": "milestone_6_pms_carbone_docx_compatibility_implemented",
+  "status": "milestone_7_carbone_style_standard",
   "repository": {
     "intended_owner": "KenPrz",
     "intended_name": "imprint-doc-gen",
@@ -151,7 +151,7 @@
   "gaps": [
     "Milestone 1 runs in development and production Docker configurations; production workload and sustained-load benchmarking remain pending",
     "Independent DOCX and XLSX row repetition implemented; advanced formula/structure adapters and other formats remain to be built",
-    "Carbone DOCX syntax supports the 30 original seeded PMS reports. Formatter chains, Carbone XLSX syntax and unaudited custom templates require additional adapters and fixtures.",
+    "Carbone-style syntax is the standard in both implemented formats. Formatter/filter chains and advanced XLSX repetition remain unsupported.",
     "Real PMS seeded DOCX templates now supplement synthetic image/loop coverage; custom property-uploaded templates remain unaudited.",
     "Advanced repetition, editable native charts, HTML-to-Office fragments, conformance validation and signatures need explicit implementations",
     "All-format fidelity must be tested against real Office/LibreOffice documents",
@@ -200,5 +200,11 @@
     "PMS-compatible authenticated one-shot request endpoint",
     "30 unchanged PMS reports with independently acquired Carbone golden snapshots",
     "Nine alternate array-length cases and seven-page PDF visual comparison"
+  ],
+  "implemented_milestone_7": [
+    "Carbone XLSX root/image bindings and adjacent marker-row repetition",
+    "All 200 corpus templates and PMS examples use the standard syntax",
+    "Byte-identical expected corpus outputs and retained legacy syntax tests",
+    "Independent XLSX content oracle; existing LibreOffice formula gate"
   ]
 }

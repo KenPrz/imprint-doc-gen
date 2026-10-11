@@ -32,7 +32,7 @@ export function createApp(config: AppConfig) {
     request.log.error({ err: error }, 'Request failed');
     return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 6, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'carbone-docx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 7, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'carbone-docx-tags', 'carbone-xlsx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
   app.get('/ready', async (_request, reply) => {
     if (store) store.db.prepare('SELECT 1').get();
     if (config.converterUrl) {

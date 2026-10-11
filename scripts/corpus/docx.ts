@@ -11,7 +11,7 @@ export function buildDocx(level: number, data: Data, rendered: boolean): Parts {
     for (let i = 0; i < count; i++) out.push(`<w:r>${bold ? '<w:rPr><w:b/></w:rPr>' : ''}<w:t xml:space="preserve">${esc(chars.slice(Math.floor(i * chars.length / count), Math.floor((i + 1) * chars.length / count)).join(''))}</w:t></w:r>`);
     return out.join('');
   };
-  const binding = (key: string, value: string, bold = false) => text(rendered ? value : `{{${key}}}`, rendered ? 1 : fragment, bold);
+  const binding = (key: string, value: string, bold = false) => text(rendered ? value : `{d.${key}}`, rendered ? 1 : fragment, bold);
   const p = (runs: string, properties = '') => `<w:p>${properties ? `<w:pPr>${properties}</w:pPr>` : ''}${runs}</w:p>`;
   const cell = (content: string) => `<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr>${content}</w:tc>`;
   const table = (rows: string, columns = 3) => `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid>${'<w:gridCol w:w="2400"/>'.repeat(columns)}</w:tblGrid>${rows}</w:tbl>`;
@@ -23,7 +23,7 @@ export function buildDocx(level: number, data: Data, rendered: boolean): Parts {
     links.push({ id, type: 'image', target: `media/${rendered ? color : 'placeholder'}.png` });
     imageRels.set(part, links);
     const cx = 914400 + ordinal * 45720, cy = 609600;
-    const description = rendered ? `Attachment ${color}` : `{{image:${key}}}`;
+    const description = rendered ? `Attachment ${color}` : `{d.${key}}`;
     return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${++drawingId}" name="Picture ${drawingId}" descr="${esc(description)}"/><a:graphic><a:graphicData uri="${NS.pic}"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="Attachment"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${id}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
   };
   const main = 'word/document.xml';
@@ -52,8 +52,9 @@ export function buildDocx(level: number, data: Data, rendered: boolean): Parts {
     }
   }
   if (repeats) {
-    const row = (item: Data['items'][number], template: boolean) => `<w:tr>${cell(p((template ? text('{{#each items}}', fragment) : '') + binding('name', item.name)))}${cell(p(binding('quantity', String(item.quantity))))}${cell(p(picture(main, 'image', item.image)) + p(template ? text('{{/each}}', fragment) : ''))}</w:tr>`;
-    body += table(rendered ? data.items.map(item => row(item, false)).join('') : row(data.items[0]!, true));
+    const row = (item: Data['items'][number]) => `<w:tr>${cell(p(binding('items[i].name', item.name)))}${cell(p(binding('items[i].quantity', String(item.quantity))))}${cell(p(picture(main, 'items[i].image', item.image)) + p(''))}</w:tr>`;
+    const marker = `<w:tr>${cell(p(binding('items[i+1].name', '')))}${cell(p(''))}${cell(p(''))}</w:tr>`;
+    body += table(rendered ? data.items.map(item => row(item)).join('') : row(data.items[0]!) + marker);
   }
   if (nested) {
     if (rendered) {
@@ -62,9 +63,9 @@ export function buildDocx(level: number, data: Data, rendered: boolean): Parts {
         for (const item of group.items) body += p(text(`${group.name} / ${item.name}`) + picture(main, 'image', item.image));
       }
     } else {
-      body += p(text('{{#each groups}}', fragment)) + p(binding('name', '', true)) + p(text('{{#each items}}', fragment));
-      body += p(binding('../name', '') + text(' / ') + binding('name', '') + picture(main, 'image', 'red'));
-      body += p(text('{{/each}}', fragment)) + p(text('{{/each}}', fragment));
+      body += p(binding('groups[i].name', '', true));
+      body += p(binding('groups[i].name', '') + text(' / ') + binding('groups[i].items[i].name', '') + picture(main, 'groups[i].items[i].image', 'red'));
+      body += p(binding('groups[i].items[i+1].name', '')) + p(binding('groups[i+1].name', ''));
     }
   }
   const section = (landscape: boolean) => `${stories ? '<w:headerReference w:type="default" r:id="rId2"/><w:footerReference w:type="default" r:id="rId3"/>' : ''}<w:type w:val="nextPage"/><w:pgSz w:w="${landscape ? 16838 : 11906}" w:h="${landscape ? 11906 : 16838}"${landscape ? ' w:orient="landscape"' : ''}/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>`;
