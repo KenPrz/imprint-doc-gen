@@ -1,6 +1,6 @@
 {
   "date": "2026-10-12",
-  "status": "local checks passed; release CI pending",
+  "status": "Local validation passed. GitHub Actions reports the current release gates.",
   "unitTests": {
     "passed": 208,
     "failed": 0
@@ -76,7 +76,8 @@
     "internalLinks": "passed",
     "desktopAndMobileInspection": "passed",
     "searchAndMobileMenu": "passed",
-    "pagesDeployment": "configured; publication pending"
+    "pagesDeployment": "Published by the Documentation workflow on main",
+    "url": "https://kenprz.github.io/imprint-doc-gen/"
   },
   "limitations": [
     "Selected PDF text comparisons do not prove pixel fidelity or complete Office schema conformance",
@@ -88,5 +89,6 @@
   "standalone": {
     "forcedRestartRecovery": "passed",
     "converterFailureSupervision": "passed"
-  }
+  },
+  "ci": "https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml"
 }
