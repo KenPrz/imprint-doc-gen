@@ -1,0 +1,240 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Revenue Summary",
+      "",
+      "  ",
+      "Business Date: ",
+      "",
+      "Grouped by",
+      "Transaction Code Group",
+      "Month to date",
+      "01/07/26 – 15/07/26",
+      "As of",
+      "15/07/26",
+      "Year to date",
+      "01/01/26 – 15/07/26",
+      "",
+      "Code",
+      "Description",
+      "Month to Date",
+      "Year to Date",
+      "Qty MTD",
+      "Qty YTD",
+      "ROOMS",
+      "Rooms Revenue",
+      "3,434,314.17",
+      "104,752,186.44",
+      "—",
+      "—",
+      "F&B",
+      "Food & Beverage",
+      "1,452,401.55",
+      "83,978,090.77",
+      "—",
+      "—",
+      "OTHERS",
+      "Other Operating Revenue",
+      "110,225.25",
+      "7,366,689.03",
+      "—",
+      "—",
+      "",
+      "Summary",
+      "Total Month to Date",
+      "4,996,940.97",
+      "Total Year to Date",
+      "196,096,966.24",
+      "Postings Month to Date",
+      "—",
+      "Postings Year to Date",
+      "—",
+      "",
+      "",
+      "As of 15/07/26 · revenue_summary · PHP",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Revenue Summary",
+            ""
+          ],
+          [
+            "  ",
+            "Business Date: "
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Grouped by"
+          ],
+          [
+            "Transaction Code Group"
+          ],
+          [
+            "Month to date"
+          ],
+          [
+            "01/07/26 – 15/07/26"
+          ]
+        ],
+        [
+          [
+            "As of"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "Year to date"
+          ],
+          [
+            "01/01/26 – 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Code"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "Month to Date"
+          ],
+          [
+            "Year to Date"
+          ],
+          [
+            "Qty MTD"
+          ],
+          [
+            "Qty YTD"
+          ]
+        ],
+        [
+          [
+            "ROOMS"
+          ],
+          [
+            "Rooms Revenue"
+          ],
+          [
+            "3,434,314.17"
+          ],
+          [
+            "104,752,186.44"
+          ],
+          [
+            "—"
+          ],
+          [
+            "—"
+          ]
+        ],
+        [
+          [
+            "F&B"
+          ],
+          [
+            "Food & Beverage"
+          ],
+          [
+            "1,452,401.55"
+          ],
+          [
+            "83,978,090.77"
+          ],
+          [
+            "—"
+          ],
+          [
+            "—"
+          ]
+        ],
+        [
+          [
+            "OTHERS"
+          ],
+          [
+            "Other Operating Revenue"
+          ],
+          [
+            "110,225.25"
+          ],
+          [
+            "7,366,689.03"
+          ],
+          [
+            "—"
+          ],
+          [
+            "—"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Summary"
+          ]
+        ],
+        [
+          [
+            "Total Month to Date"
+          ],
+          [
+            "4,996,940.97"
+          ]
+        ],
+        [
+          [
+            "Total Year to Date"
+          ],
+          [
+            "196,096,966.24"
+          ]
+        ],
+        [
+          [
+            "Postings Month to Date"
+          ],
+          [
+            "—"
+          ]
+        ],
+        [
+          [
+            "Postings Year to Date"
+          ],
+          [
+            "—"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "As of 15/07/26 · revenue_summary · PHP"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  }
+}

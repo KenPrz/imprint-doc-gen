@@ -1,0 +1,48 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Room Status Changes",
+  "report_code": "ROOM_STATUS_CHANGES",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "15/07/26 – 15/07/26",
+  "rows": [
+    {
+      "user": "Liza Cruz",
+      "date": "15/07/26",
+      "time": "09:12:05",
+      "room": "0621",
+      "action_type": "HK_RM_STATUS_CHANGED",
+      "description": "Housekeeping status of Room 0621 changed from Dirty to Clean",
+      "from": "DIR",
+      "to": "CLN",
+      "source": "ATTENDANT",
+      "business_date": "15/07/26"
+    },
+    {
+      "user": "SYSTEM",
+      "date": "15/07/26",
+      "time": "02:55:40",
+      "room": "1621",
+      "action_type": "HK_RM_CHANGED",
+      "description": "Out of Service Room 1621 changed – From Date 2026-07-24 → 2026-07-20",
+      "from": "2026-07-24",
+      "to": "2026-07-20",
+      "source": "REPAIR",
+      "business_date": "14/07/26"
+    }
+  ],
+  "source_totals": [
+    {
+      "source": "ATTENDANT",
+      "count": "1"
+    },
+    {
+      "source": "REPAIR",
+      "count": "1"
+    }
+  ],
+  "total_rows": "2"
+}

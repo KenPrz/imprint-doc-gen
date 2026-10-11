@@ -1,0 +1,306 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Cash Report",
+      "CASH_REPORT",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "From Date",
+      "15/07/26",
+      "To Date",
+      "15/07/26",
+      "Cashier No.",
+      "101, 102",
+      "Cashier Name",
+      "J. Santos, M. Reyes",
+      "Currency",
+      "All",
+      "Group By",
+      "Cashier, Currency and Transaction Date",
+      "",
+      "Time",
+      "Room No.",
+      "Name",
+      "Trn. Code",
+      "Description",
+      "Supplement",
+      "Amount",
+      "Currency",
+      "User",
+      "08:02",
+      "0625",
+      "Dela Cruz, Juan",
+      "9000",
+      "Cash Payment",
+      "TX-2026-9910",
+      "10,000.00",
+      "PHP",
+      "jsantos",
+      "11:27",
+      "1104",
+      "Reyes, Maria",
+      "9000",
+      "Cash Payment",
+      "TX-2026-9915",
+      "3,000.00",
+      "PHP",
+      "mreyes",
+      "15:50",
+      "—",
+      "Paid Out — Taxi",
+      "7100",
+      "Paid Out",
+      "PO-114",
+      "-500.00",
+      "PHP",
+      "jsantos",
+      "",
+      "Summary",
+      "Starting Amount Local",
+      "5,000.00",
+      "Total Income Local",
+      "13,000.00",
+      "Total Expense Local",
+      "500.00",
+      "Balance Amount Local",
+      "17,500.00",
+      "",
+      "",
+      "3 transactions · Local currency: PHP",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Cash Report",
+            "CASH_REPORT"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "From Date"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "To Date"
+          ],
+          [
+            "15/07/26"
+          ]
+        ],
+        [
+          [
+            "Cashier No."
+          ],
+          [
+            "101, 102"
+          ],
+          [
+            "Cashier Name"
+          ],
+          [
+            "J. Santos, M. Reyes"
+          ]
+        ],
+        [
+          [
+            "Currency"
+          ],
+          [
+            "All"
+          ],
+          [
+            "Group By"
+          ],
+          [
+            "Cashier, Currency and Transaction Date"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Time"
+          ],
+          [
+            "Room No."
+          ],
+          [
+            "Name"
+          ],
+          [
+            "Trn. Code"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "Supplement"
+          ],
+          [
+            "Amount"
+          ],
+          [
+            "Currency"
+          ],
+          [
+            "User"
+          ]
+        ],
+        [
+          [
+            "08:02"
+          ],
+          [
+            "0625"
+          ],
+          [
+            "Dela Cruz, Juan"
+          ],
+          [
+            "9000"
+          ],
+          [
+            "Cash Payment"
+          ],
+          [
+            "TX-2026-9910"
+          ],
+          [
+            "10,000.00"
+          ],
+          [
+            "PHP"
+          ],
+          [
+            "jsantos"
+          ]
+        ],
+        [
+          [
+            "11:27"
+          ],
+          [
+            "1104"
+          ],
+          [
+            "Reyes, Maria"
+          ],
+          [
+            "9000"
+          ],
+          [
+            "Cash Payment"
+          ],
+          [
+            "TX-2026-9915"
+          ],
+          [
+            "3,000.00"
+          ],
+          [
+            "PHP"
+          ],
+          [
+            "mreyes"
+          ]
+        ],
+        [
+          [
+            "15:50"
+          ],
+          [
+            "—"
+          ],
+          [
+            "Paid Out — Taxi"
+          ],
+          [
+            "7100"
+          ],
+          [
+            "Paid Out"
+          ],
+          [
+            "PO-114"
+          ],
+          [
+            "-500.00"
+          ],
+          [
+            "PHP"
+          ],
+          [
+            "jsantos"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Summary"
+          ]
+        ],
+        [
+          [
+            "Starting Amount Local"
+          ],
+          [
+            "5,000.00"
+          ]
+        ],
+        [
+          [
+            "Total Income Local"
+          ],
+          [
+            "13,000.00"
+          ]
+        ],
+        [
+          [
+            "Total Expense Local"
+          ],
+          [
+            "500.00"
+          ]
+        ],
+        [
+          [
+            "Balance Amount Local"
+          ],
+          [
+            "17,500.00"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "3 transactions · Local currency: PHP"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  }
+}

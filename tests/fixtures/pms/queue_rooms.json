@@ -1,0 +1,29 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Queue Rooms",
+  "report_code": "QUEUE_ROOMS",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "15/07/26 · All",
+  "rows": [
+    {
+      "priority": "1",
+      "queue_time": "13:05",
+      "room": "105",
+      "room_type": "STD",
+      "guest": "Anna Lim",
+      "vip": "",
+      "hk_status": "CLN",
+      "ready_at": "13:32",
+      "checked_in_at": "13:40",
+      "wait": "35",
+      "outcome": "Checked in"
+    }
+  ],
+  "total_rows": "1",
+  "total_open": "0",
+  "average_wait": "35"
+}

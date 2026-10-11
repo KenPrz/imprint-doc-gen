@@ -1,0 +1,44 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Check Report",
+  "report_code": "PMS-1234",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "currency_code": "PHP",
+  "from_date": "15/07/26",
+  "to_date": "15/07/26",
+  "cashier_no": "101, 102",
+  "cashier_name": "J. Santos, M. Reyes",
+  "currency_filter": "All",
+  "group_by": "Cashier, Currency and Transaction Date",
+  "row_count": "2",
+  "rows": [
+    {
+      "time": "10:12",
+      "description": "Check Payment",
+      "supplement": "CHK-30441",
+      "room": "0625",
+      "name": "Acme Trading Corp.",
+      "trn_code": "9100",
+      "credit": "25,000.00",
+      "debit": "",
+      "user": "jsantos"
+    },
+    {
+      "time": "16:03",
+      "description": "Check Refund",
+      "supplement": "CHK-30442",
+      "room": "1104",
+      "name": "Reyes, Maria",
+      "trn_code": "9100",
+      "credit": "",
+      "debit": "1,200.00",
+      "user": "mreyes"
+    }
+  ],
+  "total_checks_local": "23,800.00",
+  "total_checks_local_raw": 23800
+}

@@ -1,0 +1,41 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Revenue Summary",
+  "group_by_label": "Transaction Code Group",
+  "as_of": "15/07/26",
+  "mtd_period": "01/07/26 – 15/07/26",
+  "ytd_period": "01/01/26 – 15/07/26",
+  "currency_code": "PHP",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "rows": [
+    {
+      "code": "ROOMS",
+      "description": "Rooms Revenue",
+      "mtd": "3,434,314.17",
+      "ytd": "104,752,186.44",
+      "qty_mtd": "—",
+      "qty_ytd": "—"
+    },
+    {
+      "code": "F&B",
+      "description": "Food & Beverage",
+      "mtd": "1,452,401.55",
+      "ytd": "83,978,090.77",
+      "qty_mtd": "—",
+      "qty_ytd": "—"
+    },
+    {
+      "code": "OTHERS",
+      "description": "Other Operating Revenue",
+      "mtd": "110,225.25",
+      "ytd": "7,366,689.03",
+      "qty_mtd": "—",
+      "qty_ytd": "—"
+    }
+  ],
+  "total_mtd": "4,996,940.97",
+  "total_ytd": "196,096,966.24",
+  "total_qty_mtd": "—",
+  "total_qty_ytd": "—"
+}

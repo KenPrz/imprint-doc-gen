@@ -1,0 +1,273 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "1",
+      "Sample Grand Hotel",
+      "SGH",
+      "Task Sheets",
+      "TASK_SHEET",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "Task assignment of 15/07/26",
+      "Sheet 1 — Liza Cruz",
+      "Section",
+      "STD-WING",
+      "Rooms",
+      "2",
+      "Floor",
+      "Floor 1",
+      "Credits",
+      "5",
+      "",
+      "#",
+      "Room",
+      "Type",
+      "HK",
+      "FO",
+      "Guest",
+      "Arr",
+      "Dep",
+      "Task",
+      "Cr",
+      "Linen",
+      "Pri",
+      "Instructions",
+      "Done",
+      "1",
+      "101",
+      "STD",
+      "DIR",
+      "OCCUPIED",
+      "Anna Lim",
+      "13/07/26",
+      "15/07/26",
+      "FULL",
+      "3",
+      "Y",
+      "",
+      "Full clean, change linen",
+      "☐",
+      "2",
+      "102",
+      "STD",
+      "DIR",
+      "VACANT",
+      "—",
+      "",
+      "",
+      "TIDY",
+      "2",
+      "",
+      "Y",
+      "Tidy up",
+      "☐",
+      "",
+      "Attendant signature: ______________________________        Supervisor: ______________________________",
+      "",
+      "",
+      "Task assignment 15/07/26 · task_sheet",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Task Sheets",
+            "TASK_SHEET"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Section"
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "Rooms"
+          ],
+          [
+            "2"
+          ]
+        ],
+        [
+          [
+            "Floor"
+          ],
+          [
+            "Floor 1"
+          ],
+          [
+            "Credits"
+          ],
+          [
+            "5"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "#"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Type"
+          ],
+          [
+            "HK"
+          ],
+          [
+            "FO"
+          ],
+          [
+            "Guest"
+          ],
+          [
+            "Arr"
+          ],
+          [
+            "Dep"
+          ],
+          [
+            "Task"
+          ],
+          [
+            "Cr"
+          ],
+          [
+            "Linen"
+          ],
+          [
+            "Pri"
+          ],
+          [
+            "Instructions"
+          ],
+          [
+            "Done"
+          ]
+        ],
+        [
+          [
+            "1"
+          ],
+          [
+            "101"
+          ],
+          [
+            "STD"
+          ],
+          [
+            "DIR"
+          ],
+          [
+            "OCCUPIED"
+          ],
+          [
+            "Anna Lim"
+          ],
+          [
+            "13/07/26"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "FULL"
+          ],
+          [
+            "3"
+          ],
+          [
+            "Y"
+          ],
+          [
+            ""
+          ],
+          [
+            "Full clean, change linen"
+          ],
+          [
+            "☐"
+          ]
+        ],
+        [
+          [
+            "2"
+          ],
+          [
+            "102"
+          ],
+          [
+            "STD"
+          ],
+          [
+            "DIR"
+          ],
+          [
+            "VACANT"
+          ],
+          [
+            "—"
+          ],
+          [
+            ""
+          ],
+          [
+            ""
+          ],
+          [
+            "TIDY"
+          ],
+          [
+            "2"
+          ],
+          [
+            ""
+          ],
+          [
+            "Y"
+          ],
+          [
+            "Tidy up"
+          ],
+          [
+            "☐"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Task assignment 15/07/26 · task_sheet"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

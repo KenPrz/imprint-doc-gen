@@ -1,0 +1,44 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Housekeeping Summary",
+  "report_code": "HK_SUMMARY",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "Grouped by floor",
+  "rows": [
+    {
+      "group": "Floor 1",
+      "hk_status": "CLN",
+      "vacant": "4",
+      "occupied": "2",
+      "total": "6"
+    },
+    {
+      "group": "Floor 1",
+      "hk_status": "DIR",
+      "vacant": "1",
+      "occupied": "3",
+      "total": "4"
+    }
+  ],
+  "status_totals": [
+    {
+      "hk_status": "CLN",
+      "vacant": "4",
+      "occupied": "2",
+      "total": "6"
+    },
+    {
+      "hk_status": "DIR",
+      "vacant": "1",
+      "occupied": "3",
+      "total": "4"
+    }
+  ],
+  "total_rooms": "10",
+  "total_vacant": "5",
+  "total_occupied": "5"
+}

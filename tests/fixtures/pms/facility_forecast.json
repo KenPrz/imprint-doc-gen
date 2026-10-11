@@ -1,0 +1,25 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Facility Forecast",
+  "report_code": "FACILITY_FORECAST",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "15/07/26 – 19/07/26",
+  "rows": [
+    {
+      "date": "15/07/26",
+      "arrivals": "6",
+      "stay_over": "12",
+      "departures": "4",
+      "occupied": "18",
+      "occupancy": "51.4",
+      "adults": "30",
+      "children": "4",
+      "tasks": "FULL 12 · DEP 4"
+    }
+  ],
+  "task_codes": "FULL, DEP"
+}

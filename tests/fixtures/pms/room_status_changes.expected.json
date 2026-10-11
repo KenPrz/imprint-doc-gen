@@ -1,0 +1,225 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Room Status Changes",
+      "ROOM_STATUS_CHANGES",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "15/07/26 – 15/07/26",
+      "User",
+      "Date",
+      "Time",
+      "Room",
+      "Action Type",
+      "Description",
+      "From",
+      "To",
+      "Source",
+      "Business date",
+      "Liza Cruz",
+      "15/07/26",
+      "09:12:05",
+      "0621",
+      "HK_RM_STATUS_CHANGED",
+      "Housekeeping status of Room 0621 changed from Dirty to Clean",
+      "DIR",
+      "CLN",
+      "ATTENDANT",
+      "15/07/26",
+      "SYSTEM",
+      "15/07/26",
+      "02:55:40",
+      "1621",
+      "HK_RM_CHANGED",
+      "Out of Service Room 1621 changed – From Date 2026-07-24 → 2026-07-20",
+      "2026-07-24",
+      "2026-07-20",
+      "REPAIR",
+      "14/07/26",
+      "",
+      "Source",
+      "Changes",
+      "ATTENDANT",
+      "1",
+      "REPAIR",
+      "1",
+      "Changes listed",
+      "2",
+      "",
+      "",
+      "Business date 15/07/26 · room_status_changes",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Room Status Changes",
+            "ROOM_STATUS_CHANGES"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "User"
+          ],
+          [
+            "Date"
+          ],
+          [
+            "Time"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Action Type"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "From"
+          ],
+          [
+            "To"
+          ],
+          [
+            "Source"
+          ],
+          [
+            "Business date"
+          ]
+        ],
+        [
+          [
+            "Liza Cruz"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "09:12:05"
+          ],
+          [
+            "0621"
+          ],
+          [
+            "HK_RM_STATUS_CHANGED"
+          ],
+          [
+            "Housekeeping status of Room 0621 changed from Dirty to Clean"
+          ],
+          [
+            "DIR"
+          ],
+          [
+            "CLN"
+          ],
+          [
+            "ATTENDANT"
+          ],
+          [
+            "15/07/26"
+          ]
+        ],
+        [
+          [
+            "SYSTEM"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "02:55:40"
+          ],
+          [
+            "1621"
+          ],
+          [
+            "HK_RM_CHANGED"
+          ],
+          [
+            "Out of Service Room 1621 changed – From Date 2026-07-24 → 2026-07-20"
+          ],
+          [
+            "2026-07-24"
+          ],
+          [
+            "2026-07-20"
+          ],
+          [
+            "REPAIR"
+          ],
+          [
+            "14/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Source"
+          ],
+          [
+            "Changes"
+          ]
+        ],
+        [
+          [
+            "ATTENDANT"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "REPAIR"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "Changes listed"
+          ],
+          [
+            "2"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Business date 15/07/26 · room_status_changes"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

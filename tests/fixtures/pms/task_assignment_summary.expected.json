@@ -1,0 +1,223 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Task Assignment Summary",
+      "TASK_ASSIGNMENT_SUMMARY",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "Task assignment of 15/07/26 · Sorted by sheet",
+      "Sheet",
+      "Attendant",
+      "Section",
+      "Rooms",
+      "Credits",
+      "Dirty",
+      "Pickup",
+      "Clean",
+      "Insp",
+      "Dep",
+      "Adults",
+      "Child",
+      "Done",
+      "1",
+      "Liza Cruz",
+      "STD-WING",
+      "8",
+      "16",
+      "5",
+      "1",
+      "2",
+      "0",
+      "3",
+      "11",
+      "2",
+      "2",
+      "",
+      "Totals",
+      "Sheets",
+      "1",
+      "Rooms",
+      "8",
+      "Credits",
+      "16",
+      "Departures",
+      "3",
+      "Adults / Children",
+      "11 / 2",
+      "",
+      "",
+      "Task assignment 15/07/26 · task_assignment_summary",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Task Assignment Summary",
+            "TASK_ASSIGNMENT_SUMMARY"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Sheet"
+          ],
+          [
+            "Attendant"
+          ],
+          [
+            "Section"
+          ],
+          [
+            "Rooms"
+          ],
+          [
+            "Credits"
+          ],
+          [
+            "Dirty"
+          ],
+          [
+            "Pickup"
+          ],
+          [
+            "Clean"
+          ],
+          [
+            "Insp"
+          ],
+          [
+            "Dep"
+          ],
+          [
+            "Adults"
+          ],
+          [
+            "Child"
+          ],
+          [
+            "Done"
+          ]
+        ],
+        [
+          [
+            "1"
+          ],
+          [
+            "Liza Cruz"
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "8"
+          ],
+          [
+            "16"
+          ],
+          [
+            "5"
+          ],
+          [
+            "1"
+          ],
+          [
+            "2"
+          ],
+          [
+            "0"
+          ],
+          [
+            "3"
+          ],
+          [
+            "11"
+          ],
+          [
+            "2"
+          ],
+          [
+            "2"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Totals"
+          ]
+        ],
+        [
+          [
+            "Sheets"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "Rooms"
+          ],
+          [
+            "8"
+          ]
+        ],
+        [
+          [
+            "Credits"
+          ],
+          [
+            "16"
+          ]
+        ],
+        [
+          [
+            "Departures"
+          ],
+          [
+            "3"
+          ]
+        ],
+        [
+          [
+            "Adults / Children"
+          ],
+          [
+            "11 / 2"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Task assignment 15/07/26 · task_assignment_summary"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

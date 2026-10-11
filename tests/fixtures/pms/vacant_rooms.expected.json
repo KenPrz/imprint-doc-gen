@@ -1,0 +1,141 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Vacant Rooms",
+      "VACANT_ROOMS",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "All statuses",
+      "HK status",
+      "Room",
+      "Type",
+      "Floor",
+      "Features",
+      "Next arrival",
+      "INSP",
+      "203",
+      "DLX",
+      "Floor 2",
+      "Sea view",
+      "16/07/26",
+      "",
+      "HK status",
+      "Vacant rooms",
+      "INSP",
+      "1",
+      "Vacant rooms",
+      "1",
+      "",
+      "",
+      "Business date 15/07/26 · vacant_rooms",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Vacant Rooms",
+            "VACANT_ROOMS"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "HK status"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Type"
+          ],
+          [
+            "Floor"
+          ],
+          [
+            "Features"
+          ],
+          [
+            "Next arrival"
+          ]
+        ],
+        [
+          [
+            "INSP"
+          ],
+          [
+            "203"
+          ],
+          [
+            "DLX"
+          ],
+          [
+            "Floor 2"
+          ],
+          [
+            "Sea view"
+          ],
+          [
+            "16/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "HK status"
+          ],
+          [
+            "Vacant rooms"
+          ]
+        ],
+        [
+          [
+            "INSP"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "Vacant rooms"
+          ],
+          [
+            "1"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Business date 15/07/26 · vacant_rooms"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

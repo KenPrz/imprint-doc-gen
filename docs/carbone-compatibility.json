@@ -1,0 +1,47 @@
+{
+  "milestone": 6,
+  "sourcePmsCommit": "11d2d6eea87fe13af4f6a1f274b3cb13f63b9f42",
+  "originalTemplates": 30,
+  "distinctAuditedTextTags": 694,
+  "oracleImageId": "sha256:16b076472da31e1de2137fd7326821b4f3b615646e4b5754362e328dd5a718e5",
+  "oracleMethod": "Authorized existing PMS /render/template endpoint; static samplePayload demo data only",
+  "semanticSnapshots": "30/30 plus 9 alternate array-length outputs",
+  "tests": 169,
+  "visualComparison": {
+    "dpi": 96,
+    "results": [
+      {
+        "report": "confirmation_letter",
+        "pages": 1,
+        "changedPixels": 0
+      },
+      {
+        "report": "folio_statement",
+        "pages": 1,
+        "changedPixels": 0
+      },
+      {
+        "report": "trial_balance",
+        "pages": 3,
+        "changedPixels": 0
+      },
+      {
+        "report": "task_sheet",
+        "pages": 1,
+        "changedPixels": 0
+      },
+      {
+        "report": "registration_form",
+        "pages": 1,
+        "changedPixels": 0
+      }
+    ]
+  },
+  "limits": [
+    "Only seeded DOCX reports audited; custom MinIO templates excluded",
+    "Carbone formatter chains and XLSX syntax unsupported",
+    "Visual evidence uses the same LibreOffice converter and fonts for both engines",
+    "No PMS deployment or client changes performed"
+  ],
+  "guide": "carbone-compatibility.txt"
+}

@@ -1,7 +1,7 @@
 {
   "project": "Imprint Doc Gen",
   "researched_at": "2026-10-11",
-  "status": "milestone_5_standalone_service_implemented",
+  "status": "milestone_6_pms_carbone_docx_compatibility_implemented",
   "repository": {
     "intended_owner": "KenPrz",
     "intended_name": "imprint-doc-gen",
@@ -151,8 +151,8 @@
   "gaps": [
     "Milestone 1 runs in development and production Docker configurations; production workload and sustained-load benchmarking remain pending",
     "Independent DOCX and XLSX row repetition implemented; advanced formula/structure adapters and other formats remain to be built",
-    "Carbone-style JavaScript integration does not imply identical template syntax; existing Carbone repetition and formatter syntax requires an explicit compatibility adapter",
-    "Image replacement, geometry, headers, footers and per-item loop contexts covered by synthetic DOCX fixtures; real-world template coverage remains pending",
+    "Carbone DOCX syntax supports the 30 original seeded PMS reports. Formatter chains, Carbone XLSX syntax and unaudited custom templates require additional adapters and fixtures.",
+    "Real PMS seeded DOCX templates now supplement synthetic image/loop coverage; custom property-uploaded templates remain unaudited.",
     "Advanced repetition, editable native charts, HTML-to-Office fragments, conformance validation and signatures need explicit implementations",
     "All-format fidelity must be tested against real Office/LibreOffice documents",
     "Commercial signing trust and proprietary converter equivalence cannot be inferred from basic PDF support"
@@ -194,5 +194,11 @@
     "Durable SQLite jobs with idempotency, bounded retries and restart leases",
     "PMS guest invoice client, DOCX/XLSX templates and image attachment example",
     "Gated GHCR preview publication; PostgreSQL/S3 remain future adapters"
+  ],
+  "implemented_milestone_6": [
+    "Independent Carbone DOCX scalar, repeat and image syntax adapter",
+    "PMS-compatible authenticated one-shot request endpoint",
+    "30 unchanged PMS reports with independently acquired Carbone golden snapshots",
+    "Nine alternate array-length cases and seven-page PDF visual comparison"
   ]
 }
