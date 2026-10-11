@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-027",
+  "format": "xlsx",
+  "level": 27,
+  "tier": 3,
+  "step": 7,
+  "title": "Picture attachments",
+  "focus": "Increasing drawing anchors, distinct images and shared placeholder media",
+  "dimensions": [
+    10,
+    10,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "f9d4e963d9e435740addf2199fcce46d5c353336eb2ea5b0cf9964d022048cfc",
+    "expected": "58b96fa5abe6079c78b412c86abc86bfb888834b63e1f39bc9d3f1548b4f977c"
+  },
+  "bytes": {
+    "template": 4780,
+    "expected": 5207
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

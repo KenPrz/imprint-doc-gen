@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-11",
+  "fixtureRevision": 2,
+  "fixtureCases": {
+    "passed": 200,
+    "failed": 0
+  },
+  "documentsChecked": 400,
+  "engine": {
+    "docx": {
+      "passed": 50,
+      "failed": 0,
+      "unsupported": 50,
+      "notRun": 0,
+      "highestContiguousLevel": 50
+    },
+    "xlsx": {
+      "passed": 0,
+      "failed": 0,
+      "unsupported": 100,
+      "notRun": 0,
+      "highestContiguousLevel": 0
+    }
+  },
+  "officeSummary": {
+    "converted": 385,
+    "failed": 3,
+    "not-run": 12
+  },
+  "visualSummary": {
+    "levels": [
+      1,
+      20,
+      50
+    ],
+    "format": "docx",
+    "pagesCompared": 7,
+    "differentPixels": 0,
+    "dpi": 96,
+    "method": "Actual and reference PDFs converted by the same pinned container, rasterized with pdftoppm; decoded RGBA pixels compared",
+    "manualInspection": "DOCX level 20 page 1 inspected: scalar text and alternating replacement pictures visible",
+    "scope": "Selected synthetic fixtures only; no general layout fidelity claim"
+  },
+  "details": "milestone-1-validation.json",
+  "interpretation": "Fixture validity, renderer coverage, conversion success and visual evidence are separate measurements."
+}

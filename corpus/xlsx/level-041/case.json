@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-041",
+  "format": "xlsx",
+  "level": 41,
+  "tier": 5,
+  "step": 1,
+  "title": "Formula preservation",
+  "focus": "Increasing formulas with relative, absolute, mixed and cross-sheet references",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "b8c8269ec3cd8a23bb0cab366141a0defe25f5d3d7b904e1b51972eb7b6a5f12",
+    "expected": "3723e8a0bf2a0bf931a9968e903ebf88d99a424afcb8b103ff356f5ada06b402"
+  },
+  "bytes": {
+    "template": 5612,
+    "expected": 6044
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

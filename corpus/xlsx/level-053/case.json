@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-053",
+  "format": "xlsx",
+  "level": 53,
+  "tier": 6,
+  "step": 3,
+  "title": "Repeated rows",
+  "focus": "Increasing item counts, typed numeric output and rebased row formulas",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    3,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "a89b501c8194054135eee8135c89c23cef98303768a6d88c65166a9651f8a7fa",
+    "expected": "2d564ed7d37055f108c0185ed671db89df3a5f48d61ce63b480b852bf34de972"
+  },
+  "bytes": {
+    "template": 6136,
+    "expected": 6660
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

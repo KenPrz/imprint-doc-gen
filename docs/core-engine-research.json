@@ -1,0 +1,170 @@
+{
+  "project": "Imprint Doc Gen",
+  "date": "2026-10-11",
+  "status": "source_analysis_and_design_with_milestone_1_independent_implementation",
+  "reference": {
+    "repository": "https://github.com/open-xml-templating/docxtemplater",
+    "commit": "0894df85bdfa3157f6a6e55b74279fc57a9f0d4c",
+    "manifest_version": "3.71.0",
+    "version_note": "Source manifest only; v3.71.0 tag lookup failed. No npm package execution or release equivalence established."
+  },
+  "scope": {
+    "method": "Static public-source and documentation analysis, per REA routing for complete source repositories.",
+    "excluded": [
+      "Proprietary modules",
+      "Runtime parity claims",
+      "Claims of a formal clean-room process"
+    ],
+    "ownership": "Implement new Imprint Doc Gen TypeScript code from a written behavior specification and OOXML standards. A fork retains upstream copyright and notices; it is not exclusive ownership of upstream code."
+  },
+  "findings": [
+    {
+      "id": "D01",
+      "status": "observed_static",
+      "claim": "Compilation and rendering are separate stages; per-part XmlTemplater drives XML lexing, delimiter parsing, module parsing, postparse and rendering.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/xml-templater.js"
+    },
+    {
+      "id": "D02",
+      "status": "observed_static",
+      "claim": "Lexer concatenates text-part content for delimiter detection, then maps delimiter offsets back to original parts. This supports placeholder recognition across XML text runs.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/lexer.js"
+    },
+    {
+      "id": "D03",
+      "status": "observed_static",
+      "claim": "Parser assembles placeholder text across intervening XML tokens, retains tail parts, and selects module matchers before a generic placeholder fallback.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/parser.js"
+    },
+    {
+      "id": "D04",
+      "status": "observed_static",
+      "claim": "Rendering dispatches parts to modules, retains unhandled content/tag parts, accumulates errors and then collects rendered values.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/render.js"
+    },
+    {
+      "id": "D05",
+      "status": "documented",
+      "claim": "The public core has an MIT licensing option. A copy or substantial reuse must retain the required copyright and permission notice.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/LICENSE.md"
+    },
+    {
+      "id": "D06",
+      "status": "documented",
+      "claim": "Office packages contain XML parts and relationships; OOXML defines document representation and packaging independently of Docxtemplater.",
+      "source": "https://ecma-international.org/publications-and-standards/standards/ecma-376/"
+    },
+    {
+      "id": "D07",
+      "status": "documented",
+      "claim": "Image placement uses an image part, a part relationship and drawing markup including image reference and dimensions.",
+      "source": "https://learn.microsoft.com/en-us/office/open-xml/word/how-to-insert-a-picture-into-a-word-processing-document"
+    }
+  ],
+  "design": {
+    "runtime": "Node.js LTS and strict TypeScript",
+    "dependencies": {
+      "retained": [
+        "@zip.js/zip.js for package I/O",
+        "@xmldom/xmldom for targeted XML structures",
+        "sharp for image pixels",
+        "Gotenberg for PDF conversion"
+      ],
+      "removed_from_production": [
+        "docxtemplater",
+        "pizzip"
+      ],
+      "reference_only": [
+        "Docxtemplater public core for optional development-time behavior comparison"
+      ]
+    },
+    "modules": [
+      {
+        "name": "package",
+        "responsibility": "Read bounded ZIP entries, resolve OPC relationships and content types, preserve unrelated entries, reject ambiguous duplicate paths and malformed input."
+      },
+      {
+        "name": "compiler",
+        "responsibility": "Build namespace-aware source spans and logical text groups; recognize tags split across runs; produce an immutable document plan with source locations. Preserve untouched XML spans instead of serializing entire documents."
+      },
+      {
+        "name": "expressions",
+        "responsibility": "Interpret data paths, conditions and registered formatters; JSON-only input, own-property access and blocked prototype keys; no arbitrary JavaScript execution."
+      },
+      {
+        "name": "structure",
+        "responsibility": "Model repeated paragraphs and table rows with explicit boundaries, nesting and section-property rules; reject unsupported overlapping ranges."
+      },
+      {
+        "name": "renderer",
+        "responsibility": "Create a fresh scope stack and package mutation set per job; escape inserted text and preserve styles outside replacements."
+      },
+      {
+        "name": "assets",
+        "responsibility": "Resolve attachments through an injected resolver, normalize with sharp, allocate media and relationship IDs, and render image bindings in the current loop scope."
+      },
+      {
+        "name": "docx",
+        "responsibility": "Implement Word-specific body, header, footer, table, drawing and whitespace behavior."
+      },
+      {
+        "name": "pptx_and_xlsx",
+        "responsibility": "Later format adapters; do not assume Word repetition semantics apply to slides or spreadsheet formulas."
+      }
+    ],
+    "image_first_contract": [
+      "Bind an existing placeholder picture to an attachment key using documented alternative text syntax.",
+      "Resolve each binding against the current repeated-item scope.",
+      "Preserve picture position and apply explicit contain/cover geometry policy.",
+      "Allocate relationships in the owning document/header/footer part; avoid changing other pictures that share original media.",
+      "Use fresh drawing identifiers as required when repeating structural fragments.",
+      "Choose and document missing-image behavior instead of silently producing broken relationships."
+    ],
+    "api_intent": [
+      "compile(templateBytes, options) returns an immutable compiled template",
+      "render(compiledTemplate, data, attachments) returns document bytes",
+      "SDK convenience render(templateBytes, data, options)"
+    ],
+    "compatibility": "Start with a documented Imprint Doc Gen syntax. Carbone syntax and Docxtemplater syntax are separate optional adapters with explicit supported subsets.",
+    "maintenance_tradeoff": "Owning the template engine adds format-correctness and regression maintenance. Existing ZIP, XML, image and PDF components remain dependencies."
+  },
+  "validation": {
+    "status": "planned_not_executed",
+    "fixtures": [
+      "Placeholder split across styled text runs, including escaped XML characters and Unicode",
+      "Scalar replacement preserving surrounding formatting and significant whitespace",
+      "Nested table-row loops with correct item and parent scopes",
+      "Empty lists and false conditions preserving valid document structure",
+      "Two repeated rows with different image attachments",
+      "Two pictures sharing original media where only one binding changes",
+      "Body, header and footer image relationships",
+      "Section breaks, page breaks and merged table cells",
+      "Missing data, malformed tags and unsupported structures with source-located errors",
+      "Bounded ZIP expansion, deeply nested expressions and render cancellation",
+      "Parallel rendering from the same immutable compiled template without shared state",
+      "Word/LibreOffice opening plus PDF visual regression of our own fixtures"
+    ],
+    "comparison": "Compare documented text/loop behavior against the public core where semantics match; compare images against our expected fixtures and OOXML requirements, not uninspected paid modules."
+  },
+  "loop_and_scope_findings": [
+    {
+      "id": "D08",
+      "status": "observed_static",
+      "claim": "Loop delimiter pairs are validated, expanded to structural boundaries and recursively compiled. Rendering has specific handling for Word section properties, header/footer references and page breaks, plus PowerPoint table row identifiers and shape height.",
+      "sources": [
+        "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/modules/expand-pair-trait.js",
+        "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/modules/loop.js"
+      ]
+    },
+    {
+      "id": "D09",
+      "status": "observed_static",
+      "claim": "Scope frames track nested iteration identity. Null/undefined lookup results fall back to parent scopes; false, zero and empty strings remain resolved values. Async resolution retains nested iteration identity. Imprint Doc Gen must explicitly define these semantics, including whether explicit null should fall back.",
+      "source": "https://github.com/open-xml-templating/docxtemplater/blob/0894df85bdfa3157f6a6e55b74279fc57a9f0d4c/es6/scope-manager.js"
+    }
+  ],
+  "remaining": [
+    "No implementation, package installation, performance measurement or full feature parity established"
+  ],
+  "implementation_note": "DOCX scalar and image compiler/renderer implemented; see milestone-1-validation.json for measured coverage and remaining limits."
+}

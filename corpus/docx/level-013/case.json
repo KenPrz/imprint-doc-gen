@@ -1,0 +1,54 @@
+{
+  "id": "docx-013",
+  "format": "docx",
+  "level": 13,
+  "tier": 2,
+  "step": 3,
+  "title": "Picture attachments",
+  "focus": "Increasing picture placements, distinct attachments, shared placeholder media and varied extents",
+  "dimensions": [
+    10,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "b70dbfa786bcfc7c1609872618bced5904e4a4d5d2eb8a1be214a3ed3c156d69",
+    "expected": "96f80da609a1cb7a87a8f9a70414f869e830ee53d08b105be9fd015541a02c70"
+  },
+  "bytes": {
+    "template": 2720,
+    "expected": 3089
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

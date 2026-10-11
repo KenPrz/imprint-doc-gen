@@ -1,0 +1,54 @@
+{
+  "id": "docx-033",
+  "format": "docx",
+  "level": 33,
+  "tier": 4,
+  "step": 3,
+  "title": "Inline structure",
+  "focus": "Hyperlinks, bookmarks and content controls surrounding split placeholders",
+  "dimensions": [
+    10,
+    10,
+    10,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "cbfdea24c033b409ccaf1e594a7b5a12055eaacb909cd6ffc70c2d82944b7ada",
+    "expected": "a6d028948d2d1bb4b668cf1c59f6d67f38ea58c8568220ac00610a89b02c4aa3"
+  },
+  "bytes": {
+    "template": 3627,
+    "expected": 3780
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

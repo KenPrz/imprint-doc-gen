@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-088",
+  "format": "xlsx",
+  "level": 88,
+  "tier": 9,
+  "step": 8,
+  "title": "Package obfuscation",
+  "focus": "Namespace aliases, nonsequential relationship IDs, XML comments and ZIP entry order",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    8,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "35a94b8b01781c5069f6d4f0b597ed39ed759c64e8d02d9a9b14328e5b732396",
+    "expected": "5c30d5943b2eba406d81498897a7fa888f62cc76a13b0590ab38b9ebb93e38f9"
+  },
+  "bytes": {
+    "template": 12102,
+    "expected": 13093
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

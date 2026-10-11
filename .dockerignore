@@ -1,0 +1,10 @@
+.git
+node_modules
+dist
+artifacts
+corpus/actual
+corpus/results
+.env
+.env.*
+!.env.example
+*.log

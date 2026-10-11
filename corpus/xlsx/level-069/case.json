@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-069",
+  "format": "xlsx",
+  "level": 69,
+  "tier": 7,
+  "step": 9,
+  "title": "Multiple worksheets",
+  "focus": "Increasing sheets with shared strings and nontrivial names",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    9,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "80554c1853e096705b69238504db094c96030841a5caecb95894e5089c570d80",
+    "expected": "2ac640675ff2f24f76c822b9607448d9c924b9c5ca8275e159693504a8978b12"
+  },
+  "bytes": {
+    "template": 9421,
+    "expected": 10207
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

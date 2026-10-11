@@ -1,0 +1,116 @@
+IMPRINT-DOC-GEN DOCUMENT CORPUS V1
+
+Purpose
+  100 DOCX levels and 100 XLSX levels, each with a template, JSON input,
+  attachment mapping, expected document, hashes and a machine-readable recipe.
+  The 100 levels are ten cumulative feature bands with ten parameter steps each.
+  They are not 100 separate implemented engine features or a proof of full Office
+  compatibility. A new band retains earlier bands at their maximum severity.
+
+What obfuscation means here
+  Valid packaging and document complexity: fragmented placeholders, shared rich
+  strings, namespace aliases, nonsequential relationship IDs, XML comments,
+  shuffled ZIP entries and stored versus compressed members. Files are neither
+  encrypted nor deliberately malformed. Rejection tests belong in another suite.
+  Revision 2 writes ZIP local sizes explicitly (no streaming data descriptors)
+  and keeps default namespaces in package content-types and relationship files.
+  LibreOffice rejected certain DOCX variants of those packaging representations;
+  namespace alias challenges remain in document and worksheet XML content.
+
+Commands (Node.js 24; application and fixture code are TypeScript)
+  npm ci --ignore-scripts
+  npm run typecheck
+  npm test
+  npm run corpus:generate
+  npm run corpus:validate
+  npm run corpus:score -- /absolute/path/to/engine-output
+
+Dependencies have exact versions recorded in package.json and package-lock.json.
+ZIP/XML libraries are shared by the fixture tools and production engine.
+Generation can also write elsewhere: node scripts/corpus/generate.ts /tmp/corpus-copy
+Generation replaces the four generated files within each known case directory;
+it does not delete other files. Do not hand-edit generated files; edit the builders.
+
+Layout
+  corpus/index.html                     filterable local catalog with file links
+  corpus/manifest.json                  complete index and validation limitations
+  corpus/levels.csv                     searchable spreadsheet-friendly inventory
+  corpus/curriculum.json                ten bands per format
+  corpus/attachments/{red,blue}.png      deterministic attachment samples
+  corpus/docx/level-001/template.docx    input document
+  corpus/docx/level-001/expected.docx    reference output, not engine-generated
+  corpus/docx/level-001/input.json       JSON binding data
+  corpus/docx/level-001/case.json        recipe, checks and attachment references
+  corpus/xlsx/level-001/...              equivalent XLSX set
+  corpus/results/                      local fixture and engine reports, gitignored
+
+Template dialect: imprint-doc-gen-corpus-v1
+  {{title}} binds a scalar; nested paths and ../name refer to current/parent scope.
+  Preserve significant whitespace and escape XML in inserted strings.
+  {{#each items}} ... {{/each}} repeats a structural region.
+  In a DOCX row or XLSX row the start and end markers select that complete row.
+  DOCX standalone marker paragraphs delimit paragraph blocks and are removed.
+  Nested group/child marker paragraphs carry a new scope for each iteration.
+  Use the first placeholder character's run formatting for replacement text.
+  Existing picture alternative text {{image:red}} selects attachment "red".
+  Within a loop {{image:image}} resolves the current item's image attachment key.
+  Preserve picture geometry, bind each placement independently, and replace the
+  marker description with ordinary alternative text. Descriptions are not used
+  as a pixel-correctness oracle, but unresolved tags are rejected.
+  The corpus's PNGs are already correctly sized/encoded; arbitrary uploaded image
+  decoding, EXIF, transparency, cover/contain and SVG fallback need further cases.
+
+XLSX rules
+  A full-cell scalar keeps its JSON type: number -> numeric cell, boolean -> b.
+  Strings beginning with '=' remain literal strings, never executable formulas.
+  Shared-string and inline-string representations are semantically interchangeable
+  when text and rich formatting are preserved. Shared-string table order is not
+  compared. Existing formula references and cached values are checked.
+  Repeated rows rebase relative formula references; absolute and mixed references
+  remain meaningful. Cells below the insertion move by the inserted row count.
+  Dependent table/filter/name/validation/conditional-formatting ranges expand.
+  Column E's loop-end marker cell is removed after XLSX row expansion.
+  This corpus does not implement a general Excel calculation engine.
+
+Engine integration
+  Render each case using its template, input.json and resolved attachment mapping.
+  Write outputs to <output>/docx/level-001.docx and
+  <output>/xlsx/level-001.xlsx, through level-100 for both formats.
+  Run corpus:score against that output directory. Missing outputs are NOT RUN,
+  not passes. Exit code 0 means every semantic check passed, 1 means failures,
+  and 2 means incomplete coverage without failures. The report gives passed/failed/
+  unsupported/not-run and highest contiguous passing level separately for each format.
+  The scorer compares supplied files; it does not prove which engine generated
+  them. Never copy expected files into the output folder and report engine success.
+
+What validation establishes
+  ZIP CRCs, XML parsing, content-type coverage, relationship integrity, scalar
+  values, typed cells, formulas, structural snapshots, picture bytes/geometry,
+  selected style and layout preservation, and untouched preservation parts.
+  Mutation tests prove wrong text/images/formulas/styles/ranges are detected.
+  Namespace aliases, relationship IDs and ZIP ordering are not correctness tests.
+  The snapshot currently expects generated part paths and selected style indices;
+  engines that legitimately rename parts or rewrite equivalent style tables will
+  need an expanded semantic normalizer before cross-engine scoring is fair.
+  Formula cached values are required by this baseline. An engine relying solely
+  on Excel recalculation needs a separate recalculation adapter before comparison.
+  Templates and reference outputs share low-level builders. Independent assertions
+  from input data and mutation tests reduce correlated mistakes, not eliminate them.
+
+What has NOT been established
+  Full OOXML schema conformance, Word/Excel repair-free opening, layout/pagination
+  fidelity, PDF visual equivalence, production performance, or engine compatibility.
+  Docker supplies LibreOffice independently of the host installation. See
+  docs/milestone-1-validation.json for measured conversion and visual checks.
+  Do not mark visual validation passed on the basis of XML/package tests.
+  Generated fixtures require an independent Office application review before being
+  accepted as visual goldens. Synthetic cases should later be joined by consented,
+  anonymized real-world templates and minimized reproductions of production bugs.
+
+Design references
+  https://learn.microsoft.com/en-us/office/open-xml/word/structure-of-a-wordprocessingml-document
+  https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/structure-of-a-spreadsheetml-document
+  https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/working-with-the-shared-string-table
+  https://ecma-international.org/publications-and-standards/standards/ecma-376/
+
+Roadmap: docs/corpus-roadmap.json

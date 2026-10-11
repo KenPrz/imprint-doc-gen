@@ -1,0 +1,65 @@
+name: imprint-doc-gen
+services:
+  app:
+    image: imprint-doc-gen:production
+    build:
+      context: .
+      target: production
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3000"
+      IMPRINT_API_KEY: ${IMPRINT_API_KEY:-}
+      GOTENBERG_URL: http://gotenberg:3000
+    ports:
+      - "127.0.0.1:${IMPRINT_PORT:-8088}:3000"
+    depends_on:
+      gotenberg:
+        condition: service_healthy
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 768m
+    cpus: 2
+    restart: unless-stopped
+    networks: [rendering]
+  gotenberg:
+    image: imprint-doc-gen:converter-8.37.0-pdfcpu-0.16.1
+    build:
+      context: .
+      dockerfile: Dockerfile.gotenberg
+    environment:
+      XDG_CONFIG_HOME: /tmp/config
+      XDG_CACHE_HOME: /tmp/cache
+    command:
+      - gotenberg
+      - --api-body-limit=20MB
+      - --api-timeout=60s
+      - --api-disable-download-from=true
+      - --webhook-disable=true
+      - --chromium-disable-routes=true
+      - --libreoffice-max-queue-size=8
+    expose: ["3000"]
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:3000/health]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256
+    mem_limit: 1536m
+    cpus: 2
+    restart: unless-stopped
+    networks: [rendering]
+networks:
+  rendering:
+    internal: true

@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-035",
+  "format": "xlsx",
+  "level": 35,
+  "tier": 4,
+  "step": 5,
+  "title": "Worksheet layout",
+  "focus": "Increasing styled cells and merged ranges, frozen panes and explicit dimensions",
+  "dimensions": [
+    10,
+    10,
+    10,
+    5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "d2d1f5f8fe66e27bec3dbfd4ff2ff710774fd3793721cb633e99f1efd3b1263e",
+    "expected": "628d2fdab38b24162a7b6a983f22f99e2d10ac3f616ee5775cd0b5d1830dcd9b"
+  },
+  "bytes": {
+    "template": 5078,
+    "expected": 5507
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

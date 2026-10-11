@@ -1,0 +1,54 @@
+{
+  "id": "docx-054",
+  "format": "docx",
+  "level": 54,
+  "tier": 6,
+  "step": 4,
+  "title": "Repeated table rows",
+  "focus": "Increasing item counts, per-item images and row-local loop scope",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    4,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "627f26eeba6fbcd1ced16dc9d7f128c27c2a92f2920b1e6f82b330a751b4c762",
+    "expected": "842213fa24a9dbce5e1278dca64e73369e00e482198949d7467968b608cad1de"
+  },
+  "bytes": {
+    "template": 6277,
+    "expected": 6042
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "docx-050",
+  "format": "docx",
+  "level": 50,
+  "tier": 5,
+  "step": 10,
+  "title": "Header and footer stories",
+  "focus": "Repeated header/footer bindings and images with part-local relationships",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "b55781419b290357060ac76299e1990b7969d966fa1a2342eea0f53832faab13",
+    "expected": "988f319ccddcecd4aa3aa81e7b4ddc15edd650a48abb2c3f765b9c27bccc0851"
+  },
+  "bytes": {
+    "template": 5797,
+    "expected": 5826
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

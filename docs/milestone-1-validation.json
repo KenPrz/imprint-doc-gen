@@ -1,0 +1,103 @@
+{
+  "project": "imprint-doc-gen",
+  "date": "2026-10-11",
+  "milestone": 1,
+  "fixtureRevision": 2,
+  "implementation": [
+    "Independent TypeScript DOCX compiler/renderer",
+    "Scalar replacements across formatted runs",
+    "PNG/JPEG existing picture replacement including headers and footers",
+    "SDK, CLI, authenticated HTTP API, private PDF converter",
+    "Development Docker override and production Docker configuration"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "automatedTests": {
+      "passed": 34,
+      "failed": 0
+    },
+    "fixtureCases": {
+      "passed": 200,
+      "failed": 0,
+      "documentsChecked": 400
+    },
+    "engine": {
+      "docx": {
+        "passed": 50,
+        "failed": 0,
+        "unsupported": 50,
+        "notRun": 0,
+        "highestContiguousLevel": 50
+      },
+      "xlsx": {
+        "passed": 0,
+        "failed": 0,
+        "unsupported": 100,
+        "notRun": 0,
+        "highestContiguousLevel": 0
+      }
+    },
+    "developmentApiSmoke": "health, authentication, DOCX and PDF passed",
+    "productionApiSmoke": "health, authentication, DOCX and PDF passed",
+    "composeConfigurations": "production base and development override validated"
+  },
+  "office": {
+    "converter": "Gotenberg 8.37.0 / LibreOffice 26.8.0.3 / pdfcpu 0.16.1",
+    "summary": {
+      "converted": 385,
+      "failed": 3,
+      "not-run": 12
+    },
+    "docx": {
+      "converted": 185,
+      "failed": 3,
+      "not-run": 12
+    },
+    "xlsx": {
+      "converted": 200
+    },
+    "limitations": "DOCX level 93 expected times out on a fresh converter. Level 94 template/expected subsequently time out on the stalled converter. Levels 95\u2013100 were not run. The converter was restarted before XLSX tests. Successful conversion does not prove repair-free Microsoft Office opening."
+  },
+  "visual": {
+    "levels": [
+      1,
+      20,
+      50
+    ],
+    "format": "docx",
+    "pagesCompared": 7,
+    "differentPixels": 0,
+    "dpi": 96,
+    "method": "Actual and reference PDFs converted by the same pinned container, rasterized with pdftoppm; decoded RGBA pixels compared",
+    "manualInspection": "DOCX level 20 page 1 inspected: scalar text and alternating replacement pictures visible",
+    "scope": "Selected synthetic fixtures only; no general layout fidelity claim"
+  },
+  "repository": {
+    "local": "initialized on main; this report accompanies the initial commit",
+    "origin": "https://github.com/KenPrz/imprint-doc-gen.git",
+    "remoteCreated": false,
+    "pushed": false,
+    "blocker": "gh repo create could not connect to api.github.com"
+  },
+  "notEstablished": [
+    "Full OOXML schema validation",
+    "Repair-free Microsoft Word/Excel opening",
+    "Real-world document compatibility",
+    "Production load and tenant isolation",
+    "Remote GitHub Actions execution"
+  ],
+  "next": [
+    "Diagnose DOCX stress level 93 converter hang and add converter recovery before external deployment",
+    "Implement DOCX structural loops with scope and repeated-image isolation",
+    "Implement XLSX typed scalars and images, then row/formula/range rewriting",
+    "Add durable jobs, tenant storage and template versions"
+  ],
+  "evidence": [
+    "corpus/results/fixture-validation.json",
+    "corpus/results/engine-score.json",
+    "corpus/results/renderer-attempts.json",
+    "docs/office-validation.json",
+    "corpus/results/visual-validation.json"
+  ]
+}

@@ -1,0 +1,767 @@
+{
+  "title": "Imprint Doc Gen — Café & Tea <2026>",
+  "customer": "Zoë 山田 & Sons",
+  "spaced": "  preserve these spaces  ",
+  "literal": "=1+1",
+  "enabled": false,
+  "count": 0,
+  "items": [
+    {
+      "name": "Item 1 — Ω",
+      "quantity": 1,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 2 — Ω",
+      "quantity": 2,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 3 — Ω",
+      "quantity": 3,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 4 — Ω",
+      "quantity": 4,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 5 — Ω",
+      "quantity": 5,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 6 — Ω",
+      "quantity": 6,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 7 — Ω",
+      "quantity": 7,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 8 — Ω",
+      "quantity": 8,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 9 — Ω",
+      "quantity": 9,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 10 — Ω",
+      "quantity": 10,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 11 — Ω",
+      "quantity": 11,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 12 — Ω",
+      "quantity": 12,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 13 — Ω",
+      "quantity": 13,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 14 — Ω",
+      "quantity": 14,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 15 — Ω",
+      "quantity": 15,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 16 — Ω",
+      "quantity": 16,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 17 — Ω",
+      "quantity": 17,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 18 — Ω",
+      "quantity": 18,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 19 — Ω",
+      "quantity": 19,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 20 — Ω",
+      "quantity": 20,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 21 — Ω",
+      "quantity": 21,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 22 — Ω",
+      "quantity": 22,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 23 — Ω",
+      "quantity": 23,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 24 — Ω",
+      "quantity": 24,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 25 — Ω",
+      "quantity": 25,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 26 — Ω",
+      "quantity": 26,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 27 — Ω",
+      "quantity": 27,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 28 — Ω",
+      "quantity": 28,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 29 — Ω",
+      "quantity": 29,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 30 — Ω",
+      "quantity": 30,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 31 — Ω",
+      "quantity": 31,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 32 — Ω",
+      "quantity": 32,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 33 — Ω",
+      "quantity": 33,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 34 — Ω",
+      "quantity": 34,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 35 — Ω",
+      "quantity": 35,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 36 — Ω",
+      "quantity": 36,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 37 — Ω",
+      "quantity": 37,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 38 — Ω",
+      "quantity": 38,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 39 — Ω",
+      "quantity": 39,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 40 — Ω",
+      "quantity": 40,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 41 — Ω",
+      "quantity": 41,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 42 — Ω",
+      "quantity": 42,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 43 — Ω",
+      "quantity": 43,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 44 — Ω",
+      "quantity": 44,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 45 — Ω",
+      "quantity": 45,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 46 — Ω",
+      "quantity": 46,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 47 — Ω",
+      "quantity": 47,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 48 — Ω",
+      "quantity": 48,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 49 — Ω",
+      "quantity": 49,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 50 — Ω",
+      "quantity": 50,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 51 — Ω",
+      "quantity": 51,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 52 — Ω",
+      "quantity": 52,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 53 — Ω",
+      "quantity": 53,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 54 — Ω",
+      "quantity": 54,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 55 — Ω",
+      "quantity": 55,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 56 — Ω",
+      "quantity": 56,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 57 — Ω",
+      "quantity": 57,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 58 — Ω",
+      "quantity": 58,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 59 — Ω",
+      "quantity": 59,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 60 — Ω",
+      "quantity": 60,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 61 — Ω",
+      "quantity": 61,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 62 — Ω",
+      "quantity": 62,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 63 — Ω",
+      "quantity": 63,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 64 — Ω",
+      "quantity": 64,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 65 — Ω",
+      "quantity": 65,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 66 — Ω",
+      "quantity": 66,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 67 — Ω",
+      "quantity": 67,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 68 — Ω",
+      "quantity": 68,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 69 — Ω",
+      "quantity": 69,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 70 — Ω",
+      "quantity": 70,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 71 — Ω",
+      "quantity": 71,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 72 — Ω",
+      "quantity": 72,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 73 — Ω",
+      "quantity": 73,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 74 — Ω",
+      "quantity": 74,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 75 — Ω",
+      "quantity": 75,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 76 — Ω",
+      "quantity": 76,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 77 — Ω",
+      "quantity": 77,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 78 — Ω",
+      "quantity": 78,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 79 — Ω",
+      "quantity": 79,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 80 — Ω",
+      "quantity": 80,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 81 — Ω",
+      "quantity": 81,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 82 — Ω",
+      "quantity": 82,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 83 — Ω",
+      "quantity": 83,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 84 — Ω",
+      "quantity": 84,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 85 — Ω",
+      "quantity": 85,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 86 — Ω",
+      "quantity": 86,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 87 — Ω",
+      "quantity": 87,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 88 — Ω",
+      "quantity": 88,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 89 — Ω",
+      "quantity": 89,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 90 — Ω",
+      "quantity": 90,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 91 — Ω",
+      "quantity": 91,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 92 — Ω",
+      "quantity": 92,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 93 — Ω",
+      "quantity": 93,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 94 — Ω",
+      "quantity": 94,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 95 — Ω",
+      "quantity": 95,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 96 — Ω",
+      "quantity": 96,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 97 — Ω",
+      "quantity": 97,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 98 — Ω",
+      "quantity": 98,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 99 — Ω",
+      "quantity": 99,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 100 — Ω",
+      "quantity": 100,
+      "price": 12.5,
+      "image": "blue"
+    },
+    {
+      "name": "Item 101 — Ω",
+      "quantity": 101,
+      "price": 12.5,
+      "image": "red"
+    },
+    {
+      "name": "Item 102 — Ω",
+      "quantity": 102,
+      "price": 12.5,
+      "image": "blue"
+    }
+  ],
+  "groups": [
+    {
+      "name": "Group 1",
+      "items": [
+        {
+          "name": "Child 1.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 1.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 2",
+      "items": [
+        {
+          "name": "Child 2.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 2.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 3",
+      "items": [
+        {
+          "name": "Child 3.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 3.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 4",
+      "items": [
+        {
+          "name": "Child 4.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 4.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 5",
+      "items": [
+        {
+          "name": "Child 5.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 5.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 6",
+      "items": [
+        {
+          "name": "Child 6.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 6.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 7",
+      "items": [
+        {
+          "name": "Child 7.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 7.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 8",
+      "items": [
+        {
+          "name": "Child 8.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 8.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 9",
+      "items": [
+        {
+          "name": "Child 9.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 9.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 10",
+      "items": [
+        {
+          "name": "Child 10.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 10.2",
+          "image": "blue"
+        }
+      ]
+    },
+    {
+      "name": "Group 11",
+      "items": [
+        {
+          "name": "Child 11.1",
+          "image": "red"
+        },
+        {
+          "name": "Child 11.2",
+          "image": "blue"
+        }
+      ]
+    }
+  ]
+}

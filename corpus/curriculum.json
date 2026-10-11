@@ -1,0 +1,86 @@
+{
+  "docx": [
+    [
+      "Text fragmentation",
+      "Increasing splits within placeholders; escaping, Unicode and significant whitespace"
+    ],
+    [
+      "Picture attachments",
+      "Increasing picture placements, distinct attachments, shared placeholder media and varied extents"
+    ],
+    [
+      "Tables",
+      "Increasing rows and columns with cell-local placeholders"
+    ],
+    [
+      "Inline structure",
+      "Hyperlinks, bookmarks and content controls surrounding split placeholders"
+    ],
+    [
+      "Header and footer stories",
+      "Repeated header/footer bindings and images with part-local relationships"
+    ],
+    [
+      "Repeated table rows",
+      "Increasing item counts, per-item images and row-local loop scope"
+    ],
+    [
+      "Nested repetition",
+      "Increasing group counts with nested child items and parent scope values"
+    ],
+    [
+      "Page and section structure",
+      "Increasing sections, orientation changes and page breaks"
+    ],
+    [
+      "Package obfuscation",
+      "Namespace aliases, nonsequential relationship IDs, XML comments and ZIP entry order"
+    ],
+    [
+      "Combined bounded stress",
+      "All preceding features plus increasing long-content and repeated-row load"
+    ]
+  ],
+  "xlsx": [
+    [
+      "Cells and types",
+      "Increasing text bindings with numbers, booleans, Unicode and formula-like literal strings"
+    ],
+    [
+      "Shared and rich strings",
+      "Increasing placeholder fragmentation in shared rich-text strings"
+    ],
+    [
+      "Picture attachments",
+      "Increasing drawing anchors, distinct images and shared placeholder media"
+    ],
+    [
+      "Worksheet layout",
+      "Increasing styled cells and merged ranges, frozen panes and explicit dimensions"
+    ],
+    [
+      "Formula preservation",
+      "Increasing formulas with relative, absolute, mixed and cross-sheet references"
+    ],
+    [
+      "Repeated rows",
+      "Increasing item counts, typed numeric output and rebased row formulas"
+    ],
+    [
+      "Multiple worksheets",
+      "Increasing sheets with shared strings and nontrivial names"
+    ],
+    [
+      "Dependent ranges",
+      "Increasing range consumers: tables, filters, names, validation and conditional formatting"
+    ],
+    [
+      "Package obfuscation",
+      "Namespace aliases, nonsequential relationship IDs, XML comments and ZIP entry order"
+    ],
+    [
+      "Combined bounded stress",
+      "All preceding features plus increasing repeated rows and populated cells"
+    ]
+  ]
+}

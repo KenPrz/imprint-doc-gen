@@ -1,0 +1,54 @@
+{
+  "id": "xlsx-012",
+  "format": "xlsx",
+  "level": 12,
+  "tier": 2,
+  "step": 2,
+  "title": "Shared and rich strings",
+  "focus": "Increasing placeholder fragmentation in shared rich-text strings",
+  "dimensions": [
+    10,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.xlsx",
+  "expected": "expected.xlsx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "xl/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "df7976c6fb51f271df8235735adccb4d9963be08dcbb88a742d3e6070c5d6e20",
+    "expected": "6a4845e13cc8ca8296aefa9768ba640158ea2944d1c3ad0c512d6ffb6ea1ccb0"
+  },
+  "bytes": {
+    "template": 3062,
+    "expected": 3098
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

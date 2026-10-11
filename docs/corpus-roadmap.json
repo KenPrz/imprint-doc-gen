@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "current": {
+    "formats": {
+      "docx": 100,
+      "xlsx": 100
+    },
+    "purpose": "Cumulative synthetic generation challenges; fixtures are not completed engine support",
+    "nextGate": "Extend DOCX structural loops (levels 51\u201380), then XLSX typed cells and images; continue real-world document and Office visual validation",
+    "milestone1": "Own DOCX scalar/image renderer and Docker service implemented; measured coverage is recorded in milestone-1-validation.json"
+  },
+  "phases": [
+    {
+      "priority": 1,
+      "name": "Independent oracle and renderer integration",
+      "deliverables": [
+        "Integrate the Imprint Doc Gen renderer and record actual outputs without reference-file access",
+        "Office application repair/open checks and full schema checks with an independent toolchain",
+        "Render PDF previews with pinned fonts and converter versions; approve visual baselines",
+        "Record per-case render duration, peak memory and output size on named hardware",
+        "Run deterministic alternate ZIP/namespace/fragmentation seeds with identical semantic outputs",
+        "Add adversarial input variants: empty lists, missing/null fields, false/zero, longer Unicode values and unsupported expressions"
+      ]
+    },
+    {
+      "priority": 2,
+      "name": "Expand DOCX and XLSX coverage beyond v1",
+      "deliverables": [
+        "DOCX: merged/nested tables, numbering, footnotes/endnotes, comments, tracked changes, text boxes, anchored/cropped/rotated pictures, charts, alternate content and RTL",
+        "XLSX: dates and 1900/1904 epochs, merged cells intersecting repeats, shared/array/dynamic formulas, charts and pivots, hidden sheets, print areas, external-link preservation and drawings that move with inserted rows",
+        "Images: JPEG/PNG/SVG, EXIF orientation, transparency, missing attachments, unusual aspect ratios, contain/cover and replacement without changing unbound shared media",
+        "Add minimized and anonymized real-world Word, Excel, LibreOffice and Google-exported fixtures"
+      ]
+    },
+    {
+      "priority": 3,
+      "format": "pptx",
+      "plannedLevels": 100,
+      "bands": [
+        "text runs",
+        "pictures",
+        "shape geometry",
+        "tables",
+        "slide layouts",
+        "master/theme inheritance",
+        "slide repetition",
+        "charts and notes",
+        "relationships and alternate content",
+        "combined stress"
+      ],
+      "acceptance": [
+        "editable output",
+        "shape/slide relationships",
+        "slide image comparisons",
+        "notes preservation"
+      ]
+    },
+    {
+      "priority": 4,
+      "formats": [
+        "odt",
+        "ods",
+        "odp"
+      ],
+      "plannedLevelsPerFormat": 100,
+      "bands": [
+        "text/cells",
+        "styles",
+        "images",
+        "tables",
+        "headers and masters",
+        "repetition",
+        "formulas or notes",
+        "embedded objects",
+        "namespaces and package variations",
+        "combined stress"
+      ],
+      "acceptance": [
+        "ODF manifest and mimetype correctness",
+        "format-specific structure",
+        "LibreOffice opening",
+        "visual equivalence"
+      ]
+    },
+    {
+      "priority": 5,
+      "formats": [
+        "html-to-pdf",
+        "pdf-operations"
+      ],
+      "plannedLevelsPerFormat": 100,
+      "bands": [
+        "text and fonts",
+        "images",
+        "tables",
+        "page breaks",
+        "headers/footers",
+        "forms",
+        "merge/split",
+        "metadata/attachments",
+        "PDF conformance and signatures",
+        "combined stress"
+      ],
+      "acceptance": [
+        "page geometry",
+        "font embedding",
+        "text extraction",
+        "pixel comparison",
+        "separate PDF/A or PDF/UA validator where claimed",
+        "signature verification where claimed"
+      ]
+    },
+    {
+      "priority": 6,
+      "formats": [
+        "csv",
+        "txt",
+        "json",
+        "xml"
+      ],
+      "plannedLevelsPerFormat": 100,
+      "acceptance": [
+        "escaping",
+        "encoding",
+        "locale behavior",
+        "formula-injection policy for CSV",
+        "streaming and bounded memory",
+        "round-trip parsing"
+      ]
+    },
+    {
+      "priority": 7,
+      "name": "Legacy and specialist formats",
+      "formats": [
+        "doc",
+        "xls",
+        "ppt",
+        "rtf",
+        "macro-enabled Office"
+      ],
+      "status": "Adapter feasibility and support policy first; no support promise",
+      "acceptance": [
+        "explicit conversion contract",
+        "macro preservation or rejection policy",
+        "no silent format loss"
+      ]
+    }
+  ],
+  "separateRejectionSuite": {
+    "status": "planned",
+    "cases": [
+      "truncated ZIP",
+      "duplicate paths",
+      "traversal paths",
+      "invalid XML",
+      "dangling relationships",
+      "bounded expansion-limit violations",
+      "unsupported encryption",
+      "blocked external asset access",
+      "template execution attempts"
+    ],
+    "success": "Typed actionable error within resource limits; never mixed with valid-document generation score"
+  },
+  "releaseGates": [
+    "All previously supported levels remain passing",
+    "Report gaps per format and feature; do not average away image failures",
+    "Record highest contiguous level alongside total passed and not-run",
+    "Separate fixture validity, engine semantics, visual fidelity and resource budgets",
+    "Promote only reviewed goldens; never update them automatically to match failing renderer output"
+  ]
+}

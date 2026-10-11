@@ -1,0 +1,54 @@
+{
+  "id": "docx-073",
+  "format": "docx",
+  "level": 73,
+  "tier": 8,
+  "step": 3,
+  "title": "Page and section structure",
+  "focus": "Increasing sections, orientation changes and page breaks",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    3,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "088894cb71f4c7c377b269326e43b4a14e71fcdb5825d772b5728afaf08bf984",
+    "expected": "9fc26db1eecab5bc9d228bfc669a30693ecd6aa6d919e20f24685974ae460efe"
+  },
+  "bytes": {
+    "template": 6463,
+    "expected": 6834
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

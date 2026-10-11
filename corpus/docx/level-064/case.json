@@ -1,0 +1,54 @@
+{
+  "id": "docx-064",
+  "format": "docx",
+  "level": 64,
+  "tier": 7,
+  "step": 4,
+  "title": "Nested repetition",
+  "focus": "Increasing group counts with nested child items and parent scope values",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    4,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "a212369e316c924da542954a74ba87e90a48fbad032b77753f8007e52e8f157f",
+    "expected": "f29f3c65f7fd3d55bfa65f1ee0d71cf4e2d645416d95e0a5b39cdf268cb141c8"
+  },
+  "bytes": {
+    "template": 6396,
+    "expected": 6490
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

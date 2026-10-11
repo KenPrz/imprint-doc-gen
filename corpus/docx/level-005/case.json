@@ -1,0 +1,54 @@
+{
+  "id": "docx-005",
+  "format": "docx",
+  "level": 5,
+  "tier": 1,
+  "step": 5,
+  "title": "Text fragmentation",
+  "focus": "Increasing splits within placeholders; escaping, Unicode and significant whitespace",
+  "dimensions": [
+    5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "b81b0bb8ffd2a398a4821ef287cb3d52ceac77e813706ad564344691d3f150e1",
+    "expected": "2da820773f0ef9e3671eb9ce6fb3cd3b7c0bf8941ea6b0874d925d964b3536c8"
+  },
+  "bytes": {
+    "template": 2133,
+    "expected": 2134
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "docx-085",
+  "format": "docx",
+  "level": 85,
+  "tier": 9,
+  "step": 5,
+  "title": "Package obfuscation",
+  "focus": "Namespace aliases, nonsequential relationship IDs, XML comments and ZIP entry order",
+  "dimensions": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    5,
+    0
+  ],
+  "progression": "Previous bands stay at severity 10; the current band increases from 1 to 10. Difficulty is a curriculum, not a universal mathematical ordering.",
+  "dialect": "imprint-doc-gen-corpus-v1",
+  "expectedOutcome": "render-success",
+  "input": "input.json",
+  "template": "template.docx",
+  "expected": "expected.docx",
+  "attachments": {
+    "red": "../../attachments/red.png",
+    "blue": "../../attachments/blue.png"
+  },
+  "preservedParts": [
+    "word/styles.xml",
+    "customXml/fixture.xml"
+  ],
+  "sha256": {
+    "template": "1746293e4f4a147ceb3967b16cc02fd73907242569376605cf74cb52e62db6e3",
+    "expected": "6da7517633ec8afce687ec9dff1d316791a374c6f51b8e7ee90b00e7f1079224"
+  },
+  "bytes": {
+    "template": 221969,
+    "expected": 163064
+  },
+  "checks": [
+    "ZIP integrity",
+    "XML well-formedness",
+    "OPC relationship integrity",
+    "no unresolved bindings",
+    "semantic content and layout comparison",
+    "image bytes and geometry",
+    "unchanged preservation parts"
+  ],
+  "runtimeStatus": "not-run",
+  "visualStatus": "not-run"
+}
