@@ -119,6 +119,10 @@ export function compileRowRenderer(context: Context) {
         return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
       });
     }
+    for (const row of rows) if (row.path && !row.carbone) row.bindings = row.bindings.map(cell => {
+      const bindings = cell.text.bindings.map(binding => binding.carbone ? { ...binding, path: '../' + binding.path } : binding);
+      return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
+    });
     for (const row of rows) if (!row.path && !row.discard) for (const cell of row.bindings) for (const binding of cell.text.bindings) if (binding.carbone) checkPath(binding.path, sheet.part);
     return { ...sheet, rows };
   });

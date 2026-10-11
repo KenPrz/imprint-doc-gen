@@ -231,7 +231,7 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 179 passed |
+| Automated tests | 181 passed |
 | Original PMS Carbone templates | 30 unchanged DOCX files match independent snapshots; 9 extra array-length cases |
 | Selected PMS PDF comparison | Five reports, seven pages: identical pixels at 96 DPI |
 | Fixture validation | 200 cases / 400 document packages passed |
