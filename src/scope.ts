@@ -18,12 +18,12 @@ export function lookup(scope: Scope, path: string, part: string): unknown {
   }
   return value;
 }
-export function scalar(value: unknown, path: string, part: string): string {
+export function scalar(value: unknown, path: string, part: string, multiline = false): string {
   if (value === null) return '';
   if (!['string', 'number', 'boolean'].includes(typeof value) || (typeof value === 'number' && !Number.isFinite(value))) throw new RenderError('INVALID_DATA', `Expected a scalar at ${path}`, part);
   const text = String(value);
   if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ud800-\udfff\ufffe\uffff]/u.test(text)) throw new RenderError('INVALID_DATA', `Value contains invalid XML characters: ${path}`, part);
   if (text.length > 1_000_000) throw new RenderError('LIMIT_EXCEEDED', 'A replacement value exceeds its character budget', part);
-  if (/[\r\n\t]/.test(text)) throw new RenderError('UNSUPPORTED_DATA', 'Multiline and tabbed replacements require a later rendering milestone', part);
+  if (!multiline && /[\r\n\t]/.test(text)) throw new RenderError('UNSUPPORTED_DATA', 'Multiline and tabbed replacements require a later rendering milestone', part);
   return text;
 }
