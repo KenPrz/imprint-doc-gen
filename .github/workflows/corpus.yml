@@ -18,8 +18,8 @@ jobs:
       - run: npm run corpus:validate
       - run: npm run corpus:render
       - run: npm run corpus:score || test $? -eq 2
-      - name: Enforce milestone 1 coverage
-        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==50 || r.summary.docx.failed!==0 || r.summary.xlsx.failed!==0) process.exit(1)'
+      - name: Enforce DOCX corpus coverage
+        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==100 || r.summary.docx.failed!==0 || r.summary.xlsx.failed!==0) process.exit(1)'
       - name: Validate production and development Compose
         run: |
           docker compose -f compose.yml config --quiet

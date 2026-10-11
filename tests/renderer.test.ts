@@ -41,8 +41,8 @@ test('compiled templates are reusable concurrently without data leaking between 
   const results = await Promise.all(['A', 'B', 'C'].map(name => compiled.render({ name })));
   assert.deepEqual(await Promise.all(results.map(mainText)), ['A', 'B', 'C']);
 });
-test('malformed tags, arbitrary expressions and structural loops produce explicit errors', async () => {
-  for (const [tag, code] of [['{{name', 'TEMPLATE_SYNTAX'], ['{{name + 1}}', 'TEMPLATE_EXPRESSION'], ['{{constructor.name}}', 'TEMPLATE_EXPRESSION'], ['{{#each items}}', 'UNSUPPORTED_TEMPLATE']]) {
+test('malformed tags, arbitrary expressions and unclosed loops produce explicit errors', async () => {
+  for (const [tag, code] of [['{{name', 'TEMPLATE_SYNTAX'], ['{{name + 1}}', 'TEMPLATE_EXPRESSION'], ['{{constructor.name}}', 'TEMPLATE_EXPRESSION'], ['{{#each items}}', 'TEMPLATE_SYNTAX']]) {
     await assert.rejects(compile(await template(paragraph(tag!))), (e: unknown) => e instanceof RenderError && e.code === code);
   }
 });
