@@ -6,7 +6,7 @@
     "intended_owner": "KenPrz",
     "intended_name": "imprint-doc-gen",
     "visibility": "private",
-    "remote_created": false
+    "remote_created": true
   },
   "requirements": [
     "Independent standalone document-generation SaaS",

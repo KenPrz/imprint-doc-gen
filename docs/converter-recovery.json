@@ -1,0 +1,78 @@
+{
+  "timeout": "5s",
+  "results": [
+    {
+      "cycle": 1,
+      "level": 93,
+      "status": 503,
+      "elapsedMs": 5031
+    },
+    {
+      "cycle": 1,
+      "level": 1,
+      "status": 200,
+      "elapsedMs": 1228
+    },
+    {
+      "cycle": 2,
+      "level": 93,
+      "status": 503,
+      "elapsedMs": 5003
+    },
+    {
+      "cycle": 2,
+      "level": 1,
+      "status": 200,
+      "elapsedMs": 545
+    }
+  ],
+  "apiResults": [
+    {
+      "level": 93,
+      "status": 504,
+      "elapsedMs": 5374
+    },
+    {
+      "level": 1,
+      "status": 200,
+      "elapsedMs": 503
+    }
+  ],
+  "date": "2026-10-11",
+  "status": "recovery_verified_layout_stall_remains",
+  "runtime": "Gotenberg 8.37.0 / LibreOffice 26.8.0.3 / linux amd64",
+  "configuration": {
+    "libreoffice-restart-after": 1,
+    "test-api-timeout": "5s",
+    "production-api-timeout": "60s",
+    "client-deadline": "65s",
+    "max-pdf-bytes": 33554432
+  },
+  "automatedTests": {
+    "passed": 42,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "productionImageBuild": "passed",
+  "productionApiSmoke": "health/authentication/DOCX/PDF passed",
+  "fixtureSha256": "1eb42d6bfb7738f7af26bd0f20d28ec0f47e0acb76d0aed2a450f854ff8802e6",
+  "diagnosis": {
+    "directLibreOffice": "The same reference document reaches a 15-second timeout when LibreOffice runs directly with a fresh profile, outside Gotenberg.",
+    "controlledVariants": {
+      "removeStressParagraphs": "still times out at 12 seconds",
+      "removeHeaderReferences": "converts within 12 seconds",
+      "removeFooterReferences": "converts within 12 seconds",
+      "removeBodyDrawings": "converts within 12 seconds",
+      "removeTables": "converts within 12 seconds"
+    },
+    "interpretation": "Evidence points to a layout interaction between headers/footers and repeated image tables. The exact upstream layout defect is not established. The original corpus files were preserved.",
+    "propagation": "Gotenberg normally recycles LibreOffice after ten attempts. Its health check tests socket connectivity; a stalled layout process can still accept sockets. Restart-after=1 recycles after timed-out attempts as well.",
+    "tradeoff": "Every conversion pays process-recycling overhead; no automatic retry of a failed document."
+  },
+  "sourceReferences": [
+    "https://github.com/gotenberg/gotenberg/blob/v8.37.0/pkg/gotenberg/supervisor.go",
+    "https://github.com/gotenberg/gotenberg/blob/v8.37.0/pkg/modules/libreoffice/api/libreoffice.go",
+    "https://gotenberg.dev/docs/configuration#libreoffice"
+  ],
+  "ci": "Docker production smoke and timeout/recovery job configured; remote result tracked in GitHub Actions"
+}

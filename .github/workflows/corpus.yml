@@ -29,3 +29,44 @@ jobs:
         with:
           name: fixture-validation
           path: corpus/results/*.json
+
+  conversion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COMPOSE_PROJECT_NAME: imprint-ci
+      IMPRINT_API_KEY: imprint-ci-integration-test-key
+      GOTENBERG_API_TIMEOUT: 5s
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start production services
+        run: docker compose -f compose.yml up --build --wait --wait-timeout 120 -d
+      - name: Verify production DOCX and PDF API
+        run: >-
+          docker compose -f compose.yml run --rm --no-deps
+          --user "$(id -u):$(id -g)"
+          -e SMOKE_API_URL=http://app:3000
+          -v "$PWD:/work" -w /work
+          app node scripts/smoke.ts
+      - name: Verify conversion timeout and automatic recovery
+        run: >-
+          docker compose -f compose.yml run --rm --no-deps
+          --user "$(id -u):$(id -g)"
+          -e SMOKE_API_URL=http://app:3000
+          -v "$PWD:/work" -w /work
+          app node scripts/converter-recovery.ts
+      - name: Collect converter logs
+        if: always()
+        run: |
+          mkdir -p corpus/results
+          docker compose -f compose.yml logs --no-color > corpus/results/docker-conversion.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conversion-validation
+          path: |
+            corpus/results/converter-recovery.json
+            corpus/results/docker-conversion.log
+      - name: Stop test services
+        if: always()
+        run: docker compose -f compose.yml down --volumes
