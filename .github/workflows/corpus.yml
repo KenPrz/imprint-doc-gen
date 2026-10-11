@@ -13,6 +13,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+      - run: node scripts/generate-pms-example.ts
+      - run: git diff --exit-code -- examples/pms
       - run: npm run corpus:generate
       - run: git diff --exit-code -- corpus
       - run: npm run corpus:validate
@@ -24,6 +26,7 @@ jobs:
         run: |
           docker compose -f compose.yml config --quiet
           docker compose -f compose.yml -f compose.override.yml config --quiet
+          IMPRINT_API_KEY=imprint-ci-configuration-test-key docker compose -f compose.standalone.yml config --quiet
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -78,3 +81,85 @@ jobs:
       - name: Stop test services
         if: always()
         run: docker compose -f compose.yml down --volumes
+
+  standalone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      IMPRINT_API_KEY: imprint-ci-standalone-integration-key
+      IMPRINT_PORT: 8091
+      IMPRINT_IMAGE: imprint-doc-gen:standalone-check
+      IMPRINT_URL: http://127.0.0.1:8091
+      IMPRINT_CONTAINER: imprint-standalone-ci-app-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+      - run: npm ci --ignore-scripts
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the standalone image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.standalone
+          load: true
+          tags: imprint-doc-gen:standalone-check
+          cache-from: type=gha,scope=standalone
+          cache-to: type=gha,mode=max,scope=standalone
+      - name: Start a single container with a persistent volume
+        run: docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
+      - name: Verify PMS integration, forced restart recovery and converter supervision
+        run: node scripts/standalone-smoke.ts
+      - name: Verify converter timeouts recover in the standalone image
+        run: |
+          GOTENBERG_API_TIMEOUT=5s docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
+          docker run --rm --network container:$IMPRINT_CONTAINER --user "$(id -u):$(id -g)" \
+            -v "$PWD:/work" -w /work -e IMPRINT_API_KEY \
+            -e GOTENBERG_URL=http://127.0.0.1:3001 -e SMOKE_API_URL=http://127.0.0.1:3000 \
+            --entrypoint node "$IMPRINT_IMAGE" scripts/converter-recovery.ts
+      - name: Collect standalone logs
+        if: always()
+        run: |
+          mkdir -p corpus/results
+          docker compose -p imprint-standalone-ci -f compose.standalone.yml logs --no-color > corpus/results/standalone.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: standalone-validation
+          path: |
+            corpus/results/standalone-validation.json
+            corpus/results/converter-recovery.json
+            corpus/results/standalone.log
+      - name: Stop standalone services
+        if: always()
+        run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
+
+  publish:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/standalone-service')
+    needs: [fixtures, conversion, standalone]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish tested amd64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.standalone
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/kenprz/imprint-doc-gen:sha-${{ github.sha }}
+            ghcr.io/kenprz/imprint-doc-gen:${{ github.ref == 'refs/heads/main' && 'standalone' || 'standalone-preview' }}
+          cache-from: type=gha,scope=standalone
+          provenance: mode=max
+          sbom: true

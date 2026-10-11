@@ -1,7 +1,7 @@
 {
   "project": "Imprint Doc Gen",
   "researched_at": "2026-10-11",
-  "status": "milestone_4_xlsx_rows_implemented_remaining_components_proposed",
+  "status": "milestone_5_standalone_service_implemented",
   "repository": {
     "intended_owner": "KenPrz",
     "intended_name": "imprint-doc-gen",
@@ -98,26 +98,27 @@
     },
     {
       "area": "Persistence",
-      "choice": "PostgreSQL with Kysely and node-postgres",
-      "reason": "Durable tenant metadata, versions and job state with explicit SQL migrations",
+      "choice": "Standalone: SQLite via better-sqlite3 13.0.3. Future service deployment: PostgreSQL with Kysely/node-postgres.",
+      "reason": "One-image installation with atomic state and document-byte commits. Keep the standalone adapter isolated; no experimental Node SQLite API dependency.",
       "sources": [
         "https://www.postgresql.org/support/versioning/",
         "https://kysely.dev/",
-        "https://node-postgres.com/"
+        "https://node-postgres.com/",
+        "https://github.com/WiseLibs/better-sqlite3"
       ]
     },
     {
       "area": "Jobs",
-      "choice": "pg-boss initially",
-      "reason": "Durable queue in existing PostgreSQL; retries and transaction integration; isolate queue adapter due single-maintainer concentration",
+      "choice": "Standalone: transactionally claimed SQLite jobs with expiring leases. Future PostgreSQL deployment: pg-boss behind a queue adapter.",
+      "reason": "No extra service for PMS installation; bounded retries, leases, pinned template versions and idempotent submissions.",
       "sources": [
         "https://github.com/timgit/pg-boss"
       ]
     },
     {
       "area": "Files",
-      "choice": "S3-compatible object store via AWS SDK v3",
-      "reason": "Keep template, attachment and generated-file bytes outside application database",
+      "choice": "Standalone: bounded SQLite BLOBs on a persistent local volume. Future service deployment: S3-compatible object storage.",
+      "reason": "Atomic bytes and metadata simplify backup and recovery for a single instance; separate object storage when scaling beyond that deployment.",
       "sources": [
         "https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_s3_code_examples.html"
       ]
@@ -140,6 +141,7 @@
     }
   ],
   "deployment": [
+    "Standalone mode: one image with API, bounded workers, SQLite and loopback-only Gotenberg; one persistent local volume",
     "api: TypeScript HTTP process",
     "worker: same TypeScript codebase, separate bounded render process",
     "postgres: metadata and durable jobs",
@@ -184,5 +186,13 @@
     "Structural/copy-aware A1 formula translation and dependent range updates",
     "Bounded formula calculator with independent LibreOffice validation",
     "Complete 100 DOCX / 100 XLSX synthetic corpus gate"
+  ],
+  "implemented_milestone_5": [
+    "Single-container supervisor and readiness checks",
+    "Tenant key provisioning, rotation, revocation and tenant-bound resource queries",
+    "Immutable versions, publication and rollback",
+    "Durable SQLite jobs with idempotency, bounded retries and restart leases",
+    "PMS guest invoice client, DOCX/XLSX templates and image attachment example",
+    "Gated GHCR preview publication; PostgreSQL/S3 remain future adapters"
   ]
 }

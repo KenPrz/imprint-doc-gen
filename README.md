@@ -2,7 +2,7 @@
 
 [![Document corpus](https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml/badge.svg)](https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml)
 
-Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Convert the result to PDF through a private LibreOffice service.
+Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Run it as one Docker image with bundled PDF conversion, persistent templates and durable jobs, or use the separate development services.
 
 The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete or template-syntax compatible with either product.
 
@@ -16,8 +16,42 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - Reusable compiled templates, JSON-only data and explicit errors for missing or unsupported bindings.
 - XLSX shared/rich strings, typed cells, repeated rows, formula/range updates and anchored picture replacement.
 - Authenticated DOCX/XLSX/PDF API with bounded worker execution and request concurrency.
+- Tenant API keys, immutable template versions, publish/rollback, and durable jobs with restart recovery.
+- Single-container deployment with SQLite persistence and a working PMS invoice example.
 
-**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, tenant accounts, durable jobs, template storage or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+
+## Quick start: one container
+
+The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. `standalone-preview` follows this feature branch; reviewed `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
+
+```bash
+docker login ghcr.io -u YOUR_GITHUB_USERNAME
+docker pull ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+# Export IMPRINT_API_KEY from your secret manager: at least 24 characters.
+docker run -d --name imprint-doc-gen --restart unless-stopped \
+  --stop-timeout 120 --memory 2g --cpus 2 --pids-limit 384 \
+  --read-only --tmpfs /tmp:rw,size=768m,mode=1777 \
+  --cap-drop ALL --security-opt no-new-privileges:true \
+  -p 127.0.0.1:8088:3000 -e IMPRINT_API_KEY \
+  -v imprint-data:/data \
+  ghcr.io/kenprz/imprint-doc-gen:standalone-preview
+curl http://127.0.0.1:8088/ready
+```
+
+The API, queue, database and PDF converter run in that container. The named volume preserves templates, keys, jobs and results across container replacement. Deploy one instance per local volume. PostgreSQL/S3 and multiple-server operation remain future work.
+
+To build locally, use `docker build -f Dockerfile.standalone -t imprint-doc-gen:standalone .`, then set `IMPRINT_IMAGE=imprint-doc-gen:standalone` when starting [`compose.standalone.yml`](compose.standalone.yml). The registry tag becomes available only when publication succeeds. Pin a tested image digest for production and back up the volume before upgrades.
+
+Try the [PMS client](examples/pms/client.ts) and checked-in invoice templates with Node.js 24:
+
+```bash
+# Uses IMPRINT_API_KEY from your environment. Prefer a dedicated tenant key.
+IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts pdf
+IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts xlsx
+```
+
+The example uploads and publishes a template, submits booking data and a logo attachment, polls the durable job, and saves `artifacts/booking-invoice.<format>`. See the [standalone guide](docs/standalone-guide.txt) for tenant provisioning, endpoint contracts, retention, backups and limits.
 
 ## Quick start: Docker development
 
@@ -40,9 +74,9 @@ docker compose exec app npm test
 docker compose down
 ```
 
-Compose automatically combines [`compose.yml`](compose.yml) with [`compose.override.yml`](compose.override.yml). Development runs TypeScript in Node watch mode, mounts source/tests/scripts read-only and makes the corpus writable. The converter has no published host port.
+Compose automatically combines [`compose.yml`](compose.yml) with [`compose.override.yml`](compose.override.yml). Development runs TypeScript in Node watch mode, mounts source/tests/scripts read-only and makes the corpus writable. The converter has no published host port. Service data persists in the `app-data` named volume; `docker compose down` preserves it.
 
-## Production configuration
+## Production configuration: separate services
 
 ```bash
 cp .env.example .env
@@ -155,7 +189,7 @@ Compiled templates can be reused for concurrent renders. Compilation copies inpu
 
 ## HTTP API
 
-`GET /health` requires no authentication. Submit rendering requests to `POST /v1/render` with these headers:
+`GET /health` and `GET /ready` require no authentication. The durable template/job endpoints are documented in the [standalone guide](docs/standalone-guide.txt). Submit rendering requests to `POST /v1/render` with these headers:
 
 ```http
 Authorization: Bearer <IMPRINT_API_KEY>
@@ -171,7 +205,7 @@ Content-Type: application/json
 }
 ```
 
-`output` can be `docx`, `xlsx` or `pdf`. Omit it to keep the detected template format. DOCX↔XLSX conversion is not supported; a mismatched format returns `422`. Successful responses contain the binary file with its matching content type and filename. The API admits two concurrent jobs and returns `503` with `Retry-After` when full.
+`output` can be `docx`, `xlsx` or `pdf`. Omit it to keep the detected template format. DOCX↔XLSX conversion is not supported; a mismatched format returns `422`. Successful responses contain the binary file with its matching content type and filename. The API admits two concurrent uploads/renders across synchronous requests and queued work, and returns `503` with `Retry-After` when synchronous capacity is full. Durable requests use `POST /v1/jobs` and wait in the queue.
 
 | HTTP status | Meaning |
 | --- | --- |
@@ -204,7 +238,7 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 104 passed |
+| Automated tests | 118 passed |
 | Fixture validation | 200 cases / 400 document packages passed |
 | DOCX renderer | All 100 levels passed |
 | XLSX renderer | All 100 levels passed |
@@ -221,7 +255,7 @@ These measurements do not establish complete OOXML schema conformance, repair-fr
 1. **Implemented:** bounded conversion failures, automatic LibreOffice recycling and Docker recovery tests. Continue investigating the upstream layout stall without changing the reference documents to hide it.
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
 3. **Implemented:** XLSX typed cells, images, repeated rows, formula/range rewriting and bounded calculated results. Expand real-world fixtures, picture cloning and advanced formula adapters.
-4. Add durable jobs, tenant authentication, template versions and object storage.
+4. **Implemented for standalone:** one image, tenant keys, SQLite storage, immutable template versions, durable jobs and a PMS invoice example. Add a real PMS pilot, operational metrics and measured load limits next; PostgreSQL/S3 and separate workers follow when multiple-server deployment is needed.
 5. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 
 See the [corpus roadmap](docs/corpus-roadmap.json), [stack decisions](docs/stack-proposal.json) and [core-engine research](docs/core-engine-research.json) for the longer-term plan.
