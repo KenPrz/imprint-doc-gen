@@ -1,0 +1,92 @@
+Synthetic PMS report testing without a PMS pilot
+
+Scope
+The suite reads only repository fixtures. It never contacts the PMS database,
+MinIO, Carbone, or the PMS application. No real guest data or PMS configuration
+changes are required. It uses 30 original seeded DOCX templates with verified
+SHA-256 hashes, plus the existing DOCX/XLSX invoice examples.
+
+128 cases
+- Each of the 30 PMS DOCX reports has normal, empty, multilingual and large
+  data scenarios (120 cases).
+- Each invoice format has the same four scenarios (8 additional cases).
+- Root-array sizes are normally 3, empty 0 and large 15. Task sheets have up
+  to four sheets with different room counts, including an empty nested list.
+- Fictional identities, reserved example-domain email addresses, TEST IDs,
+  synthetic notes, multilingual names, long text, tabs and line breaks.
+- Registration: direct PNG signature, JPEG data URL, attachment-key lookup,
+  and omitted optional signature. Other original seeded templates have no
+  image fields; they are not modified to invent image coverage.
+- DOCX/XLSX invoice examples test a synthetic hotel logo, including empty
+  line-item lists. No new image dependency or external image source is needed.
+
+Run
+npm run pms:synthetic
+
+This writes editable DOCX/XLSX files, JSON data, attachment maps, copies of
+original templates, image assets, per-case results, summary.json and an offline
+index.html gallery under artifacts/pms-synthetic/. PDF checks are NOT RUN unless
+requested. Outputs are gitignored and can be zipped for review.
+
+PDF testing through a running Imprint service (recommended for one-image use):
+  Set IMPRINT_URL and IMPRINT_API_KEY through your environment.
+  npm run pms:synthetic -- --api --pdf
+
+The runner posts the actual template/data/attachments to Imprint's compatible
+/render/template?download=true endpoint. It does not use PMS. API credentials
+are never written into the output files or gallery.
+
+Alternatively test the SDK plus a private Gotenberg converter:
+  Set GOTENBERG_URL to the converter endpoint reachable from the test runner.
+  npm run pms:synthetic -- --pdf
+
+The host running PDF checks needs pdfinfo, pdftotext, pdfimages and pdftoppm
+(Poppler, available as poppler-utils on Debian/Ubuntu). Each PDF is checked,
+its extracted text is saved and its first-page PNG is added to the gallery.
+Use --output <directory> to choose a destination. PMS_TEST_SEED defaults to
+20261011; change it to generate another deterministic set of identities.
+Image rasterization/font appearance can vary between environments.
+
+Fast API/PDF smoke check:
+  npm run pms:synthetic -- --api --pdf --smoke
+
+This selects seven cases: registration PNG/JPEG, folio, nested task sheet,
+DOCX invoice, XLSX invoice and empty XLSX invoice. CI runs it against the
+single-container service and uploads the gallery/results. All 128 document
+cases run as unit tests in CI; the complete PDF run is available locally.
+
+What is checked
+- Original PMS template hashes, package relationships and drawing identities.
+- Inserted scalar values, removal of template markers, repeated table sizes,
+  nested task-sheet table counts and preserved picture dimensions.
+- Actual supplied PNG/JPEG bytes embedded in the resulting Office package.
+- Native XLSX line amounts and total formula values, including zero items.
+- PDF conversion, page count, synthetic hotel text where present, absence of
+  unresolved tags, multilingual text probes, and a first-page PDF image for each supplied-image
+  case. XLSX invoices must keep all column labels on the first PDF page.
+- Deliberately corrupted property values, missing images and wrong calculated
+  totals must fail the checker. Source samples must not be mutated.
+
+Limits
+The data is for document rendering. Folio, receipt and invoice amounts and
+selected report totals are reconciled, but the fixtures do not model a complete
+hotel ledger or validate PMS accounting rules. Image-presence checks are not
+pixel-level PDF equivalence checks. First-page previews do not replace review
+of every page; inspect the full PDFs for layout, wrapping and font coverage.
+Only seeded templates are covered; custom property-uploaded templates still
+require a later audit. This does not validate production performance, PMS
+business workflows or the actual client integration.
+
+Regression found by the empty invoice case
+SUM(D11:D11) referenced the removed pattern row and could become #REF!. The
+example now sums the header-through-marker range, SUM(D10:D12), so row removal
+leaves a valid header-only range with total 0. Standard populated totals remain
+unchanged. No PMS template bytes or core formula behavior were changed.
+
+Visual-review correction
+The XLSX invoice originally spread columns and its logo across horizontal PDF
+pages. Its example now fits one page wide with explicit margins and a logo
+inside the printed columns. Both invoice logo placeholders now use the test
+logo's 3:1 aspect ratio. The PDF smoke gate catches horizontal column overflow
+and an image that moves off the first page. The original 30 PMS templates
+remain byte-identical.

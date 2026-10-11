@@ -6,7 +6,7 @@
       "xlsx": 100
     },
     "purpose": "Cumulative synthetic generation challenges; fixtures are not completed engine support",
-    "nextGate": "Audit custom PMS templates and pilot its client URL/auth change; operational metrics and measured load limits follow. Preserve original PMS goldens, DOCX 100 / XLSX 100 and standalone gates.",
+    "nextGate": "Run synthetic PMS validation while the real pilot is unavailable; operational metrics/load limits can follow. Audit custom templates and pilot the actual client URL/auth change when PMS access is available.",
     "milestone1": "Own DOCX scalar/image renderer and Docker service implemented; measured coverage is recorded in milestone-1-validation.json",
     "converterRecovery": "Implemented and locally verified; docs/converter-recovery.json. Upstream layout stall remains.",
     "milestone2": "All 100 synthetic DOCX levels pass; repeated rows/blocks, nested scopes and per-item images implemented. See docx-loops-validation.json.",
@@ -14,7 +14,8 @@
     "milestone4": "All 100 XLSX levels pass: single-row loops, A1 formula and range rewriting, moved picture anchors and bounded calculated results. See xlsx-rows-validation.json.",
     "milestone5": "Single-image standalone deployment, tenant keys, immutable template versions, durable jobs and PMS invoice example. See standalone-guide.txt.",
     "milestone6": "Carbone DOCX compatibility for 30 unchanged seeded PMS reports; independent semantic and selected PDF evidence. See carbone-compatibility.txt.",
-    "milestone7": "Carbone-style syntax standard for DOCX/XLSX, all 200 corpus templates and PMS examples. Expected documents unchanged; legacy syntax retained."
+    "milestone7": "Carbone-style syntax standard for DOCX/XLSX, all 200 corpus templates and PMS examples. Expected documents unchanged; legacy syntax retained.",
+    "syntheticPmsValidation": "Offline substitute for the unavailable PMS pilot: 128 synthetic-data cases using 30 original templates plus DOCX/XLSX invoices, signatures, logos and PDF checks. See synthetic-pms-guide.txt."
   },
   "phases": [
     {
