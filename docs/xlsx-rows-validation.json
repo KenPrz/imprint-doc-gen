@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-11",
+  "milestone": 4,
+  "project": "imprint-doc-gen",
+  "scope": "XLSX single-row loops, formula/range rewriting and bounded calculation",
+  "features": [
+    "Single-row object-array loops with typed cells, rich shared strings and explicit parent scope",
+    "Empty-list row removal and multiple independent row expansions",
+    "Relative/absolute/mixed A1 references, cross-sheet dependencies and quoted sheet names",
+    "Table/filter/defined-name/validation/conditional-formatting updates",
+    "Cell-anchored pictures and merges below loops move with their rows",
+    "Fresh formula caches and obsolete calculation-chain removal"
+  ],
+  "checks": {
+    "automatedTests": {
+      "passed": 104,
+      "failed": 0,
+      "xlsxRowTests": 22
+    },
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "fixtureFiles": "unchanged",
+    "engine": {
+      "docx": {
+        "passed": 100,
+        "failed": 0,
+        "unsupported": 0,
+        "highestContiguousLevel": 100
+      },
+      "xlsx": {
+        "passed": 100,
+        "failed": 0,
+        "unsupported": 0,
+        "highestContiguousLevel": 100
+      }
+    },
+    "productionApiSmoke": "DOCX/PDF levels 20 and 61 (including empty lists), DOCX 100; XLSX/PDF levels 1, 30, 50, 61 (including empty lists) and 80; XLSX 100 through the bounded worker"
+  },
+  "independentCalculation": {
+    "formulas": 52,
+    "matched": 52,
+    "application": "LibreOffice 26.8.0.3 680(Build:3), pinned converter image",
+    "method": "Render a separate workbook, reopen/save it as XLSX with a separate LibreOffice profile, and compare cached type/value for every formula emitted by the renderer. Ignore only extra formulas LibreOffice synthesizes for static boolean cells.",
+    "script": "scripts/check-xlsx-calculation.ts",
+    "ci": "Production conversion job repeats this check and uploads formula-comparison.json",
+    "findings": "COUNT ignores direct error arguments. Boolean concatenation differs across applications and is explicitly unsupported. Nonfinite numeric literals and ambiguous zero powers are also rejected rather than assigned speculative cached values."
+  },
+  "visual": {
+    "levels": [
+      60,
+      80,
+      90,
+      100
+    ],
+    "pages": 64,
+    "differentPixels": 0,
+    "method": "Separately convert actual/reference XLSX with the pinned converter/fonts and compare all decoded RGBA pixels at 96 DPI",
+    "limitations": "Synthetic documents and one converter/font environment; not proof of repair-free Excel opening or general fidelity"
+  },
+  "calculationSubset": {
+    "functions": [
+      "SUM",
+      "MIN",
+      "MAX",
+      "AVERAGE",
+      "COUNT",
+      "IF"
+    ],
+    "syntax": [
+      "Finite numeric and string literals",
+      "Boolean literals",
+      "A1 cells and aggregate ranges",
+      "Arithmetic, comparison and limited text concatenation",
+      "Relative/absolute/mixed and cross-sheet references"
+    ],
+    "budgets": {
+      "loopIterations": 10000,
+      "formulaCharacters": 8192,
+      "formulaTokens": 4096,
+      "expressionAndDependencyDepth": 128,
+      "operations": 1000000,
+      "partBytes": 8388608,
+      "expandedPackageBytes": 33554432
+    }
+  },
+  "knownLimits": [
+    "Without row loops, the previous scalar adapter preserves formula caches and requests recalculation on opening",
+    "Nested/multi-row loops and picture cloning inside repeated rows are not implemented",
+    "Merged ranges or frozen panes intersecting loops are rejected",
+    "Shared/array/data-table formulas, advanced functions, named operands, structured references, whole-row/column references and array-valued expressions require later adapters",
+    "Boolean concatenation and zero raised to a nonpositive power are explicitly unsupported",
+    "Charts, pivots, comments, legacy drawings and unsupported extensions in loop workbooks require adapters",
+    "Excel locale/precision equivalence, real-world Office opening and full OOXML conformance remain future gates"
+  ],
+  "sources": [
+    "https://support.microsoft.com/en-us/excel/switch-between-relative-absolute-and-mixed-references",
+    "https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/working-with-the-calculation-chain",
+    "https://support.microsoft.com/en-us/excel/functions/count-function"
+  ],
+  "next": "Durable jobs, tenant-scoped storage and template versions; expand real-world templates and advanced document adapters while retaining complete synthetic corpus gates"
+}
