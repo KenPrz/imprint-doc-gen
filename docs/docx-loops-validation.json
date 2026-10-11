@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-11",
+  "milestone": 2,
+  "project": "imprint-doc-gen",
+  "scope": "DOCX structural loops and per-item images",
+  "features": [
+    "Single-row table loops",
+    "Standalone paragraph block loops",
+    "Nested blocks, including blocks within rows",
+    "Explicit ../ parent and grandparent lookup",
+    "Per-item image keys with independent relationships",
+    "Fresh drawing/content-control/paragraph identities in clones",
+    "Empty arrays remove loop content; empty table cells keep a paragraph"
+  ],
+  "limits": {
+    "nestingDepth": 16,
+    "documentIterations": 10000,
+    "partBytes": 8388608,
+    "packageBytes": 33554432,
+    "packageEntries": 1024
+  },
+  "checks": {
+    "automatedTests": {
+      "passed": 63,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "engine": {
+      "docx": {
+        "passed": 100,
+        "failed": 0,
+        "unsupported": 0,
+        "notRun": 0,
+        "highestContiguousLevel": 100
+      },
+      "xlsx": {
+        "passed": 0,
+        "failed": 0,
+        "unsupported": 100,
+        "notRun": 0,
+        "highestContiguousLevel": 0
+      }
+    },
+    "fixtureFiles": "unchanged",
+    "independentChecker": "Drawing IDs are validated for positive integer values and package-wide uniqueness; a mutation test detects duplicates",
+    "productionApiSmoke": "Passed DOCX/PDF levels 20 and 61, including empty lists, and DOCX level 100 through the HTTP worker"
+  },
+  "visual": {
+    "levels": [
+      1,
+      20,
+      50,
+      60,
+      70,
+      80,
+      90
+    ],
+    "pages": 232,
+    "differentPixels": 0,
+    "method": "Actual and reference DOCX converted separately by the pinned LibreOffice container, rasterized with pdftoppm at 96 DPI, then compared as decoded RGBA pixels",
+    "limitations": "Selected synthetic fixtures, same converter/fonts only; no claim of repair-free Microsoft Word opening or all-format fidelity"
+  },
+  "renderTimings": {
+    "method": "One local corpus pass, no controlled benchmark; SDK rather than worker timing",
+    "docxMedianMs": 180.5,
+    "docxMaxMs": 1632
+  },
+  "knownLimits": [
+    "XLSX rendering remains unsupported",
+    "Arrays of scalar items, inline text loops and multi-row selections are not supported",
+    "Repeated bookmarks/comments/notes, tracked changes, vertical merges, bound controls and VML/OLE need specialized adapters",
+    "LibreOffice stress level 93 can still time out; converter recovery remains enabled",
+    "Full OOXML schema validation and real-world document coverage remain future work"
+  ],
+  "sources": [
+    "https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.drawing.wordprocessing.docproperties",
+    "https://learn.microsoft.com/en-us/office/dev/add-ins/word/create-better-add-ins-for-word-with-office-open-xml"
+  ],
+  "next": "XLSX typed cells and image attachments, followed by row/formula/range rewriting"
+}

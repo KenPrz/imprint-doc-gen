@@ -51,9 +51,18 @@ Template dialect: imprint-doc-gen-corpus-v1
   In a DOCX row or XLSX row the start and end markers select that complete row.
   DOCX standalone marker paragraphs delimit paragraph blocks and are removed.
   Nested group/child marker paragraphs carry a new scope for each iteration.
+  Implemented DOCX loops require arrays of objects; empty arrays remove the
+  repeated region. Missing/null lists and non-object items are errors. Paths are
+  scoped to the current object; ../ selects the parent explicitly, with no
+  implicit root fallback. Nested loops have a depth limit of 16 and a shared
+  10,000-iteration budget. Cloned DrawingML and basic content-control IDs are fresh.
+  Multi-row spans, inline loops, repeated bookmarks/comments/notes, tracked
+  changes, vertical merges, bound controls and VML/OLE need later adapters.
   Use the first placeholder character's run formatting for replacement text.
   Existing picture alternative text {{image:red}} selects attachment "red".
-  Within a loop {{image:image}} resolves the current item's image attachment key.
+  Within a loop {{image:image}} resolves the current item's image attachment key,
+  even if an attachment is named image. Use {{image:../logo}} for a parent field.
+  Root-level direct attachment-key lookup remains supported.
   Preserve picture geometry, bind each placement independently, and replace the
   marker description with ordinary alternative text. Descriptions are not used
   as a pixel-correctness oracle, but unresolved tags are rejected.

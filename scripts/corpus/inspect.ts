@@ -19,6 +19,7 @@ export function validatePackage(parts: Parts) {
   assert(parts.has('[Content_Types].xml'));
   assert(parts.has('_rels/.rels'));
   const ct = parse(str(parts, '[Content_Types].xml'));
+  const drawingIds = new Set<string>();
   const overrides = new Map(elements(ct, NS.ct, 'Override').map(e => [e.getAttribute('PartName')!.slice(1), e.getAttribute('ContentType')]));
   const defaults = new Map(elements(ct, NS.ct, 'Default').map(e => [e.getAttribute('Extension'), e.getAttribute('ContentType')]));
   for (const name of overrides.keys()) assert(parts.has(name), `Content type refers to missing ${name}`);
@@ -26,6 +27,12 @@ export function validatePackage(parts: Parts) {
     assert(overrides.has(name) || defaults.has(name.endsWith('.rels') ? 'rels' : posix.extname(name).slice(1)) || name === '[Content_Types].xml', `No content type for ${name}`);
     if (!name.endsWith('.xml') && !name.endsWith('.rels')) continue;
     const doc = parse(bytes.toString('utf8'));
+    for (const drawing of elements(doc, NS.wp, 'docPr')) {
+      const id = drawing.getAttribute('id')!;
+      assert(/^[0-9]+$/.test(id) && Number(id) > 0 && Number(id) <= 0xffffffff, `Invalid drawing ID in ${name}`);
+      const normalized = String(Number(id));
+      assert(!drawingIds.has(normalized), `Duplicate drawing ID ${id} in ${name}`); drawingIds.add(normalized);
+    }
     if (name.endsWith('.rels')) {
       const ownerDir = name === '_rels/.rels' ? '' : posix.dirname(posix.dirname(name));
       const ids = new Set();
