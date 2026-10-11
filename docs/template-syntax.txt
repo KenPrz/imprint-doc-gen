@@ -1,9 +1,9 @@
-Imprint standard template syntax: carbone-style-v1
+Imprint standard template syntax: imprint-v1
 
-Use Carbone-style syntax for all new DOCX/XLSX templates, examples and corpus
+Use standard syntax for all new DOCX/XLSX templates, examples and corpus
 fixtures. Future PPTX, OpenDocument and text-format adapters must reuse this
 language and provide explicit structural rules for their document format.
-This specifies the implemented subset, not every Carbone feature.
+This specifies the implemented language and its limits.
 
 Data is a JSON object. "d" denotes that root object at every nesting depth:
   {d.customer.name}              root/nested scalar
@@ -33,11 +33,11 @@ repeated/deleted rows need future cloning rules and fail explicitly.
 
 Regular Excel formulas are not template strings. Imprint moves references
 when rows expand or marker rows disappear, and calculates its supported A1
-subset. These typing/calculation rules are Imprint's documented behavior;
-matching syntax does not imply identical storage/formula behavior to Carbone.
+subset. Unsupported functions and reference structures fail explicitly.
 
 Unsupported: formatter chains, filters/conditions, aliases/translations,
 complements, arbitrary indices/iterators and advanced structural adapters.
+Unsupported expressions return UNSUPPORTED_EXPRESSION.
 Do not silently guess unsupported expressions. Add grammar support only
 with fixtures, resource bounds and independent expected behavior.
 

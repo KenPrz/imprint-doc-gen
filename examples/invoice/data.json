@@ -1,0 +1,24 @@
+{
+  "company": "Example Studio",
+  "invoiceNumber": "TEST-INV-0042",
+  "customer": "Alex Example",
+  "orderNumber": "TEST-ORDER-42",
+  "issuedOn": "2026-10-11",
+  "dueOn": "2026-10-25",
+  "currency": "USD",
+  "total": "8,750.00",
+  "items": [
+    {
+      "description": "Design services",
+      "quantity": 2,
+      "price": 4000,
+      "amount": "8,000.00"
+    },
+    {
+      "description": "Support services",
+      "quantity": 2,
+      "price": 375,
+      "amount": "750.00"
+    }
+  ]
+}

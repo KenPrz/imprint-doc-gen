@@ -44,7 +44,7 @@ Layout
   corpus/xlsx/level-001/...              equivalent XLSX set
   corpus/results/                      local fixture and engine reports, gitignored
 
-Template dialect: carbone-style-v1
+Template dialect: imprint-v1
   All 100 DOCX and 100 XLSX template files use {d.path} bindings. The expected
   output documents are unchanged from the earlier corpus; this migration must
   preserve values, styles, layout, pictures and formulas.
