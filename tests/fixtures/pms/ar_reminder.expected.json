@@ -1,0 +1,93 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "1 Ayala Avenue",
+      "Makati Metro Manila 1226",
+      "Philippines",
+      "+63 2 8888 1234  •  accounts@samplegrand.example",
+      "",
+      "July 15, 2026",
+      "",
+      "Juan Dela Cruz",
+      "Acme Trading Corp.",
+      "Unit 12, Acme Building",
+      "8 Buendia Street",
+      "Makati Metro Manila 1200",
+      "Philippines",
+      "",
+      "Overdue Account — Second Notice",
+      "",
+      "Dear Mr Dela Cruz",
+      "",
+      "Our records show the balance below remains outstanding. We would appreciate settlement at your earliest convenience.",
+      "",
+      "Account summary",
+      "Account number",
+      "AR-000142",
+      "Invoice number",
+      "INV-2026-0091",
+      "Due date",
+      "June 30, 2026",
+      "Outstanding balance",
+      "PHP 48,250.00",
+      "In reference currency",
+      "USD 828.33",
+      "",
+      "Yours sincerely,",
+      "",
+      "Sample Grand Hotel",
+      "Accounts Receivable"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Account summary"
+          ]
+        ],
+        [
+          [
+            "Account number"
+          ],
+          [
+            "AR-000142"
+          ]
+        ],
+        [
+          [
+            "Invoice number"
+          ],
+          [
+            "INV-2026-0091"
+          ]
+        ],
+        [
+          [
+            "Due date"
+          ],
+          [
+            "June 30, 2026"
+          ]
+        ],
+        [
+          [
+            "Outstanding balance"
+          ],
+          [
+            "PHP 48,250.00"
+          ]
+        ],
+        [
+          [
+            "In reference currency"
+          ],
+          [
+            "USD 828.33"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  }
+}

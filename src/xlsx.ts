@@ -1,3 +1,4 @@
+import { carboneBindings } from './carbone.ts';
 import { compileRowRenderer } from './xlsx-rows.ts';
 import { RenderError } from './errors.ts';
 import { validateData } from './data.ts';
@@ -31,6 +32,7 @@ function checkedRoot(nodes: ElementSpan[], uri: string, local: string, part: str
 function compileDrawing(parts: PackageParts, part: string): DrawingPlan {
   const source = parts.get(part)!.toString('utf8'), nodes = indexXml(source, part);
   checkedRoot(nodes, ns.spreadsheetDrawing, 'wsDr', part);
+  for (const node of nodes) for (const attribute of node.attributes) if (carboneBindings(attribute.value, part).length) throw new RenderError('UNSUPPORTED_CARBONE_TEMPLATE', 'Carbone image tags in XLSX require a later adapter', part);
   const pictures: Picture[] = [], owners = new Set<number>(), links = linksFor(parts, part);
   for (const node of nodes) for (const description of node.attributes.filter(a => a.value.includes('{{'))) {
     if (node.uri !== ns.spreadsheetDrawing || node.local !== 'cNvPr' || !['descr', 'title', 'name'].includes(description.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Only picture metadata bindings are supported in XLSX drawings', part);

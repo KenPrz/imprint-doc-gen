@@ -1,15 +1,16 @@
+import { carboneBindings, parseCarbonePath, inferCarboneLoops, scopedCarbonePath, carboneLookup, type RepeatRegion } from './carbone.ts';
 import { RenderError } from './errors.ts';
 import { limits } from './package.ts';
 import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { ns, indexXml, ancestor, applyEdits, decodeXml, escapeXml, type ElementSpan, type AttributeSpan, type Edit } from './xml.ts';
 
 interface TextSpan { node: ElementSpan; value: string; offset: number }
-interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close' }
+interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; carbone?: boolean }
 interface ParagraphPlan { node: ElementSpan; text: string; spans: TextSpan[]; bindings: Binding[] }
-export interface ImagePlan { description: AttributeSpan; reference: AttributeSpan; path: string; start: number; end: number }
-interface LoopPlan { start: number; end: number; bodyStart: number; bodyEnd: number; path: string; children: LoopPlan[] }
+export interface ImagePlan { description: AttributeSpan; reference: AttributeSpan; path: string; start: number; end: number; carbone?: boolean }
+type LoopPlan = RepeatRegion;
 interface Fragment { kind: 'fragment'; start: number; end: number; paragraphs: ParagraphPlan[]; images: ImagePlan[]; identities: Identity[] }
-interface Loop { kind: 'loop'; path: string; children: Segment[] }
+interface Loop { kind: 'loop'; path: string; children: Segment[]; carbone?: boolean }
 type Segment = Fragment | Loop;
 interface Identity { attribute: AttributeSpan; hex: boolean }
 export interface StoryPlan { part: string; source: string; nodes: ElementSpan[]; images: ImagePlan[]; segments: Segment[] }
@@ -67,13 +68,14 @@ function loopsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: strin
       loop = { start: firstRow.start, end: firstRow.end, bodyStart: firstRow.start, bodyEnd: firstRow.end, path: open.binding.path, children: [] };
     } else throw new RenderError('TEMPLATE_STRUCTURE', 'Loop markers must select one table row or standalone sibling paragraphs', part);
     if (ancestor(first, ns.word, 'p')) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Loops inside text boxes require a later adapter', part);
-    // These structures need their own reference remapping or table merge rules.
-    // Reject them even for empty arrays, rather than emit silently broken clones.
-    const unsupported = new Set(['bookmarkStart', 'bookmarkEnd', 'commentRangeStart', 'commentRangeEnd', 'commentReference', 'footnoteReference', 'endnoteReference', 'permStart', 'permEnd', 'moveFrom', 'moveTo', 'ins', 'del', 'vMerge', 'dataBinding', 'pict', 'object', 'altChunk']);
-    for (const node of nodes) if (node.start >= loop.start && node.end <= loop.end && node.uri === ns.word && unsupported.has(node.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', `Repeated ${node.local} requires a later cloning adapter`, part);
     loops.push(loop);
   }
   if (stack.length) throw new RenderError('TEMPLATE_SYNTAX', 'Unclosed #each loop', part);
+  return loops;
+}
+function nestLoops(loops: LoopPlan[], nodes: ElementSpan[], part: string): LoopPlan[] {
+  const unsupported = new Set(['bookmarkStart', 'bookmarkEnd', 'commentRangeStart', 'commentRangeEnd', 'commentReference', 'footnoteReference', 'endnoteReference', 'permStart', 'permEnd', 'moveFrom', 'moveTo', 'ins', 'del', 'vMerge', 'dataBinding', 'pict', 'object', 'altChunk']);
+  for (const loop of loops) for (const node of nodes) if (node.start >= loop.start && node.end <= loop.end && node.uri === ns.word && unsupported.has(node.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', `Repeated ${node.local} requires a later cloning adapter`, part);
   const roots: LoopPlan[] = [], parents: LoopPlan[] = [];
   for (const loop of loops.sort((a, b) => a.start - b.start || b.end - a.end)) {
     while (parents.length && loop.start >= parents.at(-1)!.end) parents.pop();
@@ -106,27 +108,38 @@ export function compileStory(part: string, source: string): StoryPlan {
       const binding = classify(logical.slice(start + 2, close).trim(), part), end = close + 2;
       const first = spans.find(s => s.offset <= start && s.offset + s.value.length > start)!;
       const last = spans.find(s => s.offset < end && s.offset + s.value.length >= end)!;
-      if (nodes.some(n => n.start > first.node.end && n.end < last.node.start && n.uri === ns.word && ['br', 'tab', 'fldChar', 'instrText'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Placeholder crosses a field, line break or tab', part);
+      if (nodes.some(n => n.start >= first.node.end && n.end <= last.node.start && n.uri === ns.word && ['br', 'tab', 'fldChar', 'instrText'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Placeholder crosses a field, line break or tab', part);
       bindings.push({ start, end, ...binding }); cursor = end;
+    }
+    bindings.push(...carboneBindings(logical, part)); bindings.sort((a, b) => a.start - b.start);
+    for (const binding of bindings.filter(b => b.carbone)) {
+      const first = spans.find(s => s.offset <= binding.start && s.offset + s.value.length > binding.start)!;
+      const last = spans.find(s => s.offset < binding.end && s.offset + s.value.length >= binding.end)!;
+      if (nodes.some(n => n.start >= first.node.end && n.end <= last.node.start && n.uri === ns.word && ['br', 'tab', 'fldChar', 'instrText'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Placeholder crosses a field, line break or tab', part);
     }
     if (bindings.length) paragraphs.push({ node, text: logical, spans, bindings });
   }
+  const carboneLoops = inferCarboneLoops(paragraphs, part);
+  const nativeLoops = loopsFor(paragraphs, nodes, part);
+  if (carboneLoops.length && nativeLoops.length) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Do not mix Carbone and Imprint repetition markers in one story', part);
   const images: ImagePlan[] = [], owners = new Set<number>();
   for (const node of nodes) {
     if (!((node.uri === ns.wordDrawing && node.local === 'docPr') || (node.uri === ns.picture && node.local === 'cNvPr'))) continue;
-    for (const description of node.attributes.filter(a => ['descr', 'title', 'name'].includes(a.local) && a.value.includes('{{image:'))) {
+    for (const description of node.attributes.filter(a => ['descr', 'title', 'name'].includes(a.local) && (a.value.includes('{{image:') || /^\s*\{d\./.test(a.value)))) {
       const binding = /^\s*\{\{image:([^{}]+)\}\}\s*$/.exec(description.value);
-      if (!binding) throw new RenderError('TEMPLATE_SYNTAX', 'Image binding must occupy the whole picture description', part);
-      const path = binding[1]!.trim(); checkPath(path, part);
+      const carbone = !binding;
+      const match = /^\s*\{([^{}]+)\}\s*$/.exec(description.value);
+      if (!binding && !match) throw new RenderError('TEMPLATE_SYNTAX', 'Image binding must occupy the whole picture description', part);
+      const path = binding ? binding[1]!.trim() : scopedCarbonePath(parseCarbonePath(match![1]!, part), node.start, carboneLoops, part); checkPath(path, part);
       const owner = ancestor(node, ns.wordDrawing, 'inline') ?? ancestor(node, ns.wordDrawing, 'anchor');
       if (!owner || owners.has(owner.start)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Ambiguous image binding', part);
       const blips = nodes.filter(n => n.uri === ns.drawing && n.local === 'blip' && n.start > owner.start && n.end < owner.end);
       const reference = blips[0]?.attributes.find(a => a.uri === ns.relationship && a.local === 'embed');
       if (blips.length !== 1 || !reference) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one embedded picture per image binding', part);
-      owners.add(owner.start); images.push({ description, reference, path, start: owner.start, end: owner.end });
+      owners.add(owner.start); images.push({ description, reference, path, start: owner.start, end: owner.end, carbone });
     }
   }
-  const loops = loopsFor(paragraphs, nodes, part), identities = nodes.flatMap(identityAttributes);
+  const loops = nestLoops([...nativeLoops, ...carboneLoops], nodes, part), identities = nodes.flatMap(identityAttributes);
   const region = (start: number, end: number, loops: LoopPlan[]): Segment[] => {
     const result: Segment[] = [];
     const fragment = (a: number, b: number) => {
@@ -134,7 +147,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       result.push({ kind: 'fragment', start: a, end: b, paragraphs: paragraphs.filter(p => p.node.start >= a && p.node.end <= b), images: images.filter(i => i.start >= a && i.end <= b), identities: identities.filter(i => i.attribute.start >= a && i.attribute.end <= b) });
     };
     let cursor = start;
-    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', path: loop.path, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
+    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', path: loop.path, carbone: loop.carbone, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
     fragment(cursor, end); return result;
   };
   return { part, source, nodes, images, segments: region(0, source.length, loops) };
@@ -149,7 +162,7 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
   const visit = async (segments: Segment[], scope: Scope): Promise<void> => {
     for (const segment of segments) {
       if (segment.kind === 'loop') {
-        const items = lookup(scope, segment.path, plan.part);
+        const items = segment.carbone ? carboneLookup(scope, segment.path, plan.part) ?? [] : lookup(scope, segment.path, plan.part);
         if (!Array.isArray(items)) throw new RenderError('INVALID_DATA', `Expected an array at ${segment.path}`, plan.part);
         for (const item of items) {
           if (++budget.iterations > loopLimits.iterations) throw new RenderError('LIMIT_EXCEEDED', 'Loop expansion exceeds 10000 iterations', plan.part);
@@ -169,7 +182,7 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
       for (const paragraph of segment.paragraphs) {
         const localEdits = new Map<TextSpan, Edit[]>();
         for (const binding of paragraph.bindings) {
-          const value = binding.kind === 'value' ? scalar(lookup(scope, binding.path, plan.part), binding.path, plan.part) : '';
+          const value = binding.kind === 'value' ? scalar(binding.carbone ? carboneLookup(scope, binding.path, plan.part) : lookup(scope, binding.path, plan.part), binding.path, plan.part, Boolean(binding.carbone)) : '';
           for (const span of paragraph.spans) {
             const start = Math.max(binding.start, span.offset), end = Math.min(binding.end, span.offset + span.value.length);
             if (start >= end) continue;
@@ -178,7 +191,10 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
           }
         }
         for (const [span, replacements] of localEdits) {
-          addEdit({ start: span.node.openEnd, end: span.node.closeStart, value: escapeXml(applyEdits(span.value, replacements, limits.entry)) });
+          const prefix = span.node.name.includes(':') ? span.node.name.split(':')[0] + ':' : '';
+          const escaped = escapeXml(applyEdits(span.value, replacements, limits.entry));
+          const text = paragraph.bindings.some(binding => binding.carbone) ? escaped.replace(/\r\n|\r|\n|\t/g, value => `</${prefix}t><${prefix}${value === '\t' ? 'tab' : 'br'}/><${prefix}t xml:space="preserve">`) : escaped;
+          addEdit({ start: span.node.openEnd, end: span.node.closeStart, value: text });
           const space = span.node.attributes.find(a => a.uri === ns.xml && a.local === 'space');
           if (space) addEdit({ start: space.start, end: space.end, value: 'preserve' });
           else addEdit({ start: span.node.openEnd - 1, end: span.node.openEnd - 1, value: ' xml:space="preserve"' });

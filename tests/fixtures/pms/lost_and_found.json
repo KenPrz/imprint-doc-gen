@@ -1,0 +1,32 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Lost and Found",
+  "report_code": "LOST_AND_FOUND",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "All statuses · 01/07/26 – 15/07/26",
+  "rows": [
+    {
+      "reference": "LF-0001",
+      "item": "Wrist watch ×1",
+      "category": "Jewellery",
+      "room": "204",
+      "place": "Bedside table",
+      "found_on": "14/07/26",
+      "finder": "Liza Cruz",
+      "encoded_by": "Alice Reyes",
+      "status": "Stored",
+      "remarks": ""
+    }
+  ],
+  "status_totals": [
+    {
+      "status": "Stored",
+      "count": "1"
+    }
+  ],
+  "total_rows": "1"
+}

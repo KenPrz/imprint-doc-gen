@@ -1,0 +1,36 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Room Maintenance",
+  "report_code": "ROOM_MAINTENANCE",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "Unresolved · 01/07/26 – 15/07/26",
+  "rows": [
+    {
+      "room": "105",
+      "reason": "AC — Air conditioning",
+      "remarks": "Not cooling",
+      "status": "Open",
+      "created_by": "Test User",
+      "created_on": "14/07/26 09:12",
+      "resolved_by": "",
+      "resolved_on": ""
+    },
+    {
+      "room": "203",
+      "reason": "LIGHT — Lighting",
+      "remarks": "Bedside lamp",
+      "status": "Resolved",
+      "created_by": "Test User",
+      "created_on": "12/07/26 16:40",
+      "resolved_by": "Test User",
+      "resolved_on": "13/07/26 10:05"
+    }
+  ],
+  "total_open": "1",
+  "total_resolved": "1",
+  "total_rows": "2"
+}

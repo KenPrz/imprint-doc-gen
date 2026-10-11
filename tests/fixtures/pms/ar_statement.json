@@ -1,0 +1,52 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "STATEMENT OF ACCOUNT",
+  "report_code": "AR_STATEMENT",
+  "report_date": "15/07/26",
+  "report_time": "09:20",
+  "business_date": "15/07/26",
+  "account_name": "Acme Trading Corp.",
+  "account_number": "AR-000142",
+  "statement_number": "STMT-2026-0071",
+  "statement_date": "July 15, 2026",
+  "period_from": "July 1, 2026",
+  "period_to": "July 15, 2026",
+  "opening_balance": "PHP 12,000.00",
+  "total_debits": "PHP 48,250.00",
+  "total_credits": "PHP 20,000.00",
+  "closing_balance": "PHP 40,250.00",
+  "promotional_text": "Thank you for your continued business.",
+  "reference_currency_code": "USD",
+  "reference_opening_balance": "USD 205.13",
+  "reference_closing_balance": "USD 688.03",
+  "lines": [
+    {
+      "date": "2026-07-03",
+      "reference": "INV-2026-0091",
+      "description": "Invoice",
+      "charges": "30,000.00",
+      "payments": "",
+      "reference_amount": "517.24",
+      "reference_rate": "58.0000"
+    },
+    {
+      "date": "2026-07-09",
+      "reference": "PAY-2026-0044",
+      "description": "Payment",
+      "charges": "",
+      "payments": "20,000.00",
+      "reference_amount": "343.35",
+      "reference_rate": "58.2500"
+    },
+    {
+      "date": "2026-07-14",
+      "reference": "INV-2026-0102",
+      "description": "Invoice",
+      "charges": "18,250.00",
+      "payments": "",
+      "reference_amount": "311.97",
+      "reference_rate": "58.5000"
+    }
+  ]
+}

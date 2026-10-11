@@ -1,0 +1,27 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Room Discrepancy",
+  "report_code": "ROOM_DISCREPANCY",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "15/07/26 · Open",
+  "rows": [
+    {
+      "room": "104",
+      "type": "SKIP",
+      "hk_status": "VACANT",
+      "hk_persons": "0",
+      "fo_status": "OCCUPIED",
+      "fo_persons": "2",
+      "guest": "Anna Lim",
+      "arrival": "13/07/26",
+      "departure": "16/07/26",
+      "resolved": "Open"
+    }
+  ],
+  "total_open": "1",
+  "total_rows": "1"
+}

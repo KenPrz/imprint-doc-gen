@@ -1,0 +1,190 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "PAYMENT RECEIPT",
+      "PAYMENT_RECEIPT",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "Guest",
+      "Mr Dela Cruz, Juan",
+      "Receipt No.",
+      "R26-00010425",
+      "Company",
+      "Acme Trading Corp.",
+      "Date / Time",
+      "15-JUL-26 / 14:20",
+      "Country",
+      "Philippines",
+      "Room",
+      "0625",
+      "City",
+      "Makati",
+      "Confirmation No.",
+      "SGH26-088123-41",
+      "",
+      "Date",
+      "Description",
+      "Amount (PHP)",
+      "15/07/26",
+      "Cash • TX-2026-9910",
+      "10,000.00",
+      "15/07/26",
+      "Visa • **** 1111",
+      "2,500.00",
+      "Total",
+      "12,500.00",
+      "",
+      "",
+      "Guest Signature",
+      "Cashier: jsantos",
+      "",
+      "",
+      "Stay: 14/07/26 — 17/07/26",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "PAYMENT RECEIPT",
+            "PAYMENT_RECEIPT"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Guest"
+          ],
+          [
+            "Mr Dela Cruz, Juan"
+          ],
+          [
+            "Receipt No."
+          ],
+          [
+            "R26-00010425"
+          ]
+        ],
+        [
+          [
+            "Company"
+          ],
+          [
+            "Acme Trading Corp."
+          ],
+          [
+            "Date / Time"
+          ],
+          [
+            "15-JUL-26 / 14:20"
+          ]
+        ],
+        [
+          [
+            "Country"
+          ],
+          [
+            "Philippines"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "0625"
+          ]
+        ],
+        [
+          [
+            "City"
+          ],
+          [
+            "Makati"
+          ],
+          [
+            "Confirmation No."
+          ],
+          [
+            "SGH26-088123-41"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Date"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "Amount (PHP)"
+          ]
+        ],
+        [
+          [
+            "15/07/26"
+          ],
+          [
+            "Cash • TX-2026-9910"
+          ],
+          [
+            "10,000.00"
+          ]
+        ],
+        [
+          [
+            "15/07/26"
+          ],
+          [
+            "Visa • **** 1111"
+          ],
+          [
+            "2,500.00"
+          ]
+        ],
+        [
+          [
+            "Total"
+          ],
+          [
+            "12,500.00"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "",
+            "Guest Signature"
+          ],
+          [
+            "Cashier: jsantos"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Stay: 14/07/26 — 17/07/26"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  }
+}

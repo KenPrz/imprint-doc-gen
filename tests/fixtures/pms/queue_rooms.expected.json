@@ -1,0 +1,187 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Queue Rooms",
+      "QUEUE_ROOMS",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "15/07/26 · All",
+      "#",
+      "Q-Time",
+      "Room",
+      "Type",
+      "Guest",
+      "VIP",
+      "HK",
+      "Ready",
+      "Checked in",
+      "Wait (min)",
+      "Outcome",
+      "1",
+      "13:05",
+      "105",
+      "STD",
+      "Anna Lim",
+      "",
+      "CLN",
+      "13:32",
+      "13:40",
+      "35",
+      "Checked in",
+      "",
+      "Totals",
+      "Queue entries",
+      "1",
+      "Still waiting",
+      "0",
+      "Average wait (min)",
+      "35",
+      "",
+      "",
+      "Business date 15/07/26 · queue_rooms",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Queue Rooms",
+            "QUEUE_ROOMS"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "#"
+          ],
+          [
+            "Q-Time"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Type"
+          ],
+          [
+            "Guest"
+          ],
+          [
+            "VIP"
+          ],
+          [
+            "HK"
+          ],
+          [
+            "Ready"
+          ],
+          [
+            "Checked in"
+          ],
+          [
+            "Wait (min)"
+          ],
+          [
+            "Outcome"
+          ]
+        ],
+        [
+          [
+            "1"
+          ],
+          [
+            "13:05"
+          ],
+          [
+            "105"
+          ],
+          [
+            "STD"
+          ],
+          [
+            "Anna Lim"
+          ],
+          [
+            ""
+          ],
+          [
+            "CLN"
+          ],
+          [
+            "13:32"
+          ],
+          [
+            "13:40"
+          ],
+          [
+            "35"
+          ],
+          [
+            "Checked in"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Totals"
+          ]
+        ],
+        [
+          [
+            "Queue entries"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "Still waiting"
+          ],
+          [
+            "0"
+          ]
+        ],
+        [
+          [
+            "Average wait (min)"
+          ],
+          [
+            "35"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Business date 15/07/26 · queue_rooms"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "property_name": "Sample Grand Hotel",
+  "property_code": "SGH",
+  "report_title": "Housekeeping Status",
+  "report_code": "HK_STATUS",
+  "report_date": "15/07/26",
+  "report_time": "14:32",
+  "business_date": "15/07/26",
+  "rendered_on": "15 Jul 2026, 14:32",
+  "parameters": "Rooms 101–110 · Floor 1 · Sorted by room",
+  "rows": [
+    {
+      "floor": "Floor 1",
+      "room": "101",
+      "room_type": "STD",
+      "hk_status": "DIR",
+      "fo_status": "OCCUPIED",
+      "reservation_status": "DUE_OUT",
+      "guest": "Anna Lim",
+      "arrival": "13/07/26",
+      "departure": "15/07/26",
+      "persons": "2/0",
+      "am_section": "STD-WING",
+      "pm_section": "STD-WING",
+      "features": "Sea view"
+    },
+    {
+      "floor": "Floor 1",
+      "room": "102",
+      "room_type": "STD",
+      "hk_status": "INSP",
+      "fo_status": "VACANT",
+      "reservation_status": "—",
+      "guest": "—",
+      "arrival": "",
+      "departure": "",
+      "persons": "",
+      "am_section": "STD-WING",
+      "pm_section": "STD-WING",
+      "features": "—"
+    }
+  ],
+  "status_totals": [
+    {
+      "status": "DIR",
+      "count": "1"
+    },
+    {
+      "status": "INSP",
+      "count": "1"
+    }
+  ],
+  "total_rooms": "2"
+}

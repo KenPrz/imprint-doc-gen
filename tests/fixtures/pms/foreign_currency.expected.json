@@ -1,0 +1,296 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Foreign Currency Report",
+      "PMS-1232",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "From Date",
+      "15/07/26",
+      "To Date",
+      "15/07/26",
+      "Cashier No.",
+      "101, 102",
+      "Cashier Name",
+      "J. Santos, M. Reyes",
+      "Currency",
+      "All",
+      "Group By",
+      "Cashier, Currency and Transaction Date",
+      "",
+      "Time",
+      "Description",
+      "Room",
+      "Name",
+      "Trn. Code",
+      "Currency",
+      "Amount",
+      "Exch. Rate",
+      "Local Amount",
+      "User",
+      "09:14",
+      "Currency Exchange",
+      "0625",
+      "Dela Cruz, Juan",
+      "9400",
+      "USD",
+      "200.00",
+      "58.2500",
+      "11,650.00",
+      "jsantos",
+      "13:40",
+      "Currency Exchange",
+      "1104",
+      "Tanaka, Yuki",
+      "9400",
+      "JPY",
+      "30,000.00",
+      "0.3900",
+      "11,700.00",
+      "mreyes",
+      "",
+      "Foreign Currency Summary",
+      "Currency",
+      "Description",
+      "Total",
+      "USD",
+      "US Dollar",
+      "11,650.00",
+      "JPY",
+      "Japanese Yen",
+      "11,700.00",
+      "",
+      "Summary",
+      "Balance Foreign Currency Local",
+      "23,350.00",
+      "",
+      "",
+      "2 transactions · Local currency: PHP",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Foreign Currency Report",
+            "PMS-1232"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "From Date"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "To Date"
+          ],
+          [
+            "15/07/26"
+          ]
+        ],
+        [
+          [
+            "Cashier No."
+          ],
+          [
+            "101, 102"
+          ],
+          [
+            "Cashier Name"
+          ],
+          [
+            "J. Santos, M. Reyes"
+          ]
+        ],
+        [
+          [
+            "Currency"
+          ],
+          [
+            "All"
+          ],
+          [
+            "Group By"
+          ],
+          [
+            "Cashier, Currency and Transaction Date"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Time"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Name"
+          ],
+          [
+            "Trn. Code"
+          ],
+          [
+            "Currency"
+          ],
+          [
+            "Amount"
+          ],
+          [
+            "Exch. Rate"
+          ],
+          [
+            "Local Amount"
+          ],
+          [
+            "User"
+          ]
+        ],
+        [
+          [
+            "09:14"
+          ],
+          [
+            "Currency Exchange"
+          ],
+          [
+            "0625"
+          ],
+          [
+            "Dela Cruz, Juan"
+          ],
+          [
+            "9400"
+          ],
+          [
+            "USD"
+          ],
+          [
+            "200.00"
+          ],
+          [
+            "58.2500"
+          ],
+          [
+            "11,650.00"
+          ],
+          [
+            "jsantos"
+          ]
+        ],
+        [
+          [
+            "13:40"
+          ],
+          [
+            "Currency Exchange"
+          ],
+          [
+            "1104"
+          ],
+          [
+            "Tanaka, Yuki"
+          ],
+          [
+            "9400"
+          ],
+          [
+            "JPY"
+          ],
+          [
+            "30,000.00"
+          ],
+          [
+            "0.3900"
+          ],
+          [
+            "11,700.00"
+          ],
+          [
+            "mreyes"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Currency"
+          ],
+          [
+            "Description"
+          ],
+          [
+            "Total"
+          ]
+        ],
+        [
+          [
+            "USD"
+          ],
+          [
+            "US Dollar"
+          ],
+          [
+            "11,650.00"
+          ]
+        ],
+        [
+          [
+            "JPY"
+          ],
+          [
+            "Japanese Yen"
+          ],
+          [
+            "11,700.00"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Summary"
+          ]
+        ],
+        [
+          [
+            "Balance Foreign Currency Local"
+          ],
+          [
+            "23,350.00"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "2 transactions · Local currency: PHP"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  }
+}

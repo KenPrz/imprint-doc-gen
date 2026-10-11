@@ -1,0 +1,261 @@
+{
+  "word/document.xml": {
+    "paragraphs": [
+      "Sample Grand Hotel",
+      "SGH",
+      "Housekeeping Status",
+      "HK_STATUS",
+      "15/07/26  14:32",
+      "Business Date: 15/07/26",
+      "",
+      "Rooms 101–110 · Floor 1 · Sorted by room",
+      "Floor",
+      "Room",
+      "Type",
+      "HK",
+      "FO",
+      "Resv",
+      "Guest",
+      "Arr",
+      "Dep",
+      "Pers",
+      "AM",
+      "PM",
+      "Features",
+      "Floor 1",
+      "101",
+      "STD",
+      "DIR",
+      "OCCUPIED",
+      "DUE_OUT",
+      "Anna Lim",
+      "13/07/26",
+      "15/07/26",
+      "2/0",
+      "STD-WING",
+      "STD-WING",
+      "Sea view",
+      "Floor 1",
+      "102",
+      "STD",
+      "INSP",
+      "VACANT",
+      "—",
+      "—",
+      "",
+      "",
+      "",
+      "STD-WING",
+      "STD-WING",
+      "—",
+      "",
+      "Housekeeping status",
+      "Rooms",
+      "DIR",
+      "1",
+      "INSP",
+      "1",
+      "Rooms listed",
+      "2",
+      "",
+      "",
+      "Business date 15/07/26 · hk_status",
+      "Rendered on 15 Jul 2026, 14:32"
+    ],
+    "tables": [
+      [
+        [
+          [
+            "Sample Grand Hotel",
+            "SGH"
+          ],
+          [
+            "Housekeeping Status",
+            "HK_STATUS"
+          ],
+          [
+            "15/07/26  14:32",
+            "Business Date: 15/07/26"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Floor"
+          ],
+          [
+            "Room"
+          ],
+          [
+            "Type"
+          ],
+          [
+            "HK"
+          ],
+          [
+            "FO"
+          ],
+          [
+            "Resv"
+          ],
+          [
+            "Guest"
+          ],
+          [
+            "Arr"
+          ],
+          [
+            "Dep"
+          ],
+          [
+            "Pers"
+          ],
+          [
+            "AM"
+          ],
+          [
+            "PM"
+          ],
+          [
+            "Features"
+          ]
+        ],
+        [
+          [
+            "Floor 1"
+          ],
+          [
+            "101"
+          ],
+          [
+            "STD"
+          ],
+          [
+            "DIR"
+          ],
+          [
+            "OCCUPIED"
+          ],
+          [
+            "DUE_OUT"
+          ],
+          [
+            "Anna Lim"
+          ],
+          [
+            "13/07/26"
+          ],
+          [
+            "15/07/26"
+          ],
+          [
+            "2/0"
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "Sea view"
+          ]
+        ],
+        [
+          [
+            "Floor 1"
+          ],
+          [
+            "102"
+          ],
+          [
+            "STD"
+          ],
+          [
+            "INSP"
+          ],
+          [
+            "VACANT"
+          ],
+          [
+            "—"
+          ],
+          [
+            "—"
+          ],
+          [
+            ""
+          ],
+          [
+            ""
+          ],
+          [
+            ""
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "STD-WING"
+          ],
+          [
+            "—"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Housekeeping status"
+          ],
+          [
+            "Rooms"
+          ]
+        ],
+        [
+          [
+            "DIR"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "INSP"
+          ],
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "Rooms listed"
+          ],
+          [
+            "2"
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "Business date 15/07/26 · hk_status"
+          ],
+          [
+            "Rendered on 15 Jul 2026, 14:32"
+          ]
+        ]
+      ]
+    ],
+    "pictures": []
+  },
+  "word/footer1.xml": {
+    "paragraphs": [
+      "Page  of "
+    ],
+    "tables": [],
+    "pictures": []
+  }
+}

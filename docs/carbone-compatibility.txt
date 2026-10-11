@@ -1,0 +1,93 @@
+PMS template compatibility — milestone 6
+
+The original 30 seeded PMS DOCX reports now render without changing their
+bytes or placeholder keys. The independent TypeScript renderer recognizes
+Carbone-style syntax automatically through the SDK, CLI, /v1/render,
+durable template/jobs API and the compatible one-shot endpoint below.
+Carbone is not a runtime dependency. This is a tested subset, not full parity.
+
+Supported DOCX syntax
+- {d.property_name}: root scalar or dotted lookup; split Word runs supported.
+- {d.rows[i].field}, followed by {d.rows[i+1].field}: repeat the intervening
+  sibling table-row pattern; discard the increment marker row.
+- Paragraph-block repetition and nested arrays, including
+  {d.sheets[i].rooms[i].field} in the original task-sheet template.
+- Multiple independent repeat regions, root fields and parent fields.
+- Missing/null scalar values become blank; missing/null/empty arrays remove
+  the repeated region. Zero and false remain values. Text supports tabs and
+  line breaks; values are escaped and never evaluated as template syntax.
+- Existing picture alternative text {d.guest_signature}: named PNG/JPEG
+  attachment or PNG/JPEG data URL. Missing optional pictures retain their
+  placeholder. Existing placement and dimensions are preserved.
+- Native {{...}} bindings still work. Native and Carbone loop markers must
+  not be mixed within a document story (body/header/footer).
+
+PMS migration contract
+POST /render/template?download=true
+Authorization: Bearer <tenant API key>
+Content-Type: application/json
+
+{"template":"<base64 original DOCX>","data":{"property_name":"Example"},"convertTo":"pdf"}
+
+This matches the request body and binary response used by PMS CarboneClient.
+Use docx or pdf for the audited PMS reports; omitting convertTo preserves the
+input format. The adapter shares normal authentication, worker limits and
+error handling. Unknown fields/options are unsupported. CSV and DOCX-to-XLSX
+conversion are not supported.
+
+When migrating PMS, point its Carbone base URL to Imprint and add Bearer
+credentials to CarboneClient (for example Laravel Http::withToken()). Retain
+its existing TemplateImages::inject step: the current implementation replaces
+image bytes and neutralizes image tags before rendering. Alternatively,
+Imprint accepts an attachments map of base64 PNG/JPEG values directly.
+No PMS application code or production settings were changed by this work.
+
+Validated scope
+- database/seeders/data/reports: 30 original DOCX templates, hashes recorded
+  in tests/fixtures/pms/manifest.json, with source PMS commit.
+- 694 distinct text tags in the audit; no formatter chains in these files.
+  The PMS sample payloads already format displayed numbers and dates.
+- Expected semantic snapshots came from the existing PMS Carbone service,
+  using only static ReportAction::samplePayload() demo data. CI uses these
+  checked-in goldens and never needs Carbone or the PMS database.
+- All 30 outputs match paragraph, table-cell and picture-size snapshots.
+  Folio, trial balance and nested task sheet additionally match independent
+  Carbone outputs for empty, one-item and three-item arrays.
+- Five selected reports (seven pages) have identical 96-DPI PDF pixels when
+  both engines' DOCX outputs go through the same LibreOffice converter.
+  This comparison is not a claim about different converter/font versions.
+- Registration-signature image attachments, data URLs and per-item images
+  have separate tests; the PDF baseline uses the original placeholder.
+
+Outside this claim
+- Property-uploaded/custom templates stored in MinIO have not been audited.
+- The legacy default-templates/res_conf_card.docx uses {GUEST_NAME}-style
+  tokens, a different templating language, and is not part of the 30 reports.
+- The inspected Form A 2026 spreadsheet contains no template tags. Carbone
+  XLSX tags/repetition are not implemented and fail explicitly; native
+  Imprint XLSX bindings remain supported. PMS revenue XLSX uses its own path.
+- Formatter chains, conditions/filters, aliases, translations, complements,
+  arbitrary indices/iterators, horizontal repetition, remote image URLs and
+  advanced OOXML cloning structures need explicit adapters and fixtures.
+- Native DOCX scalar bindings retain their previous multiline restriction.
+
+Reproduction
+npm test
+npm run corpus:render
+npm run corpus:score
+
+Only when deliberately refreshing reference evidence against an authorized
+Carbone installation (review golden changes, never auto-update on failures):
+CARBONE_ORACLE_URL=http://<existing-service> node scripts/pms/record-oracle.ts
+GOTENBERG_URL=http://<converter> node scripts/pms/compare-pdf.ts
+
+The visual comparison also needs pdftoppm on PATH. Its binary oracle inputs
+are produced by record-oracle.ts under ignored corpus/results/pms/oracle.
+The single-container CI smoke test exercises original PMS DOCX/PDF requests
+and an uploaded/published template rendered through a durable job.
+
+Next gate
+Audit a representative export of property-uploaded templates and pilot the
+PMS client URL/auth change in a test environment. Add formatter or XLSX
+compatibility when real templates require it; preserve the existing corpus
+and original-template regression gates throughout.
