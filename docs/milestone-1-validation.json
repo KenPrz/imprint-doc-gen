@@ -76,18 +76,16 @@
     "scope": "Selected synthetic fixtures only; no general layout fidelity claim"
   },
   "repository": {
-    "local": "Committed on main; publication remains blocked",
+    "local": "Committed on main at milestone publication",
     "origin": "https://github.com/KenPrz/imprint-doc-gen.git",
-    "remoteCreated": false,
-    "pushed": false,
-    "blocker": "gh repo create could not connect to api.github.com"
+    "remoteCreated": true,
+    "pushed": true
   },
   "notEstablished": [
     "Full OOXML schema validation",
     "Repair-free Microsoft Word/Excel opening",
     "Real-world document compatibility",
-    "Production load and tenant isolation",
-    "Remote GitHub Actions execution"
+    "Production load and tenant isolation"
   ],
   "next": [
     "Diagnose DOCX stress level 93 converter hang and add converter recovery before external deployment",
@@ -101,5 +99,11 @@
     "corpus/results/renderer-attempts.json",
     "docs/office-validation.json",
     "corpus/results/visual-validation.json"
-  ]
+  ],
+  "githubActions": {
+    "milestone1": "passed",
+    "commit": "41e97735f3d9629c3c98af2bd6cb7abd7c289a54",
+    "run": "https://github.com/KenPrz/imprint-doc-gen/actions/runs/38117554855"
+  },
+  "followUp": "converter-recovery.json"
 }

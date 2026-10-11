@@ -38,11 +38,13 @@ services:
     command:
       - gotenberg
       - --api-body-limit=20MB
-      - --api-timeout=60s
+      - --api-timeout=${GOTENBERG_API_TIMEOUT:-60s}
       - --api-disable-download-from=true
       - --webhook-disable=true
       - --chromium-disable-routes=true
       - --libreoffice-max-queue-size=8
+      # Recycle after every attempt, including timeouts, to clear stalled UNO jobs.
+      - --libreoffice-restart-after=1
     expose: ["3000"]
     healthcheck:
       test: [CMD, curl, -f, http://localhost:3000/health]

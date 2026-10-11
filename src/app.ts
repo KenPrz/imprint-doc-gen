@@ -33,7 +33,8 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
       const output = await renderInWorker(decode(request.body.template), request.body.data, attachments);
       if (request.body.output === 'pdf') {
         if (!config.converterUrl) throw new RenderError('CONVERTER_UNAVAILABLE', 'PDF conversion is not configured');
-        return reply.type('application/pdf').header('Content-Disposition', 'attachment; filename="document.pdf"').send(await convertToPdf(output, config.converterUrl));
+        const pdf = await convertToPdf(output, config.converterUrl);
+        return reply.type('application/pdf').header('Content-Disposition', 'attachment; filename="document.pdf"').send(pdf);
       }
       return reply.type('application/vnd.openxmlformats-officedocument.wordprocessingml.document').header('Content-Disposition', 'attachment; filename="document.docx"').send(output);
     } catch (error) {
