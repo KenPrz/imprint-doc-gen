@@ -32,7 +32,7 @@ export function createApp(config: AppConfig) {
     request.log.error({ err: error }, 'Request failed');
     return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 5, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 6, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'carbone-docx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
   app.get('/ready', async (_request, reply) => {
     if (store) store.db.prepare('SELECT 1').get();
     if (config.converterUrl) {
@@ -59,6 +59,19 @@ export function createApp(config: AppConfig) {
     } } },
   }, async (request, reply) => {
     const output = await renderer.render(decodeBase64(request.body.template), request.body);
+    return reply.type(output.format === 'pdf' ? 'application/pdf' : mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
+  });
+  // PMS CarboneClient posts this one-shot request shape. Keep our authentication
+  // and resource limits; only the request/response protocol is adapted here.
+  app.post<{ Body: RenderInput & { template: string; convertTo?: 'docx' | 'xlsx' | 'pdf' }; Querystring: { download: string } }>('/render/template', {
+    schema: {
+      querystring: { type: 'object', required: ['download'], additionalProperties: false, properties: { download: { type: 'string', const: 'true' } } },
+      body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
+        template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: inputProperties.data, attachments: inputProperties.attachments, convertTo: inputProperties.output,
+      } },
+    },
+  }, async (request, reply) => {
+    const output = await renderer.render(decodeBase64(request.body.template), { data: request.body.data, attachments: request.body.attachments, output: request.body.convertTo });
     return reply.type(output.format === 'pdf' ? 'application/pdf' : mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
   });
   if (store) {

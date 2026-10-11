@@ -4,10 +4,11 @@
 
 Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Run it as one Docker image with bundled PDF conversion, persistent templates and durable jobs, or use the separate development services.
 
-The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete or template-syntax compatible with either product.
+The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete. A tested Carbone syntax adapter renders the **30 original seeded PMS DOCX reports without editing their templates**; see the [compatibility guide](docs/carbone-compatibility.txt) for supported syntax and limits.
 
 ## Current capabilities
 
+- PMS Carbone DOCX keys such as `{d.property_name}`, `[i]`/`[i+1]` row and nested block repetition, and signature-image bindings.
 - Scalar placeholders such as `{{customer.name}}`, including tags split across formatted text runs.
 - Text replacement in document bodies, tables, hyperlinks, content controls, headers and footers.
 - Replacement of existing pictures using alternative text such as `{{image:logo}}` and PNG/JPEG attachments.
@@ -19,11 +20,11 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - Tenant API keys, immutable template versions, publish/rollback, and durable jobs with restart recovery.
 - Single-container deployment with SQLite persistence and a working PMS invoice example.
 
-**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, multiline/tabbed values in native DOCX `{{...}}` bindings, full Carbone formatter and XLSX syntax, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
 
 ## Quick start: one container
 
-The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. `standalone-preview` follows this feature branch; reviewed `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
+The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. `standalone-preview` follows the active standalone/compatibility feature branches; reviewed `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
 
 ```bash
 docker login ghcr.io -u YOUR_GITHUB_USERNAME
@@ -94,6 +95,12 @@ Node and Gotenberg base images are pinned by digest. The converter image replace
 
 In Word, add `{{customer.name}}` as ordinary text. To replace an image, insert a placeholder picture and set its alternative-text description to `{{image:logo}}`. Pass the replacement bytes under the attachment key `logo`. This replaces the picture while preserving its placement and dimensions.
 
+### Existing PMS / Carbone templates
+
+Keep `{d.property_name}` and the existing `{d.rows[i].field}` / `{d.rows[i+1].field}` rows in your DOCX files. Nested task-sheet arrays and image alternative text `{d.guest_signature}` are supported. Missing values become blank, and empty arrays remove their repeat region.
+
+The authenticated `POST /render/template?download=true` endpoint accepts the PMS request body (`template`, `data`, `convertTo`) and returns the generated file. Migration needs a service URL and Bearer key change; the 30 audited report templates stay unchanged. Custom uploaded templates still need auditing. Formatter chains and Carbone XLSX syntax remain unsupported. See [scope, evidence and migration details](docs/carbone-compatibility.txt).
+
 ### DOCX loops
 
 To repeat paragraph blocks, put the opening and closing markers in separate paragraphs with no other content:
@@ -116,7 +123,7 @@ A picture with alternative text `{{image:image}}` resolves the current item's `i
 - Loops accept arrays of objects. Empty arrays remove the repeated region; missing/null arrays and non-object items produce errors.
 - Text and image bindings are compiled once. Data containing `{{...}}` stays literal and is never interpreted as another template.
 - Expansion is limited to 16 nested loops, 10,000 total iterations per document, 8 MiB per XML part and 32 MiB per expanded package.
-- Multi-row loop regions, inline text loops, repeated bookmarks/comments/notes, tracked changes, vertical merges, bound content controls and VML/OLE content require later adapters and fail explicitly. Basic content controls and DrawingML pictures get fresh identities when repeated.
+- Native multi-row loop regions, inline text loops, repeated bookmarks/comments/notes, tracked changes, vertical merges, bound content controls and VML/OLE content require later adapters and fail explicitly. Basic content controls and DrawingML pictures get fresh identities when repeated.
 
 ### XLSX cells and pictures
 
@@ -238,7 +245,9 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 118 passed |
+| Automated tests | 169 passed |
+| Original PMS Carbone templates | 30 unchanged DOCX files match independent snapshots; 9 extra array-length cases |
+| Selected PMS PDF comparison | Five reports, seven pages: identical pixels at 96 DPI |
 | Fixture validation | 200 cases / 400 document packages passed |
 | DOCX renderer | All 100 levels passed |
 | XLSX renderer | All 100 levels passed |
@@ -256,6 +265,7 @@ These measurements do not establish complete OOXML schema conformance, repair-fr
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
 3. **Implemented:** XLSX typed cells, images, repeated rows, formula/range rewriting and bounded calculated results. Expand real-world fixtures, picture cloning and advanced formula adapters.
 4. **Implemented for standalone:** one image, tenant keys, SQLite storage, immutable template versions, durable jobs and a PMS invoice example. Add a real PMS pilot, operational metrics and measured load limits next; PostgreSQL/S3 and separate workers follow when multiple-server deployment is needed.
-5. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
+5. **Implemented for seeded PMS reports:** Carbone DOCX syntax and the PMS one-shot API contract. Audit custom uploaded templates and pilot the URL/auth change next; see [compatibility evidence](docs/carbone-compatibility.json).
+6. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 
 See the [corpus roadmap](docs/corpus-roadmap.json), [stack decisions](docs/stack-proposal.json) and [core-engine research](docs/core-engine-research.json) for the longer-term plan.

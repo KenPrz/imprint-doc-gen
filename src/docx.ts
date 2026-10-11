@@ -1,3 +1,5 @@
+import { carboneLookup } from './carbone.ts';
+import { decodeBase64 } from './base64.ts';
 import { RenderError } from './errors.ts';
 import { compileStory, renderStory, identityAttributes, type RenderBudget } from './docx-story.ts';
 import { lookup, scalar } from './scope.ts';
@@ -31,8 +33,9 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
   }
   return Object.freeze({ format: 'docx' as const, async render(data: Record<string, unknown>, options: RenderOptions = {}) {
     validateData(data);
-    const attachmentMap = options.attachments ?? {};
+    const attachmentMap = Object.assign(Object.create(null), options.attachments ?? {}) as Record<string, Uint8Array>;
     const output = createRenderPackage(original, mainPart, attachmentMap);
+    let nextDataImage = 0;
     const usedIdentities = new Set(reservedIdentities); let nextIdentity = 1;
     const freshIdentity = (hex: boolean) => {
       while (usedIdentities.has(nextIdentity)) nextIdentity++;
@@ -44,6 +47,21 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
       const result = await renderStory(plan, data, budget, async (binding, scope): Promise<Edit[]> => {
         // Literal attachment keys retain milestone-1 behavior at root scope.
         // Inside loops, image paths resolve from the current item or explicit ../ parent.
+        if (binding.carbone) {
+          const value = carboneLookup(scope, binding.path, plan.part);
+          let key = scope.length === 1 && Object.hasOwn(attachmentMap, binding.path) ? binding.path : typeof value === 'string' ? value : '';
+          if (!key && value != null && value !== '') throw new RenderError('INVALID_DATA', 'Expected an image attachment key or data URL', plan.part);
+          if (!key) return [{ start: binding.description.start, end: binding.description.end, value: 'Image placeholder' }];
+          if (key.startsWith('data:')) {
+            const match = /^data:image\/(?:png|jpeg);base64,([\s\S]+)$/.exec(key);
+            if (!match || match[1]!.length > 12 * 1024 * 1024) throw new RenderError('UNSUPPORTED_IMAGE', 'Expected a bounded PNG/JPEG data URL', plan.part);
+            do { key = `__imprintCarboneImage${nextDataImage++}`; } while (Object.hasOwn(attachmentMap, key));
+            attachmentMap[key] = decodeBase64(match[1]!);
+          }
+          if (/^https?:/i.test(key)) throw new RenderError('UNSUPPORTED_IMAGE', 'Remote image fetches are not supported; use attachments or data URLs', plan.part);
+          const id = await output.addImage(plan.part, key);
+          return [{ start: binding.reference.start, end: binding.reference.end, value: id }, { start: binding.description.start, end: binding.description.end, value: 'Image attachment' }];
+        }
         const key = scope.length === 1 && Object.hasOwn(attachmentMap, binding.path) ? binding.path : scalar(lookup(scope, binding.path, plan.part), binding.path, plan.part);
         const id = await output.addImage(plan.part, key);
         return [{ start: binding.reference.start, end: binding.reference.end, value: id }, { start: binding.description.start, end: binding.description.end, value: escapeXml(`Attachment ${key}`) }];
