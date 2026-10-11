@@ -8,7 +8,7 @@
     "200 corpus templates",
     "PMS invoice examples"
   ],
-  "tests": 179,
+  "tests": 181,
   "corpus": {
     "docxPassed": 100,
     "xlsxPassed": 100,

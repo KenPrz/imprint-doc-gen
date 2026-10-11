@@ -152,3 +152,8 @@ test('Carbone root picture bindings retain attachment lookup inside a repeated r
   assert([...result.values()].some(bytes => bytes.equals(logo)));
   assert(!result.get('word/document.xml')!.toString().includes('Image placeholder'));
 });
+
+test('Carbone scalar paths keep root meaning inside a legacy DOCX loop', async () => {
+  const input = await template(p('{{#each rows}}') + p('{d.title}: {{name}}') + p('{{/each}}'));
+  assert.equal(await texts(await render(input, { title: 'ROOT', rows: [{ title: 'wrong scope', name: 'item' }] })), 'ROOT: item');
+});

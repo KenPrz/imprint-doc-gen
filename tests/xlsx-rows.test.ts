@@ -235,3 +235,9 @@ test('Carbone XLSX missing values become blank while false, zero, multiline text
 test('Carbone XLSX formulas and numeric payloads cannot silently contain unresolved tags', async () => {
   for (const cell of [f('A1', '{d.formula}'), '<s:c r="A1"><s:v>{d.value}</s:v></s:c>']) await assert.rejects(compile(await book([{ rows: row(1, cell) }])), code('UNSUPPORTED_TEMPLATE'));
 });
+
+test('Carbone scalar paths keep root meaning inside a legacy XLSX loop', async () => {
+  const input = await book([{ rows: row(2, t('A2', '{{#each items}}{d.title}: {{name}}') + t('B2', '{d.total}') + t('C2', '{{/each}}')) }]);
+  const output = await sheet(await render(input, { title: 'ROOT', total: 7, items: [{ title: 'wrong scope', name: 'item', total: 99 }] }));
+  assert.equal(output.cells.get('A2')!.text, 'ROOT: item'); assert.equal(output.cells.get('B2')!.value, '7');
+});
