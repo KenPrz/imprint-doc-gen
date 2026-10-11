@@ -40,7 +40,9 @@
     },
     "developmentApiSmoke": "health, authentication, DOCX and PDF passed",
     "productionApiSmoke": "health, authentication, DOCX and PDF passed",
-    "composeConfigurations": "production base and development override validated"
+    "composeConfigurations": "production base and development override validated",
+    "publishedPortSmoke": "Health, authentication, DOCX and PDF passed through host loopback 127.0.0.1:8088",
+    "cliSmoke": "Rendered DOCX level 1 successfully"
   },
   "office": {
     "converter": "Gotenberg 8.37.0 / LibreOffice 26.8.0.3 / pdfcpu 0.16.1",
@@ -74,7 +76,7 @@
     "scope": "Selected synthetic fixtures only; no general layout fidelity claim"
   },
   "repository": {
-    "local": "initialized on main; this report accompanies the initial commit",
+    "local": "Committed on main; publication remains blocked",
     "origin": "https://github.com/KenPrz/imprint-doc-gen.git",
     "remoteCreated": false,
     "pushed": false,

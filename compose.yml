@@ -26,7 +26,7 @@ services:
     mem_limit: 768m
     cpus: 2
     restart: unless-stopped
-    networks: [rendering]
+    networks: [api, rendering]
   gotenberg:
     image: imprint-doc-gen:converter-8.37.0-pdfcpu-0.16.1
     build:
@@ -61,5 +61,6 @@ services:
     restart: unless-stopped
     networks: [rendering]
 networks:
+  api: {}
   rendering:
     internal: true
