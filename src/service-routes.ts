@@ -42,12 +42,12 @@ export function registerServiceRoutes(app: FastifyInstance, store: ServiceStore,
   // Upload validation shares the render admission limit and executes in a bounded worker.
   const upload = async (owner: string, title: string, base64: string, templateId?: string) => {
     if (!renderer.available) throw new ServiceError(503, 'BUSY');
-    if (templateId) await store.template(owner, templateId);
     renderer.active++;
     try {
+      if (templateId) await store.template(owner, templateId);
       const bytes = decodeBase64(base64);
       const validated = await renderDocumentInWorker(bytes, {}, {}, 30_000, undefined, true);
-      return store.upload(owner, title, bytes, validated.format, templateId);
+      return await store.upload(owner, title, bytes, validated.format, templateId);
     } finally { renderer.active--; }
   };
   app.post<{ Body: { name: string; template: string } }>('/v1/templates', { schema: body(['name', 'template'], { name, template: templateBytes }) }, async (request, reply) => {

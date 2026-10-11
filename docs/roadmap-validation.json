@@ -2,7 +2,7 @@
   "date": "2026-10-12",
   "status": "local checks passed; release CI pending",
   "unitTests": {
-    "passed": 206,
+    "passed": 208,
     "failed": 0
   },
   "originalCorpus": {
@@ -38,7 +38,11 @@
     "missingObjectRejection": true,
     "orphanCleanup": true,
     "independentWorkerProcess": true,
-    "objectServicesTested": ["RustFS 1.0.1", "Local cached S3-compatible service"]
+    "objectServicesTested": [
+      "RustFS 1.0.1",
+      "Local cached S3-compatible service"
+    ],
+    "asyncAdmissionRegression": "passed for claims, ownership checks and object writes"
   },
   "operations": {
     "sqliteBackupRestore": "passed",
