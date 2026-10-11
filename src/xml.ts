@@ -3,6 +3,8 @@ import type { Document, Element } from '@xmldom/xmldom';
 import { RenderError } from './errors.ts';
 
 export const ns = {
+  spreadsheet: 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+  spreadsheetDrawing: 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing',
   word: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
   relationship: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
   packageRelationship: 'http://schemas.openxmlformats.org/package/2006/relationships',

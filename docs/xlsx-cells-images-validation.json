@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-11",
+  "milestone": 3,
+  "project": "imprint-doc-gen",
+  "scope": "XLSX typed cells and anchored image attachments",
+  "features": [
+    "Package-based DOCX/XLSX detection through SDK, CLI and HTTP worker",
+    "Inline and shared strings with split rich-text bindings",
+    "Native numbers and booleans for whole-cell tags; null creates a blank styled cell",
+    "Literal formula-looking strings, Unicode, line breaks, tabs and Excel escape sequences",
+    "Independent PNG/JPEG replacement for one-cell, two-cell and absolute picture anchors",
+    "Shared package and image normalization infrastructure across DOCX and XLSX",
+    "Original formula XML/caches and worksheet geometry preserved; automatic recalculation requested"
+  ],
+  "checks": {
+    "automatedTests": {
+      "passed": 82,
+      "failed": 0,
+      "xlsxTests": 19
+    },
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "engine": {
+      "docx": {
+        "passed": 100,
+        "failed": 0,
+        "unsupported": 0,
+        "highestContiguousLevel": 100
+      },
+      "xlsx": {
+        "passed": 50,
+        "failed": 0,
+        "unsupported": 50,
+        "highestContiguousLevel": 50
+      }
+    },
+    "fixtureFiles": "unchanged",
+    "productionApiSmoke": "Passed DOCX/PDF levels 20 and 61 (including empty lists), DOCX level 100, and XLSX/PDF levels 1, 30 and 50",
+    "compiledCli": "Rendered XLSX level 1 using dist/cli.js"
+  },
+  "visual": {
+    "levels": [
+      1,
+      20,
+      30,
+      40,
+      50
+    ],
+    "pages": 10,
+    "differentPixels": 0,
+    "method": "Actual and reference XLSX converted separately by the same pinned LibreOffice container, rasterized with pdftoppm at 96 DPI, compared as decoded RGBA pixels",
+    "limitations": "Selected synthetic fixtures and identical converter/fonts; not a repair-free Microsoft Excel opening or general fidelity claim"
+  },
+  "limits": {
+    "cellTextUtf16CodeUnits": 32767,
+    "partBytes": 8388608,
+    "expandedPackageBytes": 33554432,
+    "packageEntries": 1024
+  },
+  "knownLimits": [
+    "XLSX row repetition, formula/range rewriting and formula evaluation are not implemented",
+    "Existing formula caches can be stale until a spreadsheet application recalculates; PDF conversion uses LibreOffice",
+    "No automatic date conversion or 1900/1904 epoch handling",
+    "Bound phonetic strings, formula placeholders and chart/text-shape bindings are outside this milestone",
+    "Macro-enabled, signed and strict OOXML workbooks are rejected",
+    "Real-world Excel repair checks and full OOXML schema validation remain future gates"
+  ],
+  "sources": [
+    "https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.cellvalue",
+    "https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/structure-of-a-spreadsheetml-document",
+    "https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/bd0aa042-434a-4ca7-b25f-4e1fd25a954d",
+    "https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.calculationproperties"
+  ],
+  "next": "XLSX row repetition with relative/absolute formula translation, dependent range updates and independently verified calculated results"
+}

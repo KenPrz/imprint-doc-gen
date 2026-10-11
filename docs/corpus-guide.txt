@@ -70,6 +70,16 @@ Template dialect: imprint-doc-gen-corpus-v1
   decoding, EXIF, transparency, cover/contain and SVG fallback need further cases.
 
 XLSX rules
+  Implemented: root scalar bindings in inline/shared strings, rich text,
+  typed numbers/booleans, null -> blank whole cell, and PNG/JPEG picture replacement.
+  Literal attachment keys and root data paths are supported on picture metadata.
+  Existing one-cell/two-cell/absolute anchor geometry is retained.
+  Cells preserve style indices. Line breaks/tabs and Excel escape sequences are
+  supported in strings; the cell limit is 32,767 UTF-16 code units.
+  Existing formulas/caches are preserved; changed sheets request full automatic
+  recalculation. The renderer does not compute fresh cached results.
+  XLSX loops, formula placeholders, date conversion and bound phonetic strings
+  are unsupported. The row/range rules below are the next milestone's contract.
   A full-cell scalar keeps its JSON type: number -> numeric cell, boolean -> b.
   Strings beginning with '=' remain literal strings, never executable formulas.
   Shared-string and inline-string representations are semantically interchangeable
