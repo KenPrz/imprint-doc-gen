@@ -1,0 +1,23 @@
+# Isolated, disposable dependencies for integration tests. Never point this at production data.
+services:
+  postgres:
+    image: postgres:18-alpine@sha256:96d56f7f57c6aacd1fcb908bc83b345ec5f83231ee486dd66a1baadce274db88
+    environment:
+      POSTGRES_USER: imprint
+      POSTGRES_PASSWORD: isolated-integration-password
+      POSTGRES_DB: imprint
+    ports: ['127.0.0.1:18432:5432']
+    tmpfs: ['/var/lib/postgresql']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U imprint']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  objects:
+    image: quay.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: ['server', '/data']
+    environment:
+      MINIO_ROOT_USER: imprint-test
+      MINIO_ROOT_PASSWORD: isolated-object-password
+    ports: ['127.0.0.1:18400:9000']
+    tmpfs: ['/data']

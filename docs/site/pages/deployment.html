@@ -1,0 +1,116 @@
+<p class="eyebrow">Deployment</p>
+<h1>Start small. Scale deliberately.</h1>
+<h2 id="standalone">Standalone image</h2>
+<p>
+  <code>compose.standalone.yml</code> starts the all-in-one image with persistent SQLite storage and bundled
+  conversion. Set IMPRINT_API_KEY; optionally set IMPRINT_PORT and IMPRINT_IMAGE. The release workflow
+  publishes linux/amd64 images after required checks pass. Pin a tested digest and back up before upgrades.
+</p>
+<pre><code>docker compose -f compose.standalone.yml up -d --wait</code></pre>
+<h2 id="development">Development and separate production services</h2>
+<pre><code>docker compose up --build -d
+# compose.override.yml adds source mounts, watch mode and a development key.
+docker compose exec app npm test
+
+# Production excludes the override and requires your secret.
+docker compose -f compose.yml up --build -d --wait</code></pre>
+<p>
+  Both use SQLite. Converter networking is isolated and has no published host port. Production containers have
+  read-only roots and explicit resource limits.
+</p>
+<h2 id="cluster">PostgreSQL and S3</h2>
+<p>
+  The optional cluster mode stores metadata and leases in PostgreSQL and immutable documents in a private
+  S3-compatible bucket. Provision the bucket first. Grant only the required bucket/object permissions. Default
+  AWS credential providers also support workload identity where available.
+</p>
+<pre><code># Set these through your deployment secret mechanism:
+# IMPRINT_API_KEY, POSTGRES_PASSWORD (URL-safe), S3_BUCKET
+# AWS_REGION, and AWS credentials or workload identity
+# Optional S3_ENDPOINT for a compatible object service
+
+docker compose -f compose.cluster.yml up --build -d --wait
+docker compose -f compose.cluster.yml up -d --scale worker=2</code></pre>
+<p>
+  The API serves requests; separate <code>dist/worker.js</code> processes drain jobs. PostgreSQL uses
+  transactional claims with SKIP LOCKED and expiring leases. A stale attempt cannot publish over a newer
+  attempt. S3 writes complete before successful job state is committed; downloads verify byte count and
+  SHA-256. Staged/orphaned objects are tracked and cleaned after a one-hour grace period. Completed jobs and
+  webhook records retain seven days.
+</p>
+<p>
+  Use a dedicated database. Initialization creates the <code>imprint</code> schema and rejects newer unknown
+  schema versions. DATABASE_URL and IMPRINT_DATA_DIR are mutually exclusive. Automatic migration of existing
+  SQLite data to PostgreSQL is not implemented; export and validate a migration separately before switching a
+  live service.
+</p>
+<h2 id="configuration">Configuration</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IMPRINT_API_KEY</td>
+      <td>Administrator key, minimum 24 characters.</td>
+    </tr>
+    <tr>
+      <td>IMPRINT_DATA_DIR</td>
+      <td>SQLite directory; standalone defaults to /data.</td>
+    </tr>
+    <tr>
+      <td>DATABASE_URL · S3_BUCKET</td>
+      <td>Enable PostgreSQL/S3 mode; API requires independent workers.</td>
+    </tr>
+    <tr>
+      <td>S3_ENDPOINT · AWS_REGION</td>
+      <td>Optional compatible endpoint and region.</td>
+    </tr>
+    <tr>
+      <td>IMPRINT_CONCURRENCY</td>
+      <td>1–8 render slots per process; default 2.</td>
+    </tr>
+    <tr>
+      <td>GOTENBERG_URL</td>
+      <td>Converter endpoint for separate services.</td>
+    </tr>
+    <tr>
+      <td>WEBHOOK_URL · WEBHOOK_SECRET</td>
+      <td>Optional cluster-worker completion callback; HTTPS and a secret of at least 32 characters.</td>
+    </tr>
+    <tr>
+      <td>WEBHOOK_ALLOW_HTTP</td>
+      <td>Explicit development-only opt-in for HTTP; not set by production Compose.</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="webhooks">Signed completion events</h2>
+<p>
+  The operator configures one fixed callback URL; callers cannot supply arbitrary URLs. It receives all
+  tenants' terminal job events, without template/data bytes. Persisted events commit in the same transaction
+  as job completion. Delivery is at least once: deduplicate by event ID.
+</p>
+<pre><code>X-Imprint-Event-Id: EVENT_ID
+X-Imprint-Timestamp: UNIX_SECONDS
+X-Imprint-Signature: sha256=HEX_HMAC
+
+{"id":"EVENT_ID","type":"job.succeeded","tenantId":"TENANT_ID",
+ "jobId":"JOB_ID","status":"succeeded","format":"pdf","error":null}</code></pre>
+<p>
+  Verify HMAC-SHA256 over <code>timestamp + "." + rawBody</code> with the shared secret, using a timing-safe
+  comparison and a bounded clock tolerance. Return 2xx only after recording the event. Redirects are not
+  followed; each attempt has a five-second deadline. Up to eight attempts use exponential backoff. Monitor
+  <code>imprint.webhooks</code> for exhausted deliveries. Configuring a callback later can deliver retained
+  events from the previous seven days.
+</p>
+<p>
+  Design references:
+  <a href="https://www.postgresql.org/docs/current/sql-select.html">PostgreSQL queue locking</a>,
+  <a href="https://node-postgres.com/features/transactions">node-postgres transactions</a>,
+  <a href="https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_s3_code_examples.html"
+    >AWS S3 SDK</a
+  >.
+</p>

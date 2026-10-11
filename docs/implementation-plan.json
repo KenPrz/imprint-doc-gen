@@ -1,0 +1,113 @@
+{
+  "objective": "Implement the eight-stage roadmap and publish GitHub Pages documentation",
+  "baseline": "0d8f778532db5188b049bf8165b82d9b1d6d7c41",
+  "rules": [
+    "Preserve existing syntax and API contracts",
+    "Use independently authored fixtures only",
+    "Bound resource usage and reject unsupported structures",
+    "Test each stage and all existing corpus cases",
+    "Keep infrastructure tests isolated",
+    "Publish documentation without secrets or application data"
+  ],
+  "stages": [
+    {
+      "id": 1,
+      "name": "Operations",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "Authenticated metrics",
+        "Reproducible load runner",
+        "Verified SQLite backup and restore"
+      ],
+      "evidence": {
+        "loadRequests": 20,
+        "concurrency": 2,
+        "successful": 20,
+        "failures": 0,
+        "scope": "isolated local API, DOCX invoice; capacity conclusions require deployment-specific load runs"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Images",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "Contain/cover, crop, rotation and orientation",
+        "Repeated spreadsheet pictures"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Template authoring",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "Field inspection and diagnostics",
+        "Validation and PDF preview tooling"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Expressions",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "Formatting and explicit locale",
+        "Conditions and array filters",
+        "Bounded non-evaluating grammar"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Advanced Office",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "DOCX notes, numbering and complex tables",
+        "XLSX block repeats, dates and additional formulas"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Additional formats",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "PPTX",
+        "ODT, ODS and ODP",
+        "Progressive format corpora and conversion gates"
+      ],
+      "evidence": {
+        "independentTextCases": 400,
+        "convertedComparisons": 12
+      }
+    },
+    {
+      "id": 7,
+      "name": "Document assembly",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "PDF merge/split",
+        "Watermarks, numbering and attachments",
+        "Barcodes and QR codes"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Distributed deployment",
+      "status": "validated_pending_release_ci",
+      "deliverables": [
+        "PostgreSQL metadata and queue",
+        "S3-compatible object storage",
+        "Independent workers",
+        "Signed durable webhooks"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Documentation and release",
+      "status": "implemented_pending_publication",
+      "deliverables": [
+        "GitHub Pages site",
+        "Updated API and support matrix",
+        "CI and release validation"
+      ]
+    }
+  ]
+}

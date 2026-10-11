@@ -13,7 +13,7 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
   const storyParts = [mainPart];
   const mainRelationships = original.get(relsPath(mainPart));
   if (mainRelationships) for (const link of descendants(parseXml(mainRelationships.toString('utf8'), relsPath(mainPart)), ns.packageRelationship, 'Relationship')) {
-    if (['header', 'footer'].some(kind => link.getAttribute('Type') === `${ns.relationship}/${kind}`)) storyParts.push(resolvePart(mainPart, link.getAttribute('Target')!));
+    if (['header', 'footer', 'footnotes', 'endnotes', 'comments'].some(kind => link.getAttribute('Type') === `${ns.relationship}/${kind}`)) storyParts.push(resolvePart(mainPart, link.getAttribute('Target')!));
   }
   const plans = [...new Set(storyParts)].map(part => compileStory(part, original.get(part)!.toString('utf8')));
   for (const plan of plans) if (plan.images.length) {
@@ -33,7 +33,7 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
   return Object.freeze({ format: 'docx' as const, async render(data: Record<string, unknown>, options: RenderOptions = {}) {
     validateData(data);
     const attachmentMap = Object.assign(Object.create(null), options.attachments ?? {}) as Record<string, Uint8Array>;
-    const output = createRenderPackage(original, mainPart, attachmentMap);
+    const output = createRenderPackage(original, mainPart, attachmentMap, options.images);
     const imageKey = standardImageResolver(attachmentMap);
     const usedIdentities = new Set(reservedIdentities); let nextIdentity = 1;
     const freshIdentity = (hex: boolean) => {
@@ -49,11 +49,11 @@ export async function compileDocx({ parts: original, mainPart }: OfficePackage):
         if (binding.standard) {
           const key = imageKey(binding.path, scope, plan.part);
           if (!key) return [{ start: binding.description.start, end: binding.description.end, value: 'Image placeholder' }];
-          const id = await output.addImage(plan.part, key);
+          const id = await output.addImage(plan.part, key, binding.size);
           return [{ start: binding.reference.start, end: binding.reference.end, value: id }, { start: binding.description.start, end: binding.description.end, value: 'Image attachment' }];
         }
         const key = scope.length === 1 && Object.hasOwn(attachmentMap, binding.path) ? binding.path : scalar(lookup(scope, binding.path, plan.part), binding.path, plan.part);
-        const id = await output.addImage(plan.part, key);
+        const id = await output.addImage(plan.part, key, binding.size);
         return [{ start: binding.reference.start, end: binding.reference.end, value: id }, { start: binding.description.start, end: binding.description.end, value: escapeXml(`Attachment ${key}`) }];
       }, freshIdentity);
       if (result !== plan.source) { parseXml(result, plan.part); output.setPart(plan.part, Buffer.from(result)); }

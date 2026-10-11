@@ -1,0 +1,158 @@
+<p class="eyebrow">Integration</p>
+<h1>A small, authenticated API.</h1>
+<p class="lead">
+  Use synchronous rendering for immediate results, or immutable templates and durable jobs for background
+  work.
+</p>
+<h2 id="authentication">Authentication and tenancy</h2>
+<p>
+  Every endpoint except health/readiness requires <code>Authorization: Bearer KEY</code>. The environment API
+  key is an administrator for the default tenant. Create a dedicated tenant and use its returned key in your
+  application. Keys are returned only when created or rotated; stored keys are hashed. Admin access does not
+  bypass another tenant's document ownership.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Method / path</th>
+      <th>Purpose / request</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET /health · GET /ready</td>
+      <td>Liveness; readiness checks configured storage and converter.</td>
+    </tr>
+    <tr>
+      <td>GET /metrics</td>
+      <td>Admin-only Prometheus metrics.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/render</td>
+      <td>Base64 template, data, optional attachments/images/locale/timeZone/output. Binary result.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/inspect</td>
+      <td><code>{"template":"BASE64"}</code>. Fields and diagnostics.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/preview</td>
+      <td>Render body; inline PDF response.</td>
+    </tr>
+    <tr>
+      <td>GET · POST /v1/tenants</td>
+      <td>Admin list/create. Create body: <code>{"name":"Example"}</code>.</td>
+    </tr>
+    <tr>
+      <td>POST · DELETE /v1/tenants/:id/key</td>
+      <td>Admin rotate/revoke tenant key.</td>
+    </tr>
+    <tr>
+      <td>GET · POST /v1/templates</td>
+      <td>List/upload. Upload: <code>{"name":"Invoice","template":"BASE64"}</code>.</td>
+    </tr>
+    <tr>
+      <td>GET · DELETE /v1/templates/:id</td>
+      <td>Metadata/versions or delete an unused template.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/templates/:id/versions</td>
+      <td>Upload a new immutable version: <code>{"template":"BASE64"}</code>.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/templates/:id/publish</td>
+      <td>
+        Select current version: <code>{"versionId":"ID"}</code>. Also supports rollback to an earlier version.
+      </td>
+    </tr>
+    <tr>
+      <td>POST /v1/jobs</td>
+      <td>templateId, optional versionId, data and render options. HTTP 202 with job ID.</td>
+    </tr>
+    <tr>
+      <td>GET · DELETE /v1/jobs/:id</td>
+      <td>Poll state or delete a terminal job.</td>
+    </tr>
+    <tr>
+      <td>GET /v1/jobs/:id/result</td>
+      <td>Download successful output.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/pdf · /v1/pdf/split</td>
+      <td><a href="pdf.html">PDF assembly and splitting</a>.</td>
+    </tr>
+    <tr>
+      <td>POST /v1/barcode</td>
+      <td><a href="images.html#barcodes">Barcode PNG</a>.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Template/job routes require configured persistence. The one-shot
+  <code>POST /render/template?download=true</code> route accepts template, data, attachments, images, locale,
+  timeZone and <code>convertTo</code>; it returns the same binary output.
+</p>
+<h2 id="jobs">Reliable job submission</h2>
+<pre><code>POST /v1/jobs
+Idempotency-Key: invoice-2026-0001
+
+{
+  "templateId":"TEMPLATE_ID",
+  "data":{"customer":{"name":"Example Company"}},
+  "output":"pdf",
+  "locale":"en-US",
+  "timeZone":"UTC"
+}</code></pre>
+<p>
+  The job pins the selected version at acceptance. Reusing a key with the same serialized request returns the
+  original job; changed data yields 409. States are queued, running, succeeded and failed. At most two
+  attempts run for retryable worker/conversion failures; template/data errors do not retry. Completed jobs
+  expire after seven days. Delete terminal jobs before deleting their template.
+</p>
+<h2 id="errors">Errors</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>400 / 401 / 403</td>
+      <td>Invalid request / invalid key / admin permission required.</td>
+    </tr>
+    <tr>
+      <td>404 / 409</td>
+      <td>Not owned or absent / state or idempotency conflict.</td>
+    </tr>
+    <tr>
+      <td>413 / 422</td>
+      <td>Resource budget exceeded / unsupported template, expression or data.</td>
+    </tr>
+    <tr>
+      <td>502 / 503 / 504</td>
+      <td>Storage/converter failure / admission or queue full / deadline exceeded.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Responses expose stable error codes and may include a package part. Do not retry 422 blindly. For 503, apply
+  bounded backoff and honor Retry-After. Maximum JSON request size is 16 MiB including base64 overhead.
+</p>
+<h2 id="sdk">TypeScript SDK</h2>
+<pre><code>import { readFile } from 'node:fs/promises';
+import { compile, inspectTemplate, barcode } from './dist/index.js';
+
+const template = await compile(await readFile('invoice.docx'));
+const qr = await barcode({type:'qrcode', text:'invoice-123'});
+const document = await template.render(
+  {customer:{name:'Example Company'}, logo:'qr'},
+  {attachments:{qr}, images:{qr:{fit:'contain'}}, locale:'en-US'}
+);
+console.log(await inspectTemplate(await readFile('invoice.docx')));</code></pre>
+<p>
+  The SDK preserves the input document format and runs in the calling process. Use HTTP for worker isolation
+  and bundled PDF conversion. Compile once and reuse for concurrent renders. This repository is private; no
+  public npm publication is implied.
+</p>

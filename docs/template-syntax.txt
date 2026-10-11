@@ -1,52 +1,7 @@
-Imprint standard template syntax: imprint-v1
+Template syntax
 
-Use standard syntax for all new DOCX/XLSX templates, examples and corpus
-fixtures. Future PPTX, OpenDocument and text-format adapters must reuse this
-language and provide explicit structural rules for their document format.
-This specifies the implemented language and its limits.
+The maintained guide is https://kenprz.github.io/imprint-doc-gen/syntax.html
+Source: docs/site/pages/syntax.html
+Build locally: npm run docs:build
 
-Data is a JSON object. "d" denotes that root object at every nesting depth:
-  {d.customer.name}              root/nested scalar
-  {d.items[i].name}              current item in a repeated pattern
-  {d.items[i+1].name}             increment exemplar; discarded from output
-  {d.groups[i].items[i].name}    nested DOCX item
-  {d.groups[i].name}             parent item within that nested repeat
-  {d.logo}                      picture alternative-text binding
-
-DOCX: repeat sibling table-row patterns or paragraph blocks. The first [i]
-paragraph/row starts the pattern; the matching [i+1] row/paragraph ends it.
-Nested object arrays are supported. Marker rows/paragraphs are discarded.
-XLSX: one pattern row followed immediately by its matching [i+1] row.
-Multiple independent repeats are supported; nesting, horizontal repetition
-and patterns spanning several XLSX rows need future adapters.
-
-Missing/null scalars become blank. Missing/null/empty arrays remove both
-pattern and increment exemplar. Items must be objects. Zero/false are values.
-Whole-cell XLSX bindings preserve JSON numeric/boolean types; embedded
-bindings are text. Data is never reparsed as syntax. No JavaScript evaluation.
-Line breaks/tabs are supported; invalid XML characters fail explicitly.
-
-Images: existing picture descriptions may contain a single {d.path} binding.
-Use a named PNG/JPEG attachment or a PNG/JPEG data URL. Missing images retain
-the placeholder. DOCX allows item-scoped pictures. XLSX images intersecting
-repeated/deleted rows need future cloning rules and fail explicitly.
-
-Regular Excel formulas are not template strings. Imprint moves references
-when rows expand or marker rows disappear, and calculates its supported A1
-subset. Unsupported functions and reference structures fail explicitly.
-
-Unsupported: formatter chains, filters/conditions, aliases/translations,
-complements, arbitrary indices/iterators and advanced structural adapters.
-Unsupported expressions return UNSUPPORTED_EXPRESSION.
-Do not silently guess unsupported expressions. Add grammar support only
-with fixtures, resource bounds and independent expected behavior.
-
-Legacy {{path}}, {{#each items}} / {{/each}}, {{image:key}} still work with
-their original strict missing-data rules and relative ../ scope. Do not mix
-legacy and standard repeat markers in one Word story or Excel worksheet.
-Legacy behavior remains covered by the renderer/loops/XLSX unit tests.
-
-SDK, CLI, /v1/render, /render/template?download=true, stored templates and
-jobs all use the same automatic syntax recognition; no migration flag is
-required. Templates retain the original DOCX/XLSX package format; PDF is a
-conversion of the generated document, not another template dialect.
+See also docs/site/pages/formats.html for supported structures and explicit limits.

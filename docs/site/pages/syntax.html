@@ -1,0 +1,121 @@
+<p class="eyebrow">Template authoring</p>
+<h1>One template language.</h1>
+<p class="lead">
+  Use <code>{d.path}</code> everywhere. Formatting runs can split a tag without changing its meaning.
+</p>
+<h2 id="fields">Fields and missing data</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Template</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>{d.customer.name}</code></td>
+      <td>A root or nested field.</td>
+    </tr>
+    <tr>
+      <td><code>{d.total:currency("USD")}</code></td>
+      <td>Locale-aware currency text.</td>
+    </tr>
+    <tr>
+      <td><code>{d.name:required()}</code></td>
+      <td>Error if missing, null or empty.</td>
+    </tr>
+    <tr>
+      <td><code>{d.name:default("Guest"):upper()}</code></td>
+      <td>Ordered formatter chain.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Missing and null values become blank. Zero and false remain meaningful. Whole-cell XLSX/ODS values retain
+  number and boolean types; mixed text produces a string. Data is never evaluated as JavaScript or recursively
+  interpreted as template code.
+</p>
+<h2 id="repeats">Repeating blocks</h2>
+<pre><code>Pattern row: {d.items[i].name}    {d.items[i].price}
+Marker row:  {d.items[i+1].name}</code></pre>
+<p>
+  The pattern repeats for each object. The marker is discarded. A multi-row block starts at the first pattern
+  field and ends immediately before the marker. Marker fields must all refer to the same increment. Root
+  fields keep their root meaning inside repeats. Empty, missing or null lists remove the region.
+</p>
+<p>
+  DOCX supports sibling rows, paragraph blocks and nested object lists such as
+  <code>{d.groups[i].items[i].name}</code>. XLSX supports contiguous multi-row blocks, but not nested or
+  horizontal repeats. PPTX supports paragraph/table-row repeats and whole-slide repeats followed by a
+  marker-only slide. ODT/ODS repeat table rows; ODP can repeat whole pages.
+</p>
+<h2 id="formatters">Formatter reference</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Formatter</th>
+      <th>Example / behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>number(2)</code></td>
+      <td>Two fraction digits, locale grouping.</td>
+    </tr>
+    <tr>
+      <td><code>currency("USD")</code></td>
+      <td>ISO currency code, locale formatting.</td>
+    </tr>
+    <tr>
+      <td><code>date("medium")</code></td>
+      <td>short, medium, long, full or iso. ISO date input; timestamp inputs require an offset.</td>
+    </tr>
+    <tr>
+      <td><code>dateSerial("1900")</code></td>
+      <td>Spreadsheet numeric date; select 1900 or 1904 explicitly and style the cell in the template.</td>
+    </tr>
+    <tr>
+      <td><code>upper()</code>, <code>lower()</code></td>
+      <td>Locale-aware text case.</td>
+    </tr>
+    <tr>
+      <td><code>default("Guest")</code></td>
+      <td>Fallback for missing/null/empty values.</td>
+    </tr>
+    <tr>
+      <td><code>if("Yes","No")</code></td>
+      <td>Conditional scalar output using value truthiness. Does not remove document structure.</td>
+    </tr>
+    <tr>
+      <td><code>required()</code></td>
+      <td>Require a nonempty value.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Set <code>locale</code> and <code>timeZone</code> on the request or SDK options. Defaults are
+  <code>en-US</code> and <code>UTC</code>; concurrent renders have separate settings. A formatter chain has at
+  most 16 operations and an expression at most 2,048 characters.
+</p>
+<h2 id="filters">Filter repeated data</h2>
+<pre><code>{d.items:where("active",true)[i].name}
+{d.items[i+1].name}
+
+{d.items:where("price","gte",100)[i].name}</code></pre>
+<p>
+  Filtering precedes the iterator. Operators: eq, ne, gt, gte, lt, lte and contains. Arguments are JSON scalar
+  literals. Nested calls, arbitrary code, prototype access and dynamic expressions are rejected.
+</p>
+<h2 id="inspection">Inspect and preview</h2>
+<pre><code>npm run inspect -- template.docx
+GOTENBERG_URL=http://localhost:3000 npm run preview -- template.docx data.json preview.pdf</code></pre>
+<p>
+  <code>POST /v1/inspect</code> reports fields, required flags, package parts and paragraph/cell locations.
+  <code>POST /v1/preview</code> accepts the render body and returns an inline PDF. Inspection validates
+  recognized syntax and compilation; successful inspection does not guarantee that every runtime data shape
+  will render.
+</p>
+<p>
+  Earlier double-brace bindings remain supported in DOCX/XLSX. Use the standard syntax for new templates and
+  avoid mixing repeat dialects within a story or worksheet.
+</p>

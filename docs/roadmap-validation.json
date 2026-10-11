@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-12",
+  "status": "local checks passed; release CI pending",
+  "unitTests": {
+    "passed": 206,
+    "failed": 0
+  },
+  "originalCorpus": {
+    "docx": 100,
+    "xlsx": 100,
+    "failed": 0,
+    "unsupported": 0
+  },
+  "additionalFormats": {
+    "pptx": 100,
+    "odt": 100,
+    "ods": 100,
+    "odp": 100,
+    "failed": 0,
+    "selectedIndependentPdfTextComparisons": 12
+  },
+  "syntheticInvoices": {
+    "sdkPassed": 12,
+    "sdkFailed": 0,
+    "standalonePdf": "pending final run"
+  },
+  "cluster": {
+    "realPostgresAndS3": true,
+    "concurrentClaims": true,
+    "staleLeaseFencing": true,
+    "tenantIsolation": true,
+    "idempotency": true,
+    "signedWebhookRetry": true,
+    "missingObjectRejection": true,
+    "orphanCleanup": true
+  },
+  "operations": {
+    "sqliteBackupRestore": "passed",
+    "load": "see implementation-plan.json; final container run pending"
+  },
+  "documentation": {
+    "pages": 9,
+    "internalLinks": "passed",
+    "desktopAndMobileInspection": "passed",
+    "searchAndMobileMenu": "passed",
+    "pagesDeployment": "configured; publication pending"
+  },
+  "limitations": [
+    "Selected PDF text comparisons do not prove pixel fidelity or complete Office schema conformance",
+    "The new 100-case format suites cover implemented adapter bands, not all future structures",
+    "Known DOCX stress level 93 converter timeout remains explicitly bounded",
+    "Local load measurements do not establish production capacity",
+    "Cluster API metrics do not aggregate independent worker metrics"
+  ]
+}

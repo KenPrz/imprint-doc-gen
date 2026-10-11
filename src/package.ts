@@ -35,7 +35,7 @@ export async function readPackage(input: Uint8Array): Promise<PackageParts> {
       await entry.getData!(sink, { checkSignature: true, signal: AbortSignal.timeout(15_000) });
       parts.set(name, Buffer.concat(chunks));
     }
-    if (!parts.has('[Content_Types].xml') || !parts.has('_rels/.rels')) throw new RenderError('UNSUPPORTED_FORMAT', 'Expected an Office Open XML package');
+    if ((!parts.has('[Content_Types].xml') || !parts.has('_rels/.rels')) && (!parts.has('mimetype') || !parts.has('META-INF/manifest.xml'))) throw new RenderError('UNSUPPORTED_FORMAT', 'Expected an Office Open XML package');
     return parts;
   } catch (error) {
     if (error instanceof RenderError) throw error;
@@ -44,6 +44,6 @@ export async function readPackage(input: Uint8Array): Promise<PackageParts> {
 }
 export async function writePackage(parts: PackageParts): Promise<Buffer> {
   const zip = new ZipWriter(new Uint8ArrayWriter(), { useWebWorkers: false });
-  for (const [name, bytes] of [...parts].sort(([a], [b]) => a.localeCompare(b))) await zip.add(name, new Uint8ArrayReader(bytes), { level: 6, extendedTimestamp: false, dataDescriptor: false, lastModDate: new Date(2020, 0, 1) });
+  for (const [name, bytes] of [...parts].sort(([a], [b]) => a === 'mimetype' ? -1 : b === 'mimetype' ? 1 : a.localeCompare(b))) await zip.add(name, new Uint8ArrayReader(bytes), { level: name === 'mimetype' ? 0 : 6, extendedTimestamp: false, dataDescriptor: false, lastModDate: new Date(2020, 0, 1) });
   return Buffer.from(await zip.close());
 }

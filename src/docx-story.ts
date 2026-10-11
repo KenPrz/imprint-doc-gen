@@ -1,3 +1,4 @@
+import { filterArray, type Formatter, type ArrayFilter } from './expressions.ts';
 import { standardBindings, parseStandardPath, inferStandardLoops, scopedStandardPath, standardLookup, type RepeatRegion } from './standard-syntax.ts';
 import { RenderError } from './errors.ts';
 import { limits } from './package.ts';
@@ -5,12 +6,12 @@ import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { ns, indexXml, ancestor, applyEdits, decodeXml, escapeXml, type ElementSpan, type AttributeSpan, type Edit } from './xml.ts';
 
 interface TextSpan { node: ElementSpan; value: string; offset: number }
-interface Binding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
+interface Binding { formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
 interface ParagraphPlan { node: ElementSpan; text: string; spans: TextSpan[]; bindings: Binding[] }
-export interface ImagePlan { description: AttributeSpan; reference: AttributeSpan; path: string; start: number; end: number; standard?: boolean }
+export interface ImagePlan { size?: { width: number; height: number }; description: AttributeSpan; reference: AttributeSpan; path: string; start: number; end: number; standard?: boolean }
 type LoopPlan = RepeatRegion;
 interface Fragment { kind: 'fragment'; start: number; end: number; paragraphs: ParagraphPlan[]; images: ImagePlan[]; identities: Identity[] }
-interface Loop { kind: 'loop'; path: string; children: Segment[]; standard?: boolean }
+interface Loop { filters?: ArrayFilter[]; kind: 'loop'; path: string; children: Segment[]; standard?: boolean }
 type Segment = Fragment | Loop;
 interface Identity { attribute: AttributeSpan; hex: boolean }
 export interface StoryPlan { part: string; source: string; nodes: ElementSpan[]; images: ImagePlan[]; segments: Segment[] }
@@ -62,7 +63,7 @@ function loopsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: strin
     const first = open.paragraph.node, last = paragraph.node;
     const firstRow = ancestor(first, ns.word, 'tr'), lastRow = ancestor(last, ns.word, 'tr');
     let loop: LoopPlan;
-    if (first !== last && first.parent === last.parent && first.parent?.uri === ns.word && ['body', 'hdr', 'ftr', 'tc', 'sdtContent'].includes(first.parent.local) && markerOnly(open.paragraph, open.binding, nodes) && markerOnly(paragraph, binding, nodes)) {
+    if (first !== last && first.parent === last.parent && first.parent?.uri === ns.word && ['body', 'hdr', 'ftr', 'tc', 'sdtContent', 'footnote', 'endnote', 'comment'].includes(first.parent.local) && markerOnly(open.paragraph, open.binding, nodes) && markerOnly(paragraph, binding, nodes)) {
       loop = { start: first.start, end: last.end, bodyStart: first.end, bodyEnd: last.start, path: open.binding.path, children: [] };
     } else if (firstRow && firstRow === lastRow && firstRow.parent?.uri === ns.word && firstRow.parent.local === 'tbl') {
       loop = { start: firstRow.start, end: firstRow.end, bodyStart: firstRow.start, bodyEnd: firstRow.end, path: open.binding.path, children: [] };
@@ -137,7 +138,9 @@ export function compileStory(part: string, source: string): StoryPlan {
       const blips = nodes.filter(n => n.uri === ns.drawing && n.local === 'blip' && n.start > owner.start && n.end < owner.end);
       const reference = blips[0]?.attributes.find(a => a.uri === ns.relationship && a.local === 'embed');
       if (blips.length !== 1 || !reference) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one embedded picture per image binding', part);
-      owners.add(owner.start); images.push({ description, reference, path, start: owner.start, end: owner.end, standard });
+      const extent = nodes.find(n => n.uri === ns.wordDrawing && n.local === 'extent' && n.start > owner.start && n.end < owner.end);
+      const size = extent ? { width: Math.max(1, Math.round(Number(extent.attributes.find(a => a.local === 'cx')?.value) / 9525)), height: Math.max(1, Math.round(Number(extent.attributes.find(a => a.local === 'cy')?.value) / 9525)) } : undefined;
+      owners.add(owner.start); images.push({ size, description, reference, path, start: owner.start, end: owner.end, standard });
     }
   }
   const loops = nestLoops([...nativeLoops, ...standardLoops], nodes, part), identities = nodes.flatMap(identityAttributes);
@@ -148,7 +151,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       result.push({ kind: 'fragment', start: a, end: b, paragraphs: paragraphs.filter(p => p.node.start >= a && p.node.end <= b), images: images.filter(i => i.start >= a && i.end <= b), identities: identities.filter(i => i.attribute.start >= a && i.attribute.end <= b) });
     };
     let cursor = start;
-    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', path: loop.path, standard: loop.standard, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
+    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', path: loop.path, filters: loop.filters, standard: loop.standard, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
     fragment(cursor, end); return result;
   };
   return { part, source, nodes, images, segments: region(0, source.length, loops) };
@@ -163,7 +166,7 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
   const visit = async (segments: Segment[], scope: Scope): Promise<void> => {
     for (const segment of segments) {
       if (segment.kind === 'loop') {
-        const items = segment.standard ? standardLookup(scope, segment.path, plan.part) ?? [] : lookup(scope, segment.path, plan.part);
+        const items = segment.standard ? filterArray(standardLookup(scope, segment.path, plan.part) ?? [], segment.filters, plan.part) : lookup(scope, segment.path, plan.part);
         if (!Array.isArray(items)) throw new RenderError('INVALID_DATA', `Expected an array at ${segment.path}`, plan.part);
         for (const item of items) {
           if (++budget.iterations > loopLimits.iterations) throw new RenderError('LIMIT_EXCEEDED', 'Loop expansion exceeds 10000 iterations', plan.part);
@@ -183,7 +186,7 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
       for (const paragraph of segment.paragraphs) {
         const localEdits = new Map<TextSpan, Edit[]>();
         for (const binding of paragraph.bindings) {
-          const value = binding.kind === 'value' ? scalar(binding.standard ? standardLookup(scope, binding.path, plan.part) : lookup(scope, binding.path, plan.part), binding.path, plan.part, Boolean(binding.standard)) : '';
+          const value = binding.kind === 'value' ? scalar(binding.standard ? standardLookup(scope, binding.path, plan.part, binding.formatters) : lookup(scope, binding.path, plan.part), binding.path, plan.part, Boolean(binding.standard)) : '';
           for (const span of paragraph.spans) {
             const start = Math.max(binding.start, span.offset), end = Math.min(binding.end, span.offset + span.value.length);
             if (start >= end) continue;

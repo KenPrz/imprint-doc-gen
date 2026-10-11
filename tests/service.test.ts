@@ -206,7 +206,7 @@ test('queue drains in-flight work on shutdown, preserving real render errors wit
   const job = store.enqueue('default', { templateId: first.templateId, data: { title: {} } }).job;
   const errors: unknown[] = [], queue = new DurableQueue(store, new RenderService(), error => errors.push(error));
   try {
-    queue.start(); await queue.stop();
+    await queue.tick(); await queue.stop();
     assert.deepEqual(errors, []);
     const result = store.job('default', job.id);
     assert.equal(result.status, 'failed'); assert.equal(result.error, 'INVALID_DATA'); assert.equal(result.attempts, 1);

@@ -1,0 +1,85 @@
+<p class="eyebrow">Images first</p>
+<h1>Images that follow your data.</h1>
+<p class="lead">
+  Insert a placeholder picture, bind its description, and provide PNG or JPEG bytes. Keep layout decisions in
+  the template.
+</p>
+<h2 id="binding">Bind a picture</h2>
+<p>
+  Set its alternative-text description to <code>{d.logo}</code>. In OpenDocument use the frame description.
+  Supply base64 bytes in HTTP <code>attachments.logo</code>, or a Uint8Array in the SDK.
+  <code>data.logo</code> can point to another attachment key. Missing optional bindings retain their
+  placeholder. Remote image fetching and SVG are unsupported.
+</p>
+<pre><code>{
+  "data": {"logo":"brand"},
+  "attachments": {"brand":"BASE64_PNG"},
+  "images": {
+    "brand": {"fit":"contain", "background":"#ffffff"}
+  }
+}</code></pre>
+<h2 id="geometry">Fit, crop and rotate</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>contain</td>
+      <td>Preserve aspect ratio and pad to the picture canvas.</td>
+    </tr>
+    <tr>
+      <td>cover</td>
+      <td>Preserve aspect ratio and crop centrally to fill the canvas.</td>
+    </tr>
+    <tr>
+      <td>fill</td>
+      <td>Stretch to the canvas dimensions.</td>
+    </tr>
+    <tr>
+      <td>width / height</td>
+      <td>Raster dimensions, 1–4,096 pixels. Template placement geometry is retained.</td>
+    </tr>
+    <tr>
+      <td>crop</td>
+      <td>Integer left, top, width, height; applied after EXIF auto-orientation.</td>
+    </tr>
+    <tr>
+      <td>rotate</td>
+      <td>Degrees from −360 to 360 after cropping.</td>
+    </tr>
+    <tr>
+      <td>background</td>
+      <td>Hex RGB or RGBA background; transparency otherwise preserved.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  When fit is requested without pixel dimensions, Imprint uses the bound picture extent if available. Supply
+  dimensions explicitly for drawings without a readable extent. Transformed images are encoded as PNG.
+  Untransformed images retain original bytes except when EXIF orientation requires normalization. Decoding,
+  pixel dimensions and output size are bounded.
+</p>
+<h2 id="repeated-images">Images inside repeats</h2>
+<p>
+  Use <code>{d.items[i].image}</code> and an attachment key on each item. DOCX clones picture identities. XLSX
+  clones pictures wholly anchored within a pattern row and shifts them by the multi-row block height. Pictures
+  crossing a repeat boundary fail explicitly. PPTX slide repeats and ODF repeated frames resolve each image in
+  the item scope.
+</p>
+<h2 id="barcodes">QR and barcodes</h2>
+<pre><code>POST /v1/barcode
+{"type":"qrcode","text":"https://example.com/invoice/123","scale":3}</code></pre>
+<p>
+  The response is a PNG ready to pass as an image attachment. Supported types: qrcode, code128, ean13 and
+  datamatrix. Scale is 1–6; UTF-8 text is bounded at 512 bytes, with Code 128 additionally limited to 100
+  characters. Invalid checksums or unencodable input return a typed error.
+</p>
+<p>
+  Image transformations use <a href="https://sharp.pixelplumbing.com/api-operation/">Sharp</a>; barcode
+  rasterization uses <a href="https://github.com/metafloor/bwip-js">bwip-js</a>. Template binding and package
+  relationship handling live in this codebase.
+</p>
