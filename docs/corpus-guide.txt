@@ -76,10 +76,20 @@ XLSX rules
   Existing one-cell/two-cell/absolute anchor geometry is retained.
   Cells preserve style indices. Line breaks/tabs and Excel escape sequences are
   supported in strings; the cell limit is 32,767 UTF-16 code units.
-  Existing formulas/caches are preserved; changed sheets request full automatic
-  recalculation. The renderer does not compute fresh cached results.
-  XLSX loops, formula placeholders, date conversion and bound phonetic strings
-  are unsupported. The row/range rules below are the next milestone's contract.
+  Without loops, existing formulas/caches are preserved and recalculation is
+  requested. With loops, the bounded calculator refreshes all supported formulas.
+  Formula placeholders, date conversion and bound phonetic strings are unsupported.
+  Implemented loops select exactly one row, accept arrays of objects and remove
+  marker-only cells. Empty arrays remove the row. Multiple independent loops and
+  ../root paths are supported; nested/multi-row XLSX loops are not implemented.
+  Row/range rewrites distinguish structural movement from relative formula copies.
+  Existing pictures below a loop move; overlapping pictures and merges are rejected.
+  The calculator supports arithmetic/comparison/text expressions, A1 ranges and
+  SUM/MIN/MAX/AVERAGE/COUNT/IF, with cross-sheet dependencies and typed errors.
+  It rejects advanced functions, named operands, whole-row/column references,
+  shared/array/data-table formulas, boolean concatenation and ambiguous zero powers.
+  Loop workbooks with charts, pivots, comments or unsupported extensions require
+  later adapters. Explicit coordinates, iteration/byte/formula budgets are enforced.
   A full-cell scalar keeps its JSON type: number -> numeric cell, boolean -> b.
   Strings beginning with '=' remain literal strings, never executable formulas.
   Shared-string and inline-string representations are semantically interchangeable
@@ -89,7 +99,7 @@ XLSX rules
   remain meaningful. Cells below the insertion move by the inserted row count.
   Dependent table/filter/name/validation/conditional-formatting ranges expand.
   Column E's loop-end marker cell is removed after XLSX row expansion.
-  This corpus does not implement a general Excel calculation engine.
+  The renderer and corpus do not implement a general Excel calculation engine.
 
 Engine integration
   Render each case using its template, input.json and resolved attachment mapping.

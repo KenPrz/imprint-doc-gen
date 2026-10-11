@@ -137,8 +137,8 @@ test('XLSX failed attachments do not poison compiled reuse or concurrent renders
   assert.deepEqual(await Promise.all(outputs.map(async output => (await cells(output))[0]!.text)), ['A', 'B', 'C']);
   assert.deepEqual(outputs[0], await compiled.render({ name: 'A' }, { attachments: { logo: png([0, 0, 255]) } }));
 });
-test('XLSX rejects row loops, formula templating and malformed or unsafe expressions', async () => {
-  for (const [text, expected] of [['{{#each items}}', 'UNSUPPORTED_TEMPLATE'], ['{{/each}}', 'UNSUPPORTED_TEMPLATE'], ['{{name', 'TEMPLATE_SYNTAX'], ['{{__proto__.x}}', 'TEMPLATE_EXPRESSION'], ['{{name + 1}}', 'TEMPLATE_EXPRESSION'], ['{{../name}}', 'TEMPLATE_EXPRESSION']]) await assert.rejects(compile(await template(inline('A1', text!))), code(expected!));
+test('XLSX rejects malformed row loops, formula templating and malformed or unsafe expressions', async () => {
+  for (const [text, expected] of [['{{#each items}}', 'TEMPLATE_STRUCTURE'], ['{{/each}}', 'TEMPLATE_STRUCTURE'], ['{{name', 'TEMPLATE_SYNTAX'], ['{{__proto__.x}}', 'TEMPLATE_EXPRESSION'], ['{{name + 1}}', 'TEMPLATE_EXPRESSION'], ['{{../name}}', 'TEMPLATE_EXPRESSION']]) await assert.rejects(compile(await template(inline('A1', text!))), code(expected!));
   await assert.rejects(compile(await template('<s:c r="A1"><s:f>{{formula}}</s:f><s:v>0</s:v></s:c>')), code('UNSUPPORTED_TEMPLATE'));
 });
 test('XLSX rejects missing data, complex values and invalid XML characters without evaluating accessors', async () => {
