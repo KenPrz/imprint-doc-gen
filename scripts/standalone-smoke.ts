@@ -3,6 +3,7 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readPackage } from '../src/package.ts';
+import { snapshot } from './pms/snapshot.ts';
 import { ImprintClient } from '../examples/pms/client.ts';
 
 const execute = promisify(execFile);
@@ -53,6 +54,23 @@ for (const format of ['docx', 'xlsx', 'pdf'] as const) {
   successful.push(job.id);
   console.log(`Standalone ${format}: passed`);
 }
+// Exercise the original PMS request and template without rewriting any tags.
+const pmsFixture = new URL('../tests/fixtures/pms/', import.meta.url);
+const pmsTemplate = await readFile(new URL('folio_statement-template.docx', pmsFixture));
+const pmsData = JSON.parse(await readFile(new URL('folio_statement.json', pmsFixture), 'utf8'));
+for (const convertTo of ['docx', 'pdf']) {
+  const response = await request('/render/template?download=true', 'POST', owner.apiKey, { template: pmsTemplate.toString('base64'), data: pmsData, convertTo });
+  assert.equal(response.status, 200, await response.clone().text());
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (convertTo === 'pdf') assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
+  else assert.deepEqual(await snapshot(bytes), JSON.parse(await readFile(new URL('folio_statement.expected.json', pmsFixture), 'utf8')));
+  console.log(`Original PMS Carbone request, ${convertTo}: passed`);
+}
+const pmsUploaded = await client.upload('Original PMS folio', pmsTemplate);
+await client.publish(pmsUploaded.templateId, pmsUploaded.versionId);
+const pmsJob = await client.submit({ templateId: pmsUploaded.templateId, data: pmsData, output: 'docx' }, 'original-pms-folio');
+await client.wait(pmsJob.id);
+assert.deepEqual(await snapshot(await client.download(pmsJob.id)), JSON.parse(await readFile(new URL('folio_statement.expected.json', pmsFixture), 'utf8')));
 // Freeze the API once work is demonstrably running, then kill the whole container.
 // This exercises the persisted lease rather than relying on a graceful close.
 const interrupted = await Promise.all(Array.from({ length: 6 }, (_, n) => client.submit({ templateId: docxTemplate!.templateId, data, attachments: { logo }, output: 'pdf' }, `restart-${n}`)));
@@ -84,5 +102,5 @@ await docker('start', container); await ready();
 await docker('update', '--restart=unless-stopped', container);
 assert.equal((await client.download(successful[2]!)).subarray(0, 5).toString(), '%PDF-');
 await mkdir('corpus/results', { recursive: true });
-await writeFile('corpus/results/standalone-validation.json', JSON.stringify({ formats: ['docx', 'xlsx', 'pdf'], imageAttachment: true, tenantIsolation: true, idempotency: true, queuedAndRunningRestartRecovery: true, interruptedJobs: interrupted.length, converterFailureExitsContainer: true, resultsPersist: true }, null, 2) + '\n');
+await writeFile('corpus/results/standalone-validation.json', JSON.stringify({ formats: ['docx', 'xlsx', 'pdf'], imageAttachment: true, originalPmsCarboneDocxAndPdf: true, originalPmsDurableJob: true, tenantIsolation: true, idempotency: true, queuedAndRunningRestartRecovery: true, interruptedJobs: interrupted.length, converterFailureExitsContainer: true, resultsPersist: true }, null, 2) + '\n');
 console.log('Converter failure supervision: passed');

@@ -136,7 +136,7 @@ jobs:
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
 
   publish:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/standalone-service')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/standalone-service' || github.ref == 'refs/heads/feat/carbone-template-compat')
     needs: [fixtures, conversion, standalone]
     runs-on: ubuntu-latest
     permissions:

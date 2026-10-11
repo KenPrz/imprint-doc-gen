@@ -1,3 +1,4 @@
+import { carboneBindings } from './carbone.ts';
 import { RenderError } from './errors.ts';
 import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { limits } from './package.ts';
@@ -32,6 +33,7 @@ export function compileCellText(source: string, container: ElementSpan, children
     const value = decodeXstring(readLeaf(source, node));
     spans.push({ node, value, offset: text.length }); text += value;
   }
+  if (carboneBindings(text, part).length) throw new RenderError('UNSUPPORTED_CARBONE_TEMPLATE', 'Carbone template compatibility currently supports DOCX; XLSX uses Imprint syntax', part);
   const bindings: Binding[] = []; let cursor = 0;
   while (true) {
     const start = text.indexOf('{{', cursor); if (start < 0) break;
