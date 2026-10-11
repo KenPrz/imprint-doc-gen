@@ -6,7 +6,7 @@ import { RenderError } from './errors.ts';
 
 const args = process.argv.slice(2);
 if (args.includes('--help') || args.length < 3) {
-  console.log('Usage: imprint-doc-gen template.docx|xlsx data.json output.docx|xlsx [attachments.json]\nAttachment manifest: {"logo":"./logo.png"}; paths are relative to the manifest.');
+  console.log('Usage: imprint-doc-gen template.<format> data.json output.<format> [attachments.json]\nAttachment manifest: {"logo":"./logo.png"}; paths are relative to the manifest.');
   process.exitCode = args.includes('--help') ? 0 : 2;
 } else {
   try {

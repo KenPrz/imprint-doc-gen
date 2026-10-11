@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-12",
+  "status": "Local validation passed. GitHub Actions reports the current release gates.",
+  "unitTests": {
+    "passed": 208,
+    "failed": 0
+  },
+  "originalCorpus": {
+    "docx": 100,
+    "xlsx": 100,
+    "failed": 0,
+    "unsupported": 0
+  },
+  "additionalFormats": {
+    "pptx": 100,
+    "odt": 100,
+    "ods": 100,
+    "odp": 100,
+    "failed": 0,
+    "selectedIndependentPdfTextComparisons": 12,
+    "standaloneApiPdfComparisons": 12
+  },
+  "syntheticInvoices": {
+    "sdkPassed": 12,
+    "sdkFailed": 0,
+    "standalonePdf": {
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "cluster": {
+    "realPostgresAndS3": true,
+    "concurrentClaims": true,
+    "staleLeaseFencing": true,
+    "tenantIsolation": true,
+    "idempotency": true,
+    "signedWebhookRetry": true,
+    "missingObjectRejection": true,
+    "orphanCleanup": true,
+    "independentWorkerProcess": true,
+    "objectServicesTested": [
+      "RustFS 1.0.1",
+      "Local cached S3-compatible service"
+    ],
+    "asyncAdmissionRegression": "passed for claims, ownership checks and object writes"
+  },
+  "operations": {
+    "sqliteBackupRestore": "passed",
+    "load": {
+      "requests": 100,
+      "concurrency": 2,
+      "output": "docx",
+      "elapsedSeconds": 25.45378776,
+      "successful": 100,
+      "rejected": 0,
+      "failures": 0,
+      "successfulPerSecond": 3.928688372154479,
+      "latencyMs": {
+        "p50": 468.52912899999865,
+        "p95": 856.3049569999966,
+        "p99": 935.9206510000004
+      },
+      "peakApiRssBytes": 235171840,
+      "runner": {
+        "node": "v24.16.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpus": 22,
+        "memoryBytes": 15665319936
+      },
+      "scope": "Isolated standalone image, 2 CPU / 2 GiB container limits; this is a smoke load, not sustained production certification"
+    }
+  },
+  "documentation": {
+    "pages": 9,
+    "internalLinks": "passed",
+    "desktopAndMobileInspection": "passed",
+    "searchAndMobileMenu": "passed",
+    "pagesDeployment": "Published by the Documentation workflow on main",
+    "url": "https://kenprz.github.io/imprint-doc-gen/"
+  },
+  "limitations": [
+    "Selected PDF text comparisons do not prove pixel fidelity or complete Office schema conformance",
+    "The new 100-case format suites cover implemented adapter bands, not all future structures",
+    "Known DOCX stress level 93 converter timeout remains explicitly bounded",
+    "Local load measurements do not establish production capacity",
+    "Cluster API metrics do not aggregate independent worker metrics"
+  ],
+  "standalone": {
+    "forcedRestartRecovery": "passed",
+    "converterFailureSupervision": "passed"
+  },
+  "ci": "https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml"
+}

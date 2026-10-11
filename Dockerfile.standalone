@@ -25,7 +25,7 @@ COPY --from=build --chown=gotenberg:gotenberg /app/dist ./dist
 COPY --chown=gotenberg:gotenberg package.json ./
 RUN mkdir -p /data && chown gotenberg:gotenberg /data && chmod 700 /data
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 IMPRINT_DATA_DIR=/data XDG_CONFIG_HOME=/tmp/config XDG_CACHE_HOME=/tmp/cache
-LABEL org.opencontainers.image.title="imprint-doc-gen" org.opencontainers.image.source="https://github.com/KenPrz/imprint-doc-gen" org.opencontainers.image.description="Standalone DOCX, XLSX and PDF generation API with durable jobs"
+LABEL org.opencontainers.image.title="imprint-doc-gen" org.opencontainers.image.source="https://github.com/KenPrz/imprint-doc-gen" org.opencontainers.image.description="Standalone Office document and PDF generation API with durable jobs"
 USER gotenberg
 VOLUME ["/data"]
 EXPOSE 3000

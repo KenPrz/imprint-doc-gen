@@ -12,7 +12,7 @@ export function address(value: string): Address {
 export const columnNumber = (column: string) => [...column.toUpperCase()].reduce((n, c) => n * 26 + c.charCodeAt(0) - 64, 0);
 export function columnName(number: number): string { let result = ''; while (number) { number--; result = String.fromCharCode(65 + number % 26) + result; number = Math.floor(number / 26); } return result; }
 export const a1 = (ref: Address) => `${ref.absoluteColumn ? '$' : ''}${ref.column}${ref.absoluteRow ? '$' : ''}${ref.row}`;
-export interface RowExpansion { row: number; count: number }
+export interface RowExpansion { row: number; count: number; height?: number }
 export class RowMap {
   readonly expansions: readonly RowExpansion[];
   constructor(expansions: readonly RowExpansion[]) { this.expansions = [...expansions].sort((a, b) => a.row - b.row); }
@@ -20,20 +20,20 @@ export class RowMap {
     let delta = 0;
     for (const expansion of this.expansions) {
       if (expansion.row > row) break;
-      if (expansion.row === row) {
+      if (row < expansion.row + (expansion.height ?? 1)) {
         if (!expansion.count && edge === 'cell') return undefined;
-        const result = row + delta + (edge === 'end' ? expansion.count - 1 : 0);
+        const result = row + delta + (edge === 'end' ? (expansion.count - 1) * (expansion.height ?? 1) : 0);
         if (result > maxRow) throw new RenderError('LIMIT_EXCEEDED', 'Expanded worksheet exceeds Excel row bounds');
         if (result < 1) return undefined;
         return result;
       }
-      delta += expansion.count - 1;
+      delta += (expansion.count - 1) * (expansion.height ?? 1);
     }
     const result = row + delta;
     if (result < 1 || result > maxRow) throw new RenderError('LIMIT_EXCEEDED', 'Expanded worksheet exceeds Excel row bounds');
     return result;
   }
-  intersects(start: number, end = start) { return this.expansions.some(e => e.row >= start && e.row <= end); }
+  intersects(start: number, end = start) { return this.expansions.some(e => e.row <= end && e.row + (e.height ?? 1) - 1 >= start); }
   range(value: string): string | undefined {
     const bounds = value.split(':');
     if (bounds.length > 2) throw new RenderError('UNSUPPORTED_TEMPLATE', `Unsupported worksheet range: ${value}`);

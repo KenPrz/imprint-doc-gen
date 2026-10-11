@@ -1,10 +1,11 @@
+import { parseExpression, formatValue, type Formatter, type ArrayFilter } from './expressions.ts';
 import { RenderError } from './errors.ts';
 import { checkPath, lookup, type Scope } from './scope.ts';
 import { ns, ancestor, type ElementSpan } from './xml.ts';
 
-export interface StandardBinding { start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
+export interface StandardBinding { formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
 export interface StandardParagraph { node: ElementSpan; text: string; bindings: StandardBinding[] }
-export interface RepeatRegion { start: number; end: number; bodyStart: number; bodyEnd: number; path: string; children: RepeatRegion[]; standard?: boolean; arrayPath?: string }
+export interface RepeatRegion { start: number; end: number; bodyStart: number; bodyEnd: number; path: string; children: RepeatRegion[]; filters?: ArrayFilter[]; standard?: boolean; arrayPath?: string }
 
 export function parseStandardPath(tag: string, part: string): string {
   if (!/^d\.[A-Za-z_$][\w$]*(?:\[i(?:\+1)?\])?(?:\.[A-Za-z_$][\w$]*(?:\[i(?:\+1)?\])?)*$/.test(tag)) throw new RenderError('UNSUPPORTED_EXPRESSION', `Unsupported standard expression: ${tag}`, part);
@@ -15,16 +16,28 @@ export function parseStandardPath(tag: string, part: string): string {
 export function standardBindings(text: string, part: string): StandardBinding[] {
   const bindings: StandardBinding[] = [];
   for (const start of text.matchAll(/(?<!\{)\{(?=[dc](?:\.|\[|\}|:)|#|t\(|o\.)/g)) {
-    const close = text.indexOf('}', start.index + 1);
-    if (close < 0 || text.slice(start.index + 1, close).includes('{')) throw new RenderError('TEMPLATE_SYNTAX', 'Unclosed standard tag', part);
-    const path = parseStandardPath(text.slice(start.index + 1, close), part);
-    bindings.push({ start: start.index, end: close + 1, path, kind: 'value', standard: true });
+    let close = start.index + 1, quote = false, escaped = false;
+    for (; close < text.length; close++) {
+      const character=text[close];
+      if(escaped){escaped=false;continue;}
+      if(quote && character==='\\'){escaped=true;continue;}
+      if(character==='"'){quote=!quote;continue;}
+      if(!quote && character==='}')break;
+      if(!quote && character==='{')throw new RenderError('TEMPLATE_SYNTAX','Nested standard tag',part);
+    }
+    if(close===text.length)throw new RenderError('TEMPLATE_SYNTAX','Unclosed standard tag',part);
+    const expression = parseExpression(text.slice(start.index + 1, close), part);
+    const path = parseStandardPath(expression.path, part);
+    bindings.push({ start: start.index, end: close + 1, path, formatters: expression.formatters, filters: expression.filters, kind: 'value', standard: true });
   }
   return bindings;
 }
-export function standardLookup(scope: Scope, path: string, part: string): unknown {
-  try { return lookup(scope, path, part); }
-  catch (error) { if (error instanceof RenderError && error.code === 'MISSING_DATA') return null; throw error; }
+export function standardLookup(scope: Scope, path: string, part: string, formatters?: Formatter[]): unknown {
+  let value: unknown;
+  try { value = lookup(scope, path, part); }
+  catch (error) { if (error instanceof RenderError && error.code === 'MISSING_DATA') value = null; else throw error; }
+  try { return formatValue(value, formatters); }
+  catch (error) { if (error instanceof RenderError) throw new RenderError(error.code, `${error.message} at ${path}`, part); throw error; }
 }
 function relativePath(path: string, context: RepeatRegion[], part: string): string {
   for (let index = context.length - 1; index >= 0; index--) {
@@ -58,13 +71,13 @@ export function inferStandardLoops(paragraphs: StandardParagraph[], part: string
     const firstRow = ancestor(first.paragraph.node, ns.word, 'tr');
     let start: ElementSpan;
     if (firstRow && lastRow && firstRow !== lastRow && firstRow.parent === lastRow.parent) start = firstRow;
-    else if (!lastRow && first.paragraph.node.parent === paragraph.node.parent && paragraph.node.parent?.uri === ns.word && ['body', 'hdr', 'ftr', 'tc', 'sdtContent'].includes(paragraph.node.parent.local)) start = first.paragraph.node;
+    else if (!lastRow && first.paragraph.node.parent === paragraph.node.parent && paragraph.node.parent?.uri === ns.word && ['body', 'hdr', 'ftr', 'tc', 'sdtContent', 'footnote', 'endnote', 'comment'].includes(paragraph.node.parent.local)) start = first.paragraph.node;
     else throw new RenderError('UNSUPPORTED_EXPRESSION', 'Standard repeats must select sibling rows or paragraph blocks', part);
     if (ancestor(start, ns.word, 'p')) throw new RenderError('UNSUPPORTED_EXPRESSION', 'Standard repeats in text boxes are unsupported', part);
     // The increment row/paragraph is an exemplar to discard, not another data row.
     const markerParagraphs = paragraphs.filter(p => p.node.start >= last.start && p.node.end <= last.end);
     for (const marker of markerParagraphs) if (marker.bindings.some(tag => !tag.standard || !tag.path.startsWith(`${arrayPath}[i+1]`))) throw new RenderError('TEMPLATE_STRUCTURE', 'Mixed data bindings in the standard increment marker', part);
-    loops.push({ start: start.start, end: last.end, bodyStart: start.start, bodyEnd: last.start, path: arrayPath, arrayPath, children: [], standard: true });
+    loops.push({ start: start.start, end: last.end, bodyStart: start.start, bodyEnd: last.start, path: arrayPath, arrayPath, children: [], filters: occurrences.filter(o => o.paragraph.node.start >= start.start && o.paragraph.node.end <= last.end).flatMap(o => o.binding.filters ?? []).filter(f => f.arrayPath === arrayPath), standard: true });
     previousEnds.set(arrayPath, last.end);
   }
   loops.sort((a, b) => a.start - b.start || b.end - a.end);

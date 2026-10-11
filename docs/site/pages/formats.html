@@ -1,0 +1,99 @@
+<p class="eyebrow">Support contract</p>
+<h1>Know what your template can do.</h1>
+<p class="lead">Six editable output formats, one syntax, explicit boundaries.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Format</th>
+      <th>Supported structures</th>
+      <th>Current limits</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DOCX</td>
+      <td>
+        Split runs, bodies, tables, headers/footers, root fields in notes/comments; repeated rows/paragraphs,
+        nested scopes, item images; preserved numbering definitions.
+      </td>
+      <td>
+        Repeated note/comment references and numbering restarts need dedicated adapters. No tracked-change,
+        vertical-merge, VML/OLE or strict-OOXML support.
+      </td>
+    </tr>
+    <tr>
+      <td>XLSX</td>
+      <td>
+        Shared/rich strings, typed cells, multi-row blocks, contained merged ranges, per-item pictures,
+        formula/range updates and bounded calculation.
+      </td>
+      <td>
+        No nested/horizontal repeats, charts/pivots intersecting edits, shared/array/dynamic formulas or
+        general Excel calculation.
+      </td>
+    </tr>
+    <tr>
+      <td>PPTX</td>
+      <td>
+        Split runs, paragraph/table repeats, slide repeats, pictures, master/layout fields and cloned speaker
+        notes.
+      </td>
+      <td>
+        Custom slide shows/sections rejected. Internal slide links target the first generated copy; links to
+        removed markers fail. Dynamic chart data is not implemented.
+      </td>
+    </tr>
+    <tr>
+      <td>ODT</td>
+      <td>Text/styles, table-row and paragraph repeats, frame pictures, manifest updates.</td>
+      <td>Repeated XML IDs rejected; scripts/encryption/signatures/external assets rejected.</td>
+    </tr>
+    <tr>
+      <td>ODS</td>
+      <td>Text and native number/boolean cells, repeated rows and frame pictures.</td>
+      <td>
+        Formulas inside repeated rows rejected because reference rewriting is not implemented. Static formulas
+        are preserved.
+      </td>
+    </tr>
+    <tr>
+      <td>ODP</td>
+      <td>Text frames, pictures, repeated pages, master/style text fields.</td>
+      <td>
+        Same ODF package and ID restrictions; dynamic charts and embedded-object editing are outside this
+        release.
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="formulas">Spreadsheet calculations</h2>
+<p>
+  XLSX repeats update row addresses, A1 formulas, tables, filters, names, validation and conditional-format
+  ranges. Formula copies respect relative rows and dollar locks. Deleted references become <code>#REF!</code>.
+  Supported functions are SUM, MIN, MAX, AVERAGE, COUNT, IF, IFERROR, ABS, ROUND, ROUNDUP, ROUNDDOWN, LEN,
+  LOWER, UPPER, CONCAT, AND, OR and NOT. Calculation is bounded by depth and operation limits. Unsupported
+  formulas fail when recalculation is needed; unchanged workbooks preserve existing formula caches and request
+  application recalculation.
+</p>
+<h2 id="conversion">PDF conversion</h2>
+<p>
+  All six document types can be converted through the bundled LibreOffice service. Conversion is bounded and
+  does not imply universal layout fidelity. A known DOCX stress fixture (level 93) stalls in LibreOffice; the
+  converter is recycled after every attempt so later documents can proceed. Timeout returns HTTP 504, never a
+  successful empty result.
+</p>
+<h2 id="corpora">What the corpora prove</h2>
+<p>
+  The original 100 DOCX and 100 XLSX levels have independent expected outputs and structural scoring. Four
+  additional 100-case corpora vary text, Unicode, split runs, styles, images and repeat counts. They are
+  adapter regression suites, not full format specifications. Twelve selected new-format cases also compare PDF
+  text with independently generated expected documents. Package/text agreement does not prove pixel fidelity,
+  full schema conformance or repair-free opening in every Office application.
+</p>
+<pre><code>npm run corpus:render &amp;&amp; npm run corpus:score
+npm run test:formats
+GOTENBERG_URL=http://localhost:3000 npm run test:formats</code></pre>
+<p>
+  Conversion comparison requires Poppler's <code>pdftotext</code>. Generated PDFs and the 400-case report are
+  written to <code>artifacts/formats/</code>.
+</p>

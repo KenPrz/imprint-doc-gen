@@ -206,7 +206,7 @@ test('queue drains in-flight work on shutdown, preserving real render errors wit
   const job = store.enqueue('default', { templateId: first.templateId, data: { title: {} } }).job;
   const errors: unknown[] = [], queue = new DurableQueue(store, new RenderService(), error => errors.push(error));
   try {
-    queue.start(); await queue.stop();
+    await queue.tick(); await queue.stop();
     assert.deepEqual(errors, []);
     const result = store.job('default', job.id);
     assert.equal(result.status, 'failed'); assert.equal(result.error, 'INVALID_DATA'); assert.equal(result.attempts, 1);
@@ -247,4 +247,44 @@ test('global quota and per-tenant queue bounds reject work before acceptance', a
   const limited = new StandaloneStore(directory, { totalQuota: 1 });
   try { assert.throws(() => version(limited, limited.createTenant('Other').id), code('STORAGE_QUOTA')); }
   finally { limited.close(); }
+}));
+
+test('version uploads reserve admission across asynchronous ownership checks and object writes', async () => fixture(async directory => {
+  const store = new StandaloneStore(directory), first = version(store);
+  let releaseLookup!: () => void, enteredLookup!: () => void, releaseWrite!: () => void, enteredWrite!: () => void;
+  const lookupGate = new Promise<void>(resolve => { releaseLookup = resolve; });
+  const lookupStarted = new Promise<void>(resolve => { enteredLookup = resolve; });
+  const writeGate = new Promise<void>(resolve => { releaseWrite = resolve; });
+  const writeStarted = new Promise<void>(resolve => { enteredWrite = resolve; });
+  const adapter = new Proxy(store, { get(target, property) {
+    if (property === 'template') return async (...args: Parameters<StandaloneStore['template']>) => { enteredLookup(); await lookupGate; return target.template(...args); };
+    if (property === 'upload') return async (...args: Parameters<StandaloneStore['upload']>) => { enteredWrite(); await writeGate; return target.upload(...args); };
+    const value = Reflect.get(target, property); return typeof value === 'function' ? value.bind(target) : value;
+  } }) as unknown as import('../src/store-interface.ts').ServiceStore;
+  const app = createApp({ apiKey: key, store: adapter, concurrency: 1, runQueue: false });
+  const request = { method: 'POST' as const, url: `/v1/templates/${first.templateId}/versions`, headers: { authorization: `Bearer ${key}` }, payload: { template: template.toString('base64') } };
+  try {
+    const pending = app.inject(request).then(response => response);
+    await lookupStarted; assert.equal((await app.inject(request)).statusCode, 503);
+    releaseLookup(); await writeStarted; assert.equal((await app.inject(request)).statusCode, 503);
+    releaseWrite(); assert.equal((await pending).statusCode, 201);
+  } finally { releaseLookup(); releaseWrite(); await app.close(); }
+}));
+
+test('asynchronous queue claims reserve the same slots as direct rendering', async () => fixture(async directory => {
+  const store = new StandaloneStore(directory), first = version(store);
+  const submitted = store.enqueue('default', { templateId: first.templateId, data }).job;
+  let release!: () => void, entered!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; }), started = new Promise<void>(resolve => { entered = resolve; });
+  const adapter = new Proxy(store, { get(target, property) {
+    if (property === 'claim') return async () => { entered(); await gate; return target.claim(); };
+    const value = Reflect.get(target, property); return typeof value === 'function' ? value.bind(target) : value;
+  } }) as unknown as import('../src/store-interface.ts').ServiceStore;
+  const errors: unknown[] = [], renderer = new RenderService(1), queue = new DurableQueue(adapter, renderer, error => errors.push(error));
+  try {
+    const ticking = queue.tick(); await started;
+    await assert.rejects(renderer.render(template, { data }), code('BUSY'));
+    release(); await ticking; await queue.stop();
+    assert.equal(store.job('default', submitted.id).status, 'succeeded'); assert.deepEqual(errors, []);
+  } finally { release(); await queue.stop(); store.close(); }
 }));

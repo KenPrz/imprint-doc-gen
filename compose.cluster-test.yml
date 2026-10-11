@@ -1,0 +1,28 @@
+# Isolated, disposable dependencies for integration tests. Never point this at production data.
+services:
+  postgres:
+    image: postgres:18-alpine@sha256:96d56f7f57c6aacd1fcb908bc83b345ec5f83231ee486dd66a1baadce274db88
+    environment:
+      POSTGRES_USER: imprint
+      POSTGRES_PASSWORD: isolated-integration-password
+      POSTGRES_DB: imprint
+    ports: ['127.0.0.1:18432:5432']
+    tmpfs: ['/var/lib/postgresql']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U imprint']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  objects:
+    image: ghcr.io/rustfs/rustfs:1.0.1-glibc@sha256:aa7ccf0a266c1421c843a13272d9bf0f09f2f71c890178f55913ba0106532869
+    command: ['/data']
+    environment:
+      RUSTFS_ACCESS_KEY: imprint-test
+      RUSTFS_SECRET_KEY: isolated-object-password
+    ports: ['127.0.0.1:18400:9000']
+    tmpfs: ['/data:uid=10001,gid=10001,mode=0755', '/logs:uid=10001,gid=10001,mode=0755']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/health']
+      interval: 2s
+      timeout: 2s
+      retries: 30
