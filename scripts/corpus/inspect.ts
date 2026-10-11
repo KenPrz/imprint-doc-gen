@@ -145,8 +145,8 @@ export function assertNoMarkers(parts: Parts, format: Format) {
   for (const [name, bytes] of parts) if (name.endsWith('.xml')) {
     const doc = parse(bytes.toString('utf8'));
     const containers = format === 'docx' ? elements(doc, NS.w, 'p') : [...elements(doc, NS.s, 'si'), ...elements(doc, NS.s, 'is')];
-    for (const e of containers) assert(!textContent(e, format === 'docx' ? NS.w : NS.s).includes('{{'), `Unresolved marker in ${name}`);
-    for (const e of elements(doc, '*', '*')) for (const a of Array.from(e.attributes)) assert(!a.value.includes('{{'), `Unresolved attribute in ${name}`);
+    for (const e of containers) assert(!/\{\{|\{d[.[]/.test(textContent(e, format === 'docx' ? NS.w : NS.s)), `Unresolved marker in ${name}`);
+    for (const e of elements(doc, '*', '*')) for (const a of Array.from(e.attributes)) assert(!/\{\{|\{d[.[]/.test(a.value), `Unresolved attribute in ${name}`);
   }
 }
 // Independent semantic checks derived from input, not from the expected file's XML builder.

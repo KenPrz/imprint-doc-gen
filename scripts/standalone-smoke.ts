@@ -47,7 +47,7 @@ for (const format of ['docx', 'xlsx', 'pdf'] as const) {
     const parts = await readPackage(bytes);
     assert([...parts.values()].some(part => part.equals(logo)), 'The supplied logo must be embedded');
     const xml = parts.get(format === 'docx' ? 'word/document.xml' : 'xl/worksheets/sheet1.xml')!.toString();
-    assert(xml.includes('Alex Rivera')); assert(xml.includes('Breakfast')); assert(!xml.includes('{{'));
+    assert(xml.includes('Alex Rivera')); assert(xml.includes('Breakfast')); assert(!/\{\{|\{d[.[]/.test(xml));
     if (format === 'xlsx') { assert.match(xml, /<v>8000<\/v>/); assert.match(xml, /<v>8750<\/v>/); }
   }
   assert.equal((await request(`/v1/jobs/${job.id}/result`, 'GET', adminKey)).status, 404);

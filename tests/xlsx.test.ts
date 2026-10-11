@@ -199,3 +199,17 @@ test('XLSX rejects ambiguous picture bindings and bound phonetic strings', async
   const cell = '<s:c r="A1" t="inlineStr"><s:is><s:t>{{name}}</s:t><s:rPh sb="0" eb="1"><s:t>phonetic</s:t></s:rPh></s:is></s:c>';
   await assert.rejects(compile(await template(cell)), code('UNSUPPORTED_TEMPLATE'));
 });
+
+test('Carbone XLSX picture bindings accept attachments/data URLs, preserve optional placeholders and reject remote URLs', async () => {
+  const input = await template('', undefined, pictureParts(picture(1, '{d.logo}')));
+  const image = png([10, 20, 30]);
+  for (const [data, options] of [[{}, { attachments: { logo: image } }], [{ logo: `data:image/png;base64,${image.toString('base64')}` }, {}]] as const) {
+    const parts = await readPackage(await render(input, data, options));
+    assert([...parts.values()].some(value => value.equals(image)));
+    assert(!parts.get('xl/drawings/main.xml')!.toString().includes('{d.logo}'));
+  }
+  const missing = await readPackage(await render(input, {}));
+  assert(missing.get('xl/drawings/main.xml')!.toString().includes('Image placeholder'));
+  await assert.rejects(render(input, { logo: 'http://127.0.0.1/secret' }), code('UNSUPPORTED_IMAGE'));
+  await assert.rejects(compile(await template('', undefined, pictureParts(picture(1, '{d.items[i].logo}')))), code('TEMPLATE_EXPRESSION'));
+});
