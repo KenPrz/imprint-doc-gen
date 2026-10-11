@@ -1,10 +1,11 @@
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { RenderError } from './errors.ts';
-import { renderInWorker } from './jobs.ts';
+import { renderDocumentInWorker } from './jobs.ts';
+import { mediaTypes } from './types.ts';
 import { convertToPdf } from './converter.ts';
 
-interface RenderBody { template: string; data: Record<string, unknown>; attachments?: Record<string, string>; output?: 'docx' | 'pdf' }
+interface RenderBody { template: string; data: Record<string, unknown>; attachments?: Record<string, string>; output?: 'docx' | 'xlsx' | 'pdf' }
 export function createApp(config: { apiKey: string; converterUrl?: string; logger?: boolean; concurrency?: number }) {
   if (config.apiKey.length < 24) throw new Error('IMPRINT_API_KEY must contain at least 24 characters');
   const app = Fastify({ bodyLimit: 16 * 1024 * 1024, requestTimeout: 100_000, logger: config.logger ? { redact: ['req.headers.authorization'] } : false });
@@ -13,7 +14,7 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
     if (!value || value.length % 4 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new RenderError('INVALID_DATA', 'Expected canonical base64 bytes');
     return Buffer.from(value, 'base64');
   };
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 2, formats: ['docx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes'] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 3, formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures'] }));
   app.addHook('onRequest', async (request, reply) => {
     if (request.routeOptions.url === '/health') return;
     const supplied = Buffer.from(request.headers.authorization ?? '');
@@ -22,7 +23,7 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
   app.post<{ Body: RenderBody }>('/v1/render', {
     schema: { body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
       template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: { type: 'object', additionalProperties: true },
-      attachments: { type: 'object', maxProperties: 32, additionalProperties: { type: 'string', maxLength: 12 * 1024 * 1024 } }, output: { type: 'string', enum: ['docx', 'pdf'] },
+      attachments: { type: 'object', maxProperties: 32, additionalProperties: { type: 'string', maxLength: 12 * 1024 * 1024 } }, output: { type: 'string', enum: ['docx', 'xlsx', 'pdf'] },
     } } },
   }, async (request, reply) => {
     if (active >= (config.concurrency ?? 2)) return reply.code(503).header('Retry-After', '1').send({ error: 'BUSY' });
@@ -30,13 +31,13 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
     try {
       const attachments: Record<string, Uint8Array> = Object.create(null);
       for (const [key, value] of Object.entries(request.body.attachments ?? {})) attachments[key] = decode(value);
-      const output = await renderInWorker(decode(request.body.template), request.body.data, attachments);
+      const output = await renderDocumentInWorker(decode(request.body.template), request.body.data, attachments, 30_000, request.body.output);
       if (request.body.output === 'pdf') {
         if (!config.converterUrl) throw new RenderError('CONVERTER_UNAVAILABLE', 'PDF conversion is not configured');
-        const pdf = await convertToPdf(output, config.converterUrl);
+        const pdf = await convertToPdf(output.bytes, config.converterUrl, `document.${output.format}`);
         return reply.type('application/pdf').header('Content-Disposition', 'attachment; filename="document.pdf"').send(pdf);
       }
-      return reply.type('application/vnd.openxmlformats-officedocument.wordprocessingml.document').header('Content-Disposition', 'attachment; filename="document.docx"').send(output);
+      return reply.type(mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
     } catch (error) {
       reply.type('application/json');
       if (error instanceof RenderError) {

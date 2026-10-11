@@ -2,9 +2,9 @@
 
 [![Document corpus](https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml/badge.svg)](https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml)
 
-Independent document generation in TypeScript and Node.js. Render a DOCX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Convert the result to PDF through a private LibreOffice service.
+Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Convert the result to PDF through a private LibreOffice service.
 
-The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX levels 1–100 passing**; it is not feature-complete or template-syntax compatible with either product.
+The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX levels 1–100 and XLSX levels 1–50 passing**; it is not feature-complete or template-syntax compatible with either product.
 
 ## Current capabilities
 
@@ -14,9 +14,10 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - Independent image placements even when pictures share their original media; existing drawing dimensions are preserved.
 - Repeated table rows and paragraph blocks, nested object scopes, parent lookups and per-item images.
 - Reusable compiled templates, JSON-only data and explicit errors for missing or unsupported bindings.
-- Authenticated DOCX/PDF API with bounded worker execution and request concurrency.
+- XLSX shared/rich strings, native numeric and boolean cells, and anchored picture replacement.
+- Authenticated DOCX/XLSX/PDF API with bounded worker execution and request concurrency.
 
-**Not implemented yet:** XLSX rendering, multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, tenant accounts, durable jobs, template storage or billing. `null` becomes empty text; `false` and `0` remain meaningful values.
+**Not implemented yet:** XLSX row loops and formula/range rewriting, DOCX multiline/tabbed replacement values, inline image insertion, SVG, strict OOXML, tenant accounts, durable jobs, template storage or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
 
 ## Quick start: Docker development
 
@@ -83,7 +84,25 @@ A picture with alternative text `{{image:image}}` resolves the current item's `i
 - Expansion is limited to 16 nested loops, 10,000 total iterations per document, 8 MiB per XML part and 32 MiB per expanded package.
 - Multi-row loop regions, inline text loops, repeated bookmarks/comments/notes, tracked changes, vertical merges, bound content controls and VML/OLE content require later adapters and fail explicitly. Basic content controls and DrawingML pictures get fresh identities when repeated.
 
-See the [corpus guide](docs/corpus-guide.txt) for the full dialect, including planned XLSX semantics.
+### XLSX cells and pictures
+
+Use the same scalar tags in Excel cells and the same `{{image:logo}}` alternative text on existing pictures. The renderer follows workbook relationships across worksheets, including hidden sheets, and handles tags split across rich-text runs or stored in shared strings.
+
+| Cell template | JSON value | Output |
+| --- | --- | --- |
+| `{{count}}` | `12.5` | Numeric cell |
+| `{{enabled}}` | `false` | Boolean cell |
+| `{{optional}}` | `null` | Blank cell, with its style retained |
+| `{{label}}` | `"=1+1"` | Literal text, never a formula |
+| `Total: {{count}}` | `12.5` | Text `Total: 12.5` |
+
+Only a tag occupying the entire cell gets native typing. Other replacements remain text; rich-text replacements use the first placeholder character's formatting. XLSX strings support line breaks and tabs and are limited to 32,767 UTF-16 code units. Text is escaped for both XML and Excel's `_xHHHH_` representation.
+
+Existing picture anchors, sizes, crop and rotation are preserved. Pictures can use one-cell, two-cell or absolute anchors. Replacing a bound picture does not change another picture sharing its original image.
+
+Existing formulas and their cached results are preserved. Changed worksheets request automatic full recalculation when opened in Excel or converted by LibreOffice; the SDK does **not** calculate new formula results. Row loops, formula placeholders, date conversion and bound phonetic strings require later adapters. A workbook containing XLSX loop markers fails explicitly.
+
+See the [corpus guide](docs/corpus-guide.txt) for implemented and planned semantics.
 
 ## SDK and CLI
 
@@ -93,6 +112,7 @@ For local development without the API container, use Node.js 24:
 npm ci --ignore-scripts
 npm run build
 npm run render -- template.docx data.json output.docx attachments.json
+npm run render -- template.xlsx data.json output.xlsx attachments.json
 ```
 
 The optional `attachments.json` maps attachment keys to image paths relative to that file:
@@ -113,7 +133,7 @@ const output = await template.render(
 await writeFile('output.docx', output);
 ```
 
-Compiled templates can be reused for concurrent renders. Compilation copies input buffers; the template language does not execute JavaScript. The SDK and CLI produce DOCX; the HTTP endpoint also supports PDF conversion.
+Compiled templates can be reused for concurrent renders. Compilation copies input buffers; the template language does not execute JavaScript. The SDK and CLI detect DOCX/XLSX from the package and preserve that format. `compiled.format` reports the result type; the CLI requires a matching output extension. The HTTP endpoint also supports PDF conversion.
 
 ## HTTP API
 
@@ -126,14 +146,14 @@ Content-Type: application/json
 
 ```json
 {
-  "template": "<base64 DOCX bytes>",
+  "template": "<base64 DOCX or XLSX bytes>",
   "data": {"customer": {"name": "Example Company"}},
   "attachments": {"logo": "<base64 PNG or JPEG bytes>"},
   "output": "docx"
 }
 ```
 
-`output` is `docx` (default) or `pdf`; successful responses contain the binary file. The API admits two concurrent jobs and returns `503` with `Retry-After` when full.
+`output` can be `docx`, `xlsx` or `pdf`. Omit it to keep the detected template format. DOCX↔XLSX conversion is not supported; a mismatched format returns `422`. Successful responses contain the binary file with its matching content type and filename. The API admits two concurrent jobs and returns `503` with `Retry-After` when full.
 
 | HTTP status | Meaning |
 | --- | --- |
@@ -166,21 +186,22 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 63 passed |
+| Automated tests | 82 passed |
 | Fixture validation | 200 cases / 400 document packages passed |
 | DOCX renderer | All 100 levels passed |
-| XLSX renderer | 100 levels unsupported |
+| XLSX renderer | Levels 1–50 passed; 51–100 unsupported |
 | LibreOffice fixture conversion | 385 converted, 3 failed, 12 not run |
 | Converter recovery | Repeated timeout → successful conversion, including the production API |
+| Selected XLSX PDF comparison | Levels 1, 20, 30, 40 and 50: all 10 pages matched at 96 DPI |
 | Selected DOCX PDF comparison | Levels 1, 20, 50, 60, 70, 80 and 90: all 232 pages matched at 96 DPI |
 
-These measurements do not establish complete OOXML schema conformance, repair-free Microsoft Office opening or general visual fidelity. Current loop evidence: [DOCX loop validation](docs/docx-loops-validation.json). Baseline evidence: [milestone validation](docs/milestone-1-validation.json), [Office results](docs/office-validation.json).
+These measurements do not establish complete OOXML schema conformance, repair-free Microsoft Office opening or general visual fidelity. Current XLSX evidence: [XLSX validation](docs/xlsx-cells-images-validation.json). Loop evidence: [DOCX loop validation](docs/docx-loops-validation.json). Baseline evidence: [milestone validation](docs/milestone-1-validation.json), [Office results](docs/office-validation.json).
 
 ## Roadmap
 
 1. **Implemented:** bounded conversion failures, automatic LibreOffice recycling and Docker recovery tests. Continue investigating the upstream layout stall without changing the reference documents to hide it.
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
-3. Implement XLSX typed cells and images, then row repetition and formula/range rewriting.
+3. **Implemented:** XLSX typed cells and images. Next: row repetition with formula/range rewriting and independently verified calculated results.
 4. Add durable jobs, tenant authentication, template versions and object storage.
 5. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 

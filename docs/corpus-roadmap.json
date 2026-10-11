@@ -6,10 +6,11 @@
       "xlsx": 100
     },
     "purpose": "Cumulative synthetic generation challenges; fixtures are not completed engine support",
-    "nextGate": "Implement XLSX typed cells and image attachments, then repeated rows and formula/range rewriting; add real-world DOCX fixtures",
+    "nextGate": "Implement XLSX row repetition, formula/range rewriting and verified calculated results; maintain DOCX 100 / XLSX 50 coverage and add real-world fixtures",
     "milestone1": "Own DOCX scalar/image renderer and Docker service implemented; measured coverage is recorded in milestone-1-validation.json",
     "converterRecovery": "Implemented and locally verified; docs/converter-recovery.json. Upstream layout stall remains.",
-    "milestone2": "All 100 synthetic DOCX levels pass; repeated rows/blocks, nested scopes and per-item images implemented. See docx-loops-validation.json."
+    "milestone2": "All 100 synthetic DOCX levels pass; repeated rows/blocks, nested scopes and per-item images implemented. See docx-loops-validation.json.",
+    "milestone3": "XLSX typed cells and image attachments implemented; all 50 scalar/image/layout/formula-preservation levels pass. See xlsx-cells-images-validation.json."
   },
   "phases": [
     {

@@ -18,8 +18,8 @@ jobs:
       - run: npm run corpus:validate
       - run: npm run corpus:render
       - run: npm run corpus:score || test $? -eq 2
-      - name: Enforce DOCX corpus coverage
-        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==100 || r.summary.docx.failed!==0 || r.summary.xlsx.failed!==0) process.exit(1)'
+      - name: Enforce DOCX and XLSX corpus coverage
+        run: node -e 'const r=require("./corpus/results/engine-score.json"); if(r.summary.docx.passed!==100 || r.summary.docx.failed!==0 || r.summary.xlsx.passed!==50 || r.summary.xlsx.failed!==0 || r.summary.xlsx.unsupported!==50) process.exit(1)'
       - name: Validate production and development Compose
         run: |
           docker compose -f compose.yml config --quiet
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and start production services
         run: docker compose -f compose.yml up --build --wait --wait-timeout 120 -d
-      - name: Verify production DOCX and PDF API
+      - name: Verify production DOCX, XLSX and PDF API
         run: >-
           docker compose -f compose.yml run --rm --no-deps
           --user "$(id -u):$(id -g)"
