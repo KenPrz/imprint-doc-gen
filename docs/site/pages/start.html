@@ -1,0 +1,57 @@
+<p class="eyebrow">TypeScript · Node.js · Self-hosted</p>
+<h1>Your templates.<br />Your document service.</h1>
+<p class="lead">
+  Imprint turns Office templates, JSON data and image attachments into editable documents and PDFs. Start with
+  one container. Add independent workers when you need them.
+</p>
+<div class="cards">
+  <a href="syntax.html"
+    ><strong>Write a template</strong><span>Fields, repeats, formatters and images →</span></a
+  ><a href="api.html"><strong>Connect your app</strong><span>Render, inspect and queue documents →</span></a
+  ><a href="operations.html"
+    ><strong>Run with confidence</strong><span>Limits, metrics, recovery and backups →</span></a
+  >
+</div>
+<h2 id="quick-start">One-container quick start</h2>
+<p>
+  The standalone image bundles the API, SQLite queue and PDF converter. The private registry package requires
+  an account with package read access. Use a tested commit tag or image digest in production.
+</p>
+<pre><code>docker login ghcr.io -u YOUR_GITHUB_USERNAME
+docker pull ghcr.io/kenprz/imprint-doc-gen:standalone
+# Set IMPRINT_API_KEY to a secret of at least 24 characters.
+docker run -d --name imprint-doc-gen --restart unless-stopped \
+  --stop-timeout 120 --memory 2g --cpus 2 --pids-limit 384 \
+  --read-only --tmpfs /tmp:rw,size=768m,mode=1777 \
+  --cap-drop ALL --security-opt no-new-privileges:true \
+  -p 127.0.0.1:8088:3000 -e IMPRINT_API_KEY \
+  -v imprint-data:/data \
+  ghcr.io/kenprz/imprint-doc-gen:standalone
+curl http://127.0.0.1:8088/ready</code></pre>
+<p>
+  Put a TLS proxy in front of the loopback listener. Keep the named volume when replacing the container. One
+  SQLite volume belongs to one service instance. <a href="deployment.html">Deployment options</a>.
+</p>
+<h2 id="first-document">Your first document</h2>
+<ol>
+  <li>Write <code>{d.customer.name}</code> in a DOCX, XLSX, PPTX, ODT, ODS or ODP template.</li>
+  <li>
+    Encode the template as base64 and send it with <code>{"customer":{"name":"Example Company"}}</code>.
+  </li>
+  <li>Omit <code>output</code> to keep the template format, or use <code>"pdf"</code>.</li>
+</ol>
+<pre><code>POST /v1/render
+Authorization: Bearer YOUR_KEY
+Content-Type: application/json
+
+{
+  "template": "BASE64_TEMPLATE",
+  "data": {"customer": {"name": "Example Company"}},
+  "output": "pdf"
+}</code></pre>
+<h2 id="status">Preview release</h2>
+<p>
+  All six format adapters use the same template syntax. Supported structures are explicit: this is not a
+  universal Office editor or a general spreadsheet calculation engine. Check the
+  <a href="formats.html">support matrix</a> before adopting a complex template.
+</p>

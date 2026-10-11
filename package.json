@@ -29,18 +29,32 @@
     "corpus:score": "node scripts/corpus/score.ts",
     "test": "node --test --test-isolation=none scripts/corpus/tests/*.test.ts tests/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "test:synthetic": "node scripts/synthetic/synthetic-run.ts"
+    "test:synthetic": "node scripts/synthetic/synthetic-run.ts",
+    "worker": "node dist/worker.js",
+    "inspect": "node scripts/inspect.ts",
+    "preview": "node scripts/preview.ts",
+    "backup": "node scripts/operations/backup.ts",
+    "test:formats": "node scripts/formats/check.ts",
+    "test:cluster": "node --test tests/integration/*.test.ts",
+    "load": "node scripts/operations/load.ts",
+    "docs:build": "node scripts/docs/build.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",
     "@types/node": "24.13.3",
+    "@types/pg": "8.23.1",
+    "prettier": "3.9.10",
     "typescript": "6.0.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1149.0",
     "@xmldom/xmldom": "0.9.12",
     "@zip.js/zip.js": "2.8.26",
     "better-sqlite3": "13.0.3",
+    "bwip-js": "4.11.4",
     "fastify": "5.12.5",
+    "pdf-lib": "1.17.1",
+    "pg": "8.23.1",
     "sharp": "0.35.5"
   }
 }

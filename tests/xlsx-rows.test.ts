@@ -98,10 +98,10 @@ test('XLSX tables, names, filters, validation and conditional formatting expand 
   assert(output.parts.get('xl/tables/t.xml')!.toString().includes('ref="A1:D3"'));
   const workbook = output.parts.get('xl/workbook.xml')!.toString(); assert(workbook.includes('Main!$A$2:$D$3')); assert(workbook.includes('$B$2:$B$3'));
 });
-test('XLSX merges below loops move while intersecting merges and multi-row loops are rejected', async () => {
+test('XLSX merges below loops move and contained merges repeat while legacy multi-row markers are rejected', async () => {
   const output = await sheet(await render(await book([{ rows: loop() + row(3, t('A3', 'Merged')), suffix: '<s:mergeCells count="1"><s:mergeCell ref="A3:C3"/></s:mergeCells>' }]), { items }));
   assert(output.source.includes('ref="A4:C4"'));
-  await assert.rejects(compile(await book([{ rows: loop(), suffix: '<s:mergeCells><s:mergeCell ref="A2:C2"/></s:mergeCells>' }])), code('UNSUPPORTED_TEMPLATE'));
+  const merged = await sheet(await render(await book([{ rows: loop(), suffix: '<s:mergeCells><s:mergeCell ref="A2:C2"/></s:mergeCells>' }]), { items })); assert(merged.source.includes('ref="A3:C3"'));
   await assert.rejects(compile(await book([{ rows: row(2, t('A2', '{{#each items}}')) + row(3, t('A3', '{{/each}}')) }])), code('TEMPLATE_STRUCTURE'));
 });
 test('XLSX drawing anchors below loops move and pictures crossing a loop are rejected', async () => {
@@ -112,7 +112,8 @@ test('XLSX drawing anchors below loops move and pictures crossing a loop are rej
   });
   const output = await readPackage(await render(await input(4), { items }, { attachments: { logo: png([255, 0, 0]) } }));
   assert(output.get('xl/drawings/d.xml')!.toString().includes('<xdr:row>5</xdr:row>')); assert(output.get('xl/drawings/d.xml')!.toString().includes('Attachment logo'));
-  await assert.rejects(compile(await input(1)), code('UNSUPPORTED_TEMPLATE'));
+  const repeated = await readPackage(await render(await input(1), { items: items.map(item => ({ ...item, logo: 'logo' })) }, { attachments: { logo: png([255,0,0]) } }));
+  assert.equal(descendants(parseXml(repeated.get('xl/drawings/d.xml')!.toString(), 'test'), ns.spreadsheetDrawing, 'pic').length, 2);
 });
 test('XLSX obsolete calculation chain and its metadata are removed', async () => {
   const input = await book([{ rows: loop() }], {
@@ -240,4 +241,20 @@ test('Standard scalar paths keep root meaning inside a legacy XLSX loop', async 
   const input = await book([{ rows: row(2, t('A2', '{{#each items}}{d.title}: {{name}}') + t('B2', '{d.total}') + t('C2', '{{/each}}')) }]);
   const output = await sheet(await render(input, { title: 'ROOT', total: 7, items: [{ title: 'wrong scope', name: 'item', total: 99 }] }));
   assert.equal(output.cells.get('A2')!.text, 'ROOT: item'); assert.equal(output.cells.get('B2')!.value, '7');
+});
+
+test('Standard multi-row blocks interleave complete items and clone contained merges', async () => {
+  const rows = row(1,t('A1','Header')) + row(2,t('A2','{d.items[i].name}') + n('B2',2)) + row(3,t('A3','Detail {d.items[i].name}') + f('B3','SUM(B2:B2)')) + row(4,t('A4','{d.items[i+1].name}')) + row(5,f('B5','SUM(B2:B4)'));
+  const template = await book([{ rows, suffix: '<s:mergeCells count="1"><s:mergeCell ref="C2:D3"/></s:mergeCells>' }]);
+  const output = await sheet(await render(template, { items }));
+  assert.deepEqual(output.rows,[1,2,3,4,5,6]);
+  assert.deepEqual(['A2','A3','A4','A5'].map(r=>output.cells.get(r)?.text),['First','Detail First','Second','Detail Second']);
+  assert.equal(output.cells.get('B5')?.formula,'SUM(B4:B4)'); assert.equal(output.cells.get('B6')?.value,'8');
+  assert(output.source.includes('ref="C4:D5"'));
+  const empty = await sheet(await render(template,{items:[]})); assert.deepEqual(empty.rows,[1,2]); assert(!empty.source.includes('mergeCells'));
+});
+test('Additional formula functions calculate rounding, text, conditions and lazy errors', async () => {
+  const formulas = ['ROUND(1.005,2)','ROUND(-1.5,0)','ROUNDUP(-1.21,1)','ROUNDDOWN(1.29,1)','ABS(-2)','LEN("text")','IFERROR(1/0,42)','AND(TRUE,1)','OR(FALSE,0)','NOT(0)','CONCAT("A",1,TRUE)'];
+  const output = await sheet(await render(await book([{ rows: row(1,formulas.map((value,i)=>f(`${String.fromCharCode(65+i)}1`,value)).join('')) + loop() }]),{items:[]}));
+  assert.deepEqual(formulas.map((_,i)=>output.cells.get(`${String.fromCharCode(65+i)}1`)?.value),['1.01','-2','-1.3','1.2','2','4','42','1','0','1','A1TRUE']);
 });

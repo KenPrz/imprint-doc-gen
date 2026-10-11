@@ -1,0 +1,59 @@
+<p class="eyebrow">Document assembly</p>
+<h1>Finish the document.</h1>
+<p class="lead">
+  Merge PDFs, select pages, apply text watermarks and numbering, and attach supporting files.
+</p>
+<h2 id="assemble">Merge and select pages</h2>
+<pre><code>POST /v1/pdf
+{
+  "inputs":[
+    {"bytes":"BASE64_FIRST_PDF", "pages":[1,3]},
+    {"bytes":"BASE64_SECOND_PDF"}
+  ],
+  "watermark":{"text":"DRAFT", "opacity":0.2, "rotation":30},
+  "pageNumbers":true,
+  "attachments":[{"name":"details.csv", "bytes":"BASE64_CSV", "mimeType":"text/csv"}]
+}</code></pre>
+<p>
+  Page indexes are one-based. Omitting pages selects all pages in that input. Inputs and selected indexes
+  define output order; duplicates are allowed. The response is binary PDF. Page numbers appear at the bottom
+  center.
+</p>
+<h2 id="split">Split into groups</h2>
+<pre><code>POST /v1/pdf/split
+{"bytes":"BASE64_PDF", "ranges":[[1,2],[3],[4,5]]}</code></pre>
+<p>
+  The response is <code>{"documents":["BASE64_PDF",...]}</code>. SDK exports
+  <code>processPdf({inputs,...options})</code> and <code>splitPdf(bytes, ranges)</code> accept byte arrays and
+  return buffers.
+</p>
+<h2 id="boundaries">Limits and document behavior</h2>
+<ul>
+  <li>
+    At most 20 inputs, 1,000 source/output pages and 32 MiB combined input/attachment bytes. Output is also
+    bounded at 32 MiB.
+  </li>
+  <li>
+    At most 20 attachments with unique simple filenames. At most 20 split groups and 1,000 selected pages
+    across groups.
+  </li>
+  <li>HTTP operations run in a 256 MiB worker with a 30-second deadline and shared admission capacity.</li>
+  <li>
+    Watermarks use built-in Helvetica and its supported Latin character set. Unsupported characters fail
+    explicitly.
+  </li>
+  <li>
+    Encrypted, signed, interactive-form and detected active-content PDFs are rejected. This is document
+    assembly, not a PDF sanitization or malware-scanning service.
+  </li>
+  <li>
+    Assembly copies pages into a new document. Document-level bookmarks, original attachments, metadata and
+    cross-document navigation are not guaranteed to survive. Supply attachments explicitly.
+  </li>
+  <li>No PDF/A, PDF/UA, digital signature or redaction conformance is claimed.</li>
+</ul>
+<p>
+  Low-level PDF manipulation uses
+  <a href="https://pdf-lib.js.org/docs/api/classes/pdfdocument">pdf-lib</a> behind Imprint's validation and
+  execution limits.
+</p>

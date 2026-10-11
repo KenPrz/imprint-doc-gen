@@ -1,3 +1,4 @@
+import { filterArray, type ArrayFilter } from './expressions.ts';
 import { standardLookup } from './standard-syntax.ts';
 import { checkPath } from './scope.ts';
 import { RenderError } from './errors.ts';
@@ -9,7 +10,7 @@ import { address, a1, maxRow, RowMap } from './xlsx-references.ts';
 import { parseFormula, rewriteFormula, evaluateFormula, type Value } from './xlsx-formula.ts';
 import type { CellPlan, SheetPlan } from './xlsx.ts';
 
-interface Row { node: ElementSpan; number: number; cells: ElementSpan[]; bindings: CellPlan[]; path?: string; standard?: boolean; discard?: boolean }
+interface Row { blockStart?: number; blockHeight?: number; filters?: ArrayFilter[]; node: ElementSpan; number: number; cells: ElementSpan[]; bindings: CellPlan[]; path?: string; standard?: boolean; discard?: boolean }
 interface Sheet extends SheetPlan { rows: Row[] }
 interface LinkedPart { part: string; sheet: string; source: string; nodes: ElementSpan[] }
 interface Context { original: PackageParts; mainPart: string; workbook: string; bookNodes: ElementSpan[]; sheets: SheetPlan[]; sharedPart?: string; sharedSource: string; sharedNodes: ElementSpan[]; shared: CellText[] }
@@ -34,10 +35,22 @@ function boundedSet(parts: PackageParts) {
   };
 }
 function rangeEdits(source: string, nodes: ElementSpan[], map: RowMap, maps: Map<string, RowMap>, sheet: string): Edit[] {
-  const edits: Edit[] = [], removed = new Set<ElementSpan>();
+  const edits: Edit[] = [], removed = new Set<ElementSpan>(), mergeDelta = new Map<ElementSpan, number>();
   const rangeAttributes: Record<string, string[]> = { dimension: ['ref'], mergeCell: ['ref'], autoFilter: ['ref'], conditionalFormatting: ['sqref'], dataValidation: ['sqref'], hyperlink: ['ref'], selection: ['sqref', 'activeCell'], pane: ['topLeftCell'], table: ['ref'] };
   for (const node of nodes) {
     if (node.uri !== ns.spreadsheet) continue;
+    if (node.local === 'mergeCell') {
+      const refs = attr(node,'ref')!.split(':').map(address), first = refs[0]!, last = refs[1] ?? first;
+      const expansion = map.expansions.find(e => first.row >= e.row && last.row < e.row + (e.height ?? 1));
+      if (expansion) {
+        const copies: string[] = [];
+        for (let n=0; n<expansion.count; n++) {
+          const delta = n * (expansion.height ?? 1), ref = `${a1({ ...first, row: map.map(first.row)! + delta })}:${a1({ ...last, row: map.map(last.row)! + delta })}`;
+          const edit = attributeEdit(node,'ref',ref); copies.push(applyEdits(source.slice(node.start,node.end), [{ ...edit,start:edit.start-node.start,end:edit.end-node.start }]));
+        }
+        edits.push({ start:node.start,end:node.end,value:copies.join('') }); mergeDelta.set(node.parent!, (mergeDelta.get(node.parent!) ?? 0) + expansion.count - 1); continue;
+      }
+    }
     for (const name of rangeAttributes[node.local] ?? []) {
       const value = attr(node, name); if (!value) continue;
       let ranges: string[];
@@ -56,6 +69,10 @@ function rangeEdits(source: string, nodes: ElementSpan[], map: RowMap, maps: Map
       const result = rewriteFormula(parseFormula(text, true), maps, sheet);
       if (result !== text) edits.push({ start: node.openEnd, end: node.closeStart, value: escapeXml(result) });
     }
+  }
+  for (const [parent,delta] of mergeDelta) {
+    const count = children(nodes,parent).filter(n => n.local === 'mergeCell').length + delta;
+    if (!count) removed.add(parent); else edits.push(attributeEdit(parent,'count',String(count)));
   }
   const kept = edits.filter(e => ![...removed].some(n => e.start >= n.start && e.end <= n.end));
   for (const node of removed) kept.push({ start: node.start, end: node.end, value: '' });
@@ -104,20 +121,34 @@ export function compileRowRenderer(context: Context) {
       if (!tags.length || row.discard) continue;
       const paths = new Set(tags.map(tag => tag.path.split('[i]')[0]!));
       if (paths.size !== 1 || tags.some(tag => !/^[\w$.]+\[i\]\.[\w$.]+$/.test(tag.path))) throw new RenderError('UNSUPPORTED_EXPRESSION', 'XLSX repeats support one object array per row', sheet.part);
-      const path = [...paths][0]!, marker = rows[index + 1];
-      if (!marker || marker.number !== row.number + 1) throw new RenderError('TEMPLATE_STRUCTURE', 'Expected an adjacent [i+1] marker row', sheet.part);
+      const path = [...paths][0]!;
+      let end = index + 1;
+      for (; end < rows.length; end++) {
+        const candidate = rows[end]!;
+        if (candidate.number !== rows[end-1]!.number + 1) throw new RenderError('TEMPLATE_STRUCTURE', 'Repeated blocks require contiguous rows', sheet.part);
+        if (candidate.bindings.some(c => c.text.bindings.some(b => b.path.startsWith(`${path}[i+1]`)))) break;
+        const otherTags = candidate.bindings.flatMap(c => c.text.bindings).filter(b => b.path.includes('[i'));
+        if (otherTags.some(b => !b.path.startsWith(`${path}[i].`))) throw new RenderError('UNSUPPORTED_EXPRESSION', 'Nested or overlapping spreadsheet blocks are unsupported', sheet.part);
+      }
+      const marker = rows[end];
+      if (!marker) throw new RenderError('TEMPLATE_STRUCTURE', 'Missing [i+1] marker row', sheet.part);
       const markerTags = marker.bindings.flatMap(c => c.text.bindings);
       if (!markerTags.length || markerTags.some(tag => !tag.standard || !(tag.path === `${path}[i+1]` || tag.path.startsWith(`${path}[i+1].`)))) throw new RenderError('TEMPLATE_STRUCTURE', 'Expected matching [i+1] bindings in the marker row', sheet.part);
-      row.path = path; row.standard = true; marker.discard = true;
-      // Each shared-string use needs its own scope; never mutate the shared plan.
-      row.bindings = row.bindings.map(cell => {
-        const bindings = cell.text.bindings.map(binding => {
-          if (!binding.standard) return binding;
-          const scoped = binding.path.startsWith(`${path}[i].`) ? binding.path.slice(path.length + 4) : '../' + binding.path;
-          checkPath(scoped, sheet.part); return { ...binding, path: scoped };
+      const height = end - index; if (height > 100) throw new RenderError('LIMIT_EXCEEDED', 'Spreadsheet blocks are limited to 100 rows', sheet.part);
+      marker.discard = true;
+      const filters = rows.slice(index,end).flatMap(r => r.bindings.flatMap(c => c.text.bindings.flatMap(b => b.filters ?? []))).filter(f => f.arrayPath === path);
+      for (const member of rows.slice(index,end)) {
+        member.path = path; member.filters = filters; member.standard = true; member.blockStart = row.number; member.blockHeight = height;
+        member.bindings = member.bindings.map(cell => {
+          const bindings = cell.text.bindings.map(binding => {
+            if (!binding.standard) return binding;
+            const scoped = binding.path.startsWith(`${path}[i].`) ? binding.path.slice(path.length + 4) : '../' + binding.path;
+            checkPath(scoped, sheet.part); return { ...binding, path: scoped };
+          });
+          return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
         });
-        return { ...cell, text: { ...cell.text, bindings, whole: cell.text.whole ? bindings.find(b => b.kind === 'value')!.path : undefined } };
-      });
+      }
+      index = end;
     }
     for (const row of rows) if (row.path && !row.standard) row.bindings = row.bindings.map(cell => {
       const bindings = cell.text.bindings.map(binding => binding.standard ? { ...binding, path: '../' + binding.path } : binding);
@@ -140,7 +171,7 @@ export function compileRowRenderer(context: Context) {
       }
       if (node.local === 'mergeCell') {
         const refs = attr(node, 'ref')!.split(':').map(address);
-        if (loopRows.some(r => r >= refs[0]!.row && r <= (refs[1] ?? refs[0])!.row)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Merged cells intersect a repeated row', sheet.part);
+        if (loopRows.some(r => r >= refs[0]!.row && r <= (refs[1] ?? refs[0])!.row) && !sheet.rows.some(r => r.path && refs[0]!.row >= (r.blockStart ?? r.number) && (refs[1] ?? refs[0])!.row < (r.blockStart ?? r.number) + (r.blockHeight ?? 1))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Merged cells cross a repeated block boundary', sheet.part);
       }
       if (node.local === 'pane' && loopRows.some(r => r <= Number(attr(node, 'ySplit') ?? 0))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'A repeated row intersects frozen panes', sheet.part);
     }
@@ -163,7 +194,7 @@ export function compileRowRenderer(context: Context) {
         if (nodes.some(n => ['chart', 'grpSp', 'extLst'].includes(n.local))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Charts, grouped drawings and drawing extensions require a later loop adapter', part);
         for (const anchor of nodes.filter(n => n.parent === nodes[0])) {
           const positions = nodes.filter(n => n.start > anchor.start && n.end < anchor.end && n.uri === ns.spreadsheetDrawing && n.local === 'row').map(n => Number(readLeaf(source, n)) + 1);
-          if (positions.length && loopRows.some(r => r >= Math.min(...positions) && r <= Math.max(...positions))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'A drawing intersects a repeated row; picture cloning requires a later adapter', part);
+          if (positions.length && loopRows.some(r => r >= Math.min(...positions) && r <= Math.max(...positions)) && (new Set(positions).size !== 1 || !sheet.rows.some(row => row.path && row.number === positions[0]) || !nodes.some(n => n.local === 'pic' && n.start > anchor.start && n.end < anchor.end))) throw new RenderError('UNSUPPORTED_TEMPLATE', 'A repeated picture must be contained in one pattern row', part);
         }
         drawings.push(plan);
       }
@@ -176,16 +207,16 @@ export function compileRowRenderer(context: Context) {
     for (const sheet of sheets) {
       const expansions = [];
       for (const row of sheet.rows) if (row.path || row.discard) {
-        const items = row.discard ? [] : row.standard ? standardLookup([data], row.path!, sheet.part) ?? [] : lookup([data], row.path!, sheet.part);
+        const items = row.discard ? [] : row.standard ? filterArray(standardLookup([data], row.path!, sheet.part) ?? [], row.filters, sheet.part) : lookup([data], row.path!, sheet.part);
         if (!Array.isArray(items)) throw new RenderError('INVALID_DATA', `Expected an array at ${row.path}`, sheet.part);
-        iterations += items.length;
+        if (!row.blockStart || row.number === row.blockStart) iterations += items.length;
         if (iterations > 10_000) throw new RenderError('LIMIT_EXCEEDED', 'Spreadsheet expansion exceeds 10000 iterations');
         const values: Scope[] = [];
         for (const item of items) {
           if (!item || typeof item !== 'object' || Array.isArray(item)) throw new RenderError('INVALID_DATA', `Expected object items at ${row.path}`, sheet.part);
           values.push([data, item]);
         }
-        scopes.set(row, values); expansions.push({ row: row.number, count: values.length });
+        scopes.set(row, values); if (!row.blockStart || row.number === row.blockStart) expansions.push({ row: row.number, count: values.length, height: row.blockHeight });
       }
       maps.set(sheet.name.toLowerCase(), new RowMap(expansions));
     }
@@ -196,7 +227,7 @@ export function compileRowRenderer(context: Context) {
       for (const row of sheet.rows) {
         const rendered: string[] = [];
         for (const [index, scope] of (scopes.get(row) ?? [[data]]).entries()) {
-          const newRow = map.map(row.number)! + index;
+          const newRow = map.map(row.number)! + index * (row.blockHeight ?? 1);
           if (newRow > maxRow) throw new RenderError('LIMIT_EXCEEDED', 'Expanded row exceeds Excel bounds', sheet.part);
           const local: Edit[] = []; let inserted = 0;
           const add = (...values: Edit[]) => { for (const value of values) { inserted += Buffer.byteLength(value.value); if (inserted > limits.entry) throw new RenderError('LIMIT_EXCEEDED', 'Row replacements exceed the part byte budget', sheet.part); local.push(value); } };
@@ -224,7 +255,7 @@ export function compileRowRenderer(context: Context) {
               if (mapped !== old) add({ start: value.openEnd, end: value.closeStart, value: String(mapped) });
             }
             for (const formula of children(sheet.nodes, cell).filter(n => n.uri === ns.spreadsheet && n.local === 'f')) {
-              add({ start: formula.openEnd, end: formula.closeStart, value: escapeXml(rewriteFormula(parseFormula(readLeaf(sheet.source, formula)), maps, sheet.name, row.path ? index : 0, row.path ? row.number : undefined)) });
+              add({ start: formula.openEnd, end: formula.closeStart, value: escapeXml(rewriteFormula(parseFormula(readLeaf(sheet.source, formula)), maps, sheet.name, row.path ? index * (row.blockHeight ?? 1) : 0, row.path ? row.number : undefined)) });
             }
           }
           const value = applyEdits(sheet.source.slice(row.node.start, row.node.end), local.map(e => ({ ...e, start: e.start - row.node.start, end: e.end - row.node.start })), limits.entry);
@@ -234,7 +265,10 @@ export function compileRowRenderer(context: Context) {
         }
         edits.push({ start: row.node.start, end: row.node.end, value: rendered.join('') });
       }
-      set(sheet.part, applyEdits(sheet.source, edits, limits.entry));
+      const expandedSource = applyEdits(sheet.source, edits, limits.entry);
+      const expandedRows = indexXml(expandedSource, sheet.part).filter(n => n.uri === ns.spreadsheet && n.local === 'row');
+      const first = expandedRows[0], last = expandedRows.at(-1);
+      set(sheet.part, first && last ? applyEdits(expandedSource, [{ start: first.start, end: last.end, value: expandedRows.sort((a,b) => Number(attr(a,'r')) - Number(attr(b,'r'))).map(n => expandedSource.slice(n.start,n.end)).join('') }], limits.entry) : expandedSource);
     }
     for (const table of tables) set(table.part, applyEdits(table.source, rangeEdits(table.source, table.nodes, maps.get(table.sheet.toLowerCase())!, maps, table.sheet), limits.entry));
     const names: Edit[] = [];
@@ -255,19 +289,38 @@ export function compileRowRenderer(context: Context) {
     }
     recalculateCells(parts, sheets, remainingShared, set);
     removeCalculationChain(parts, mainPart, set);
-    const drawingEdits = new Map<string, Edit[]>();
+    const pictureScopes = new Map<string, Map<string, { scope: Scope; path: string }>>();
     for (const drawing of drawings) {
-      const map = maps.get(drawing.sheet.toLowerCase())!, edits: Edit[] = [];
-      for (const node of drawing.nodes.filter(n => n.uri === ns.spreadsheetDrawing && n.local === 'row')) {
-        const anchor = ancestor(node, ns.spreadsheetDrawing, 'twoCellAnchor');
-        if (anchor && attr(anchor, 'editAs') === 'absolute') continue;
-        const row = Number(readLeaf(drawing.source, node)) + 1, mapped = map.map(row);
-        if (mapped === undefined) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Drawing anchor was removed by row expansion', drawing.part);
-        if (mapped !== row) edits.push({ start: node.openEnd, end: node.closeStart, value: String(mapped - 1) });
+      const map = maps.get(drawing.sheet.toLowerCase())!, edits: Edit[] = [], sheet = sheets.find(s => s.name === drawing.sheet)!;
+      const scopesById = new Map<string, { scope: Scope; path: string }>();
+      let nextId = Math.max(0, ...drawing.nodes.filter(n => n.local === 'cNvPr').map(n => Number(attr(n,'id')) || 0)) + 1;
+      for (const anchor of drawing.nodes.filter(n => n.parent === drawing.nodes[0])) {
+        const positions = drawing.nodes.filter(n => n.start > anchor.start && n.end < anchor.end && n.uri === ns.spreadsheetDrawing && n.local === 'row');
+        const firstRow = positions[0] ? Number(readLeaf(drawing.source, positions[0])) + 1 : undefined;
+        const repeated = sheet.rows.find(row => row.path && row.number === firstRow);
+        const copies = repeated ? scopes.get(repeated)! : [[data]];
+        const fragments: string[] = []; let fragmentBytes = 0;
+        for (const [index, scope] of copies.entries()) {
+          const local: Edit[] = [];
+          for (const node of positions) {
+            if (!repeated && anchor.local === 'twoCellAnchor' && attr(anchor, 'editAs') === 'absolute') continue;
+            const row = Number(readLeaf(drawing.source, node)) + 1, mapped = map.map(row);
+            if (mapped === undefined) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Drawing anchor was removed by row expansion', drawing.part);
+            if (mapped + index * (repeated?.blockHeight ?? 1) !== row) local.push({ start: node.openEnd, end: node.closeStart, value: String(mapped + index * (repeated?.blockHeight ?? 1) - 1) });
+          }
+          if (repeated) for (const node of drawing.nodes.filter(n => n.local === 'cNvPr' && n.start > anchor.start && n.end < anchor.end)) {
+            const id = String(nextId++); if (nextId > 4294967295) throw new RenderError('LIMIT_EXCEEDED', 'Drawing identities exhausted', drawing.part);
+            local.push(attributeEdit(node,'id',id)); scopesById.set(id, { scope, path: repeated.path! });
+          }
+          const value = applyEdits(drawing.source.slice(anchor.start,anchor.end), local.map(e => ({ ...e, start: e.start-anchor.start, end: e.end-anchor.start })), limits.entry);
+          fragmentBytes += Buffer.byteLength(value); if (fragmentBytes > limits.entry) throw new RenderError('LIMIT_EXCEEDED', 'Repeated pictures exceed part budget');
+          fragments.push(value);
+        }
+        edits.push({ start: anchor.start, end: anchor.end, value: fragments.join('') });
       }
-      drawingEdits.set(drawing.part, edits);
+      set(drawing.part, applyEdits(drawing.source,edits,limits.entry)); pictureScopes.set(drawing.part,scopesById);
     }
-    return { parts, drawingEdits };
+    return { parts, pictureScopes };
   };
 }
 function recalculateCells(parts: PackageParts, sheets: Sheet[], shared: CellText[], set: (part: string, source: string | Buffer) => void) {

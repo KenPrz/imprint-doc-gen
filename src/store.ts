@@ -17,12 +17,15 @@ export interface Job {
   error: string | null; format: DocumentFormat | 'pdf' | null;
 }
 export interface ClaimedJob extends Job { payload: string; lease: string; template: Buffer }
-interface Version { id: string; template_id: string; format: DocumentFormat; created_at: number; bytes?: Buffer }
-interface Template { id: string; name: string; published_version: string | null; created_at: number }
+export interface Version { id: string; template_id: string; format: DocumentFormat; created_at: number; bytes?: Buffer }
+export interface Template { id: string; name: string; published_version: string | null; created_at: number }
 
 // The standalone adapter keeps bounded binary values and metadata in one transaction.
 // No caller-controlled filesystem paths; a single mounted directory contains the database and WAL.
 export class StandaloneStore {
+  readonly kind = 'sqlite' as const;
+  ready() { this.db.prepare('SELECT 1').get(); }
+  queued() { return (this.db.prepare("SELECT COUNT(*) AS n FROM jobs WHERE status='queued'").get() as {n:number}).n; }
   readonly db: Database.Database;
   readonly now: () => number;
   readonly tenantQuota: number;

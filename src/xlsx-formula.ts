@@ -9,7 +9,7 @@ export interface ExcelError { error: string }
 export type Value = number | string | boolean | null | ExcelError;
 const error = (code: string): ExcelError => ({ error: code });
 const isError = (value: Value): value is ExcelError => typeof value === 'object' && value !== null;
-const functions = new Set(['SUM', 'MIN', 'MAX', 'AVERAGE', 'COUNT', 'IF']);
+const functions = new Set(['SUM', 'MIN', 'MAX', 'AVERAGE', 'COUNT', 'IF', 'IFERROR', 'ABS', 'ROUND', 'ROUNDUP', 'ROUNDDOWN', 'LEN', 'LOWER', 'UPPER', 'CONCAT', 'AND', 'OR', 'NOT']);
 export function parseFormula(source: string, allowRangeRoot = false): Formula {
   if (source.length > 8192) throw new RenderError('LIMIT_EXCEEDED', 'Formula exceeds 8192 characters');
   const tokens: (Token | Reference)[] = [], refs: Reference[] = [];
@@ -57,6 +57,8 @@ export function parseFormula(source: string, allowRangeRoot = false): Formula {
         if (peek() !== ')') { args.push(expression()); while (peek() === ',') { position++; args.push(expression()); } }
         take(')');
         if (name === 'IF' && (args.length < 2 || args.length > 3)) throw new RenderError('UNSUPPORTED_FORMULA', 'IF requires two or three arguments');
+        const arity: Record<string, number> = { IFERROR: 2, ABS: 1, ROUND: 2, ROUNDUP: 2, ROUNDDOWN: 2, LEN: 1, LOWER: 1, UPPER: 1, NOT: 1 };
+        if (arity[name] !== undefined && args.length !== arity[name]) throw new RenderError('UNSUPPORTED_FORMULA', `${name} requires ${arity[name]} arguments`);
         left = { kind: 'call', name, args };
       }
     } else throw new RenderError('UNSUPPORTED_FORMULA', 'Unsupported formula expression');
@@ -79,7 +81,7 @@ export function parseFormula(source: string, allowRangeRoot = false): Formula {
     }
     if (node.kind === 'binary') pending.push([node.left, depth + 1, false], [node.right, depth + 1, false]);
     else if (node.kind === 'unary') pending.push([node.child, depth + 1, false]);
-    else if (node.kind === 'call') for (const argument of node.args) pending.push([argument, depth + 1, node.name !== 'IF']);
+    else if (node.kind === 'call') for (const argument of node.args) pending.push([argument, depth + 1, ['SUM','MIN','MAX','AVERAGE','COUNT','CONCAT','AND','OR'].includes(node.name)]);
   }
   return { source, refs, expression: tree };
 }
@@ -89,7 +91,8 @@ export function rewriteFormula(formula: Formula, maps: Map<string, RowMap>, shee
     const target = ref.sheet ?? sheet, map = maps.get(target.toLowerCase());
     if (!map) throw new RenderError('UNSUPPORTED_FORMULA', `Unknown worksheet: ${target}`);
     const translate = (value: Address, edge: 'cell' | 'start' | 'end') => {
-      const own = loopRow === value.row && target.toLowerCase() === sheet.toLowerCase() && !value.absoluteRow;
+      const sameBlock = loopRow !== undefined && map.expansions.some(e => loopRow >= e.row && loopRow < e.row + (e.height ?? 1) && value.row >= e.row && value.row < e.row + (e.height ?? 1));
+      const own = (loopRow === value.row || sameBlock) && target.toLowerCase() === sheet.toLowerCase() && !value.absoluteRow;
       const row = map.map(value.row, own ? 'cell' : edge);
       if (row === undefined) return undefined;
       const shifted = row + (value.absoluteRow ? 0 : copy);
@@ -139,6 +142,34 @@ export function evaluateFormula(formula: Formula, sheet: string, read: (sheet: s
       const value = visit(node.args[0]!);
       const condition = typeof value === 'string' && /^(TRUE|FALSE)$/i.test(value) ? Number(value.toUpperCase() === 'TRUE') : numeric(value);
       return typeof condition === 'number' ? condition ? visit(node.args[1]!) : node.args[2] ? visit(node.args[2]) : false : condition;
+    }
+    if (node.name === 'IFERROR') { const value = visit(node.args[0]!); return isError(value) ? visit(node.args[1]!) : value; }
+    if (['ABS','ROUND','ROUNDUP','ROUNDDOWN','NOT'].includes(node.name)) {
+      const value = numeric(visit(node.args[0]!)); if (typeof value !== 'number') return value;
+      if (node.name === 'ABS') return Math.abs(value); if (node.name === 'NOT') return !value;
+      const precision = numeric(visit(node.args[1]!)); if (typeof precision !== 'number') return precision;
+      const digits = Math.trunc(precision); if (Math.abs(digits) > 15) throw new RenderError('UNSUPPORTED_FORMULA', 'Rounding precision is limited to 15 decimal places');
+      const shift = (n: number, d: number) => { const [base, exponent='0'] = String(n).split('e'); return Number(`${base}e${Number(exponent)+d}`); };
+      const scaled = shift(Math.abs(value), digits), rounded = node.name === 'ROUNDUP' ? Math.ceil(scaled) : node.name === 'ROUNDDOWN' ? Math.floor(scaled) : Math.round(scaled);
+      return checked(Math.sign(value) * shift(rounded, -digits));
+    }
+    if (['LEN','LOWER','UPPER'].includes(node.name)) {
+      const value = visit(node.args[0]!); if (isError(value)) return value;
+      const text = typeof value === 'boolean' ? value ? 'TRUE' : 'FALSE' : String(value ?? '');
+      return node.name === 'LEN' ? text.length : node.name === 'LOWER' ? text.toLowerCase() : text.toUpperCase();
+    }
+    if (['CONCAT','AND','OR'].includes(node.name)) {
+      let text = '', logical = node.name === 'AND', count = 0;
+      const accept = (value: Value, reference: boolean): ExcelError | undefined => {
+        if (isError(value)) return value;
+        if (node.name === 'CONCAT') { text += typeof value === 'boolean' ? value ? 'TRUE' : 'FALSE' : String(value ?? ''); if (text.length > 32767) return error('#VALUE!'); }
+        else { if (reference && (value === null || typeof value === 'string')) return; const n = numeric(value); if (typeof n !== 'number') return n; count++; logical = node.name === 'AND' ? logical && !!n : logical || !!n; }
+      };
+      for (const arg of node.args) {
+        if (arg.kind === 'reference' && arg.last) for (let row=arg.first.row; row<=arg.last.row; row++) for (let col=columnNumber(arg.first.column); col<=columnNumber(arg.last.column); col++) { tick(); const failure = accept(read(arg.sheet ?? sheet,columnName(col)+row),true); if (failure) return failure; }
+        else { const failure = accept(visit(arg),arg.kind==='reference'); if (failure) return failure; }
+      }
+      return node.name === 'CONCAT' ? text : count ? logical : error('#VALUE!');
     }
     const values: number[] = [];
     const add = (value: Value, reference: boolean): ExcelError | undefined => {

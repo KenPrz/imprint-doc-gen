@@ -1,21 +1,24 @@
+import { registerPdfRoutes } from './pdf-routes.ts';
+import { runTask } from './task-runner.ts';
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { RenderError } from './errors.ts';
 import { mediaTypes } from './types.ts';
+import type { ServiceStore } from './store-interface.ts';
 import { StandaloneStore } from './store.ts';
 import { DurableQueue } from './queue.ts';
 import { ServiceError } from './service-error.ts';
 import { decodeBase64, RenderService, type RenderInput } from './render-service.ts';
 import { registerServiceRoutes, inputProperties, type Principal } from './service-routes.ts';
 
-interface AppConfig { apiKey: string; converterUrl?: string; logger?: boolean; concurrency?: number; dataDir?: string; runQueue?: boolean }
+interface AppConfig { apiKey: string; converterUrl?: string; logger?: boolean; concurrency?: number; dataDir?: string; runQueue?: boolean; store?: ServiceStore }
 export function createApp(config: AppConfig) {
   if (config.apiKey.length < 24) throw new Error('IMPRINT_API_KEY must contain at least 24 characters');
   if (config.concurrency !== undefined && (!Number.isSafeInteger(config.concurrency) || config.concurrency < 1 || config.concurrency > 8)) throw new Error('Concurrency must be between 1 and 8');
   const app = Fastify({ bodyLimit: 16 * 1024 * 1024, requestTimeout: 100_000, logger: config.logger ? { redact: ['req.headers.authorization'] } : false });
   const secret = Buffer.from(`Bearer ${config.apiKey}`);
   const renderer = new RenderService(config.concurrency, config.converterUrl);
-  const store = config.dataDir ? new StandaloneStore(config.dataDir) : undefined;
+  const store = config.store ?? (config.dataDir ? new StandaloneStore(config.dataDir) : undefined);
   const identities = new WeakMap<object, Principal>();
   app.addHook('onSend', async (_request, reply) => { reply.header('Cache-Control', 'no-store'); });
   app.setErrorHandler((error, request, reply) => {
@@ -32,9 +35,9 @@ export function createApp(config: AppConfig) {
     request.log.error({ err: error }, 'Request failed');
     return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 7, storage: store ? 'sqlite' : 'disabled', formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'standard-docx-tags', 'standard-xlsx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 7, storage: store?.kind ?? 'disabled', formats: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'standard-docx-tags', 'standard-xlsx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
   app.get('/ready', async (_request, reply) => {
-    if (store) store.db.prepare('SELECT 1').get();
+    if (store) try { await store.ready(); } catch { return reply.code(503).send({ status: 'unavailable' }); }
     if (config.converterUrl) {
       try {
         const response = await fetch(new URL('/health', config.converterUrl), { signal: AbortSignal.timeout(2000) });
@@ -49,9 +52,15 @@ export function createApp(config: AppConfig) {
     const supplied = Buffer.from(request.headers.authorization ?? '');
     if (supplied.length === secret.length && timingSafeEqual(supplied, secret)) { identities.set(request, { tenant: 'default', admin: true }); return; }
     const authorization = request.headers.authorization ?? '';
-    const tenant = authorization.startsWith('Bearer ') ? store?.authenticate(authorization.slice(7)) : undefined;
+    const tenant = authorization.startsWith('Bearer ') ? await store?.authenticate(authorization.slice(7)) : undefined;
     if (!tenant) return reply.code(401).send({ error: 'UNAUTHORIZED' });
     identities.set(request, { tenant, admin: false });
+  });
+  app.addHook('onResponse', async (_request, reply) => { renderer.metrics.request(reply.statusCode); });
+  app.get('/metrics', async (request, reply) => {
+    if (!identities.get(request)?.admin) throw new ServiceError(403, 'FORBIDDEN');
+    const queued = await store?.queued() ?? 0;
+    return reply.type('text/plain; version=0.0.4').send(renderer.metrics.text(renderer.active, renderer.concurrency, queued));
   });
   app.post<{ Body: RenderInput & { template: string } }>('/v1/render', {
     schema: { body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
@@ -61,24 +70,33 @@ export function createApp(config: AppConfig) {
     const output = await renderer.render(decodeBase64(request.body.template), request.body);
     return reply.type(output.format === 'pdf' ? 'application/pdf' : mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
   });
+  app.post<{ Body: { template: string } }>('/v1/inspect', { schema: { body: { type: 'object', additionalProperties: false, required: ['template'], properties: { template: { type: 'string', maxLength: 12 * 1024 * 1024 } } } } }, async request => {
+    if (!renderer.available) throw new ServiceError(503, 'BUSY'); renderer.active++;
+    try { return await runTask('inspect', decodeBase64(request.body.template)); } finally { renderer.active--; }
+  });
+  app.post<{ Body: RenderInput & { template: string } }>('/v1/preview', { schema: { body: { type: 'object', additionalProperties: false, required: ['template','data'], properties: { template: { type: 'string', maxLength: 12 * 1024 * 1024 }, ...inputProperties } } } }, async (request, reply) => {
+    const result = await renderer.render(decodeBase64(request.body.template), { ...request.body, output: 'pdf' });
+    return reply.type('application/pdf').header('Content-Disposition', 'inline; filename="preview.pdf"').send(result.bytes);
+  });
+  registerPdfRoutes(app, renderer);
   // One-shot document rendering shares authentication
   // and resource limits; only the request/response protocol is adapted here.
-  app.post<{ Body: RenderInput & { template: string; convertTo?: 'docx' | 'xlsx' | 'pdf' }; Querystring: { download: string } }>('/render/template', {
+  app.post<{ Body: RenderInput & { template: string; convertTo?: RenderInput['output'] }; Querystring: { download: string } }>('/render/template', {
     schema: {
       querystring: { type: 'object', required: ['download'], additionalProperties: false, properties: { download: { type: 'string', const: 'true' } } },
       body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
-        template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: inputProperties.data, attachments: inputProperties.attachments, convertTo: inputProperties.output,
+        template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: inputProperties.data, attachments: inputProperties.attachments, images: inputProperties.images, locale: inputProperties.locale, timeZone: inputProperties.timeZone, convertTo: inputProperties.output,
       } },
     },
   }, async (request, reply) => {
-    const output = await renderer.render(decodeBase64(request.body.template), { data: request.body.data, attachments: request.body.attachments, output: request.body.convertTo });
+    const output = await renderer.render(decodeBase64(request.body.template), { ...request.body, output: request.body.convertTo });
     return reply.type(output.format === 'pdf' ? 'application/pdf' : mediaTypes[output.format]).header('Content-Disposition', `attachment; filename="document.${output.format}"`).send(output.bytes);
   });
   if (store) {
     registerServiceRoutes(app, store, renderer, request => identities.get(request)!);
     const queue = new DurableQueue(store, renderer, error => app.log.error({ err: error }, 'Queue failed'));
     if (config.runQueue !== false) app.addHook('onReady', async () => queue.start());
-    app.addHook('onClose', async () => { await queue.stop(); store.close(); });
+    app.addHook('onClose', async () => { await queue.stop(); await store.close(); });
   }
   return app;
 }

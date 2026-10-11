@@ -1,0 +1,94 @@
+<p class="eyebrow">Operations</p>
+<h1>Measure, recover, verify.</h1>
+<h2 id="metrics">Metrics and readiness</h2>
+<p>
+  Scrape <code>GET /metrics</code> with the administrator key. It exposes HTTP status-class counts, render
+  outcomes/duration buckets/output bytes, current admission usage, queued job count and API process
+  RSS/uptime. It does not label document paths, tenant IDs or payload data. Cluster API metrics do not
+  aggregate independent worker memory or latency; collect worker/container metrics through your runtime as
+  well.
+</p>
+<p>
+  <code>/health</code> is liveness. <code>/ready</code> checks configured database/object storage and
+  converter availability. Alert on failed readiness, growing queues, sustained 503s, conversion timeouts and
+  exhausted webhook deliveries.
+</p>
+<h2 id="budgets">Resource budgets</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Resource</th>
+      <th>Default limit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HTTP JSON body</td>
+      <td>16 MiB including base64.</td>
+    </tr>
+    <tr>
+      <td>Expanded ZIP / XML part</td>
+      <td>32 MiB / 8 MiB; at most 1,024 ZIP entries.</td>
+    </tr>
+    <tr>
+      <td>Rendering / conversion</td>
+      <td>30-second render worker; 65-second complete conversion response deadline.</td>
+    </tr>
+    <tr>
+      <td>Repeats</td>
+      <td>10,000 iterations, 16 nesting levels where supported.</td>
+    </tr>
+    <tr>
+      <td>Storage reservation</td>
+      <td>1 GiB per tenant; 4 GiB total by default. Jobs reserve 32 MiB output plus payload.</td>
+    </tr>
+    <tr>
+      <td>Active jobs</td>
+      <td>100 per tenant, 1,000 total.</td>
+    </tr>
+    <tr>
+      <td>Stored job history</td>
+      <td>2,000 per tenant, 10,000 total; seven-day terminal retention.</td>
+    </tr>
+    <tr>
+      <td>Worker lease</td>
+      <td>150 seconds, at most two render attempts.</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="load">Reproduce load measurements</h2>
+<pre><code>IMPRINT_URL=http://127.0.0.1:8088 \
+LOAD_REQUESTS=100 LOAD_CONCURRENCY=2 LOAD_FORMAT=docx npm run load</code></pre>
+<p>
+  The runner uses the environment API key and an independently authored invoice. It records throughput,
+  latency percentiles, failures, admission rejections and sampled API RSS in
+  <code>artifacts/operations/load.json</code>. Requests are bounded at 500 and concurrency at 32. A local
+  smoke result is not a production capacity promise: measure your actual templates, converter resources,
+  concurrency and latency target before changing limits.
+</p>
+<h2 id="sqlite-backup">SQLite backup and restore</h2>
+<pre><code>npm run backup -- backup /path/to/data /secure/backup.sqlite
+# Stop the destination service first; restore requires an empty directory.
+npm run backup -- restore /secure/backup.sqlite /path/to/empty-data</code></pre>
+<p>
+  Backup uses SQLite's online backup API, checks integrity/foreign keys/schema and creates a private file. It
+  refuses to overwrite an existing destination. Restore validates again and refuses a populated directory. The
+  production image contains compiled SDK helpers in <code>dist/backup.js</code>; the source CLI is intended
+  for an administrative checkout with dependencies installed. Do not copy only a live main database file while
+  ignoring WAL state.
+</p>
+<h2 id="cluster-backup">Cluster backup</h2>
+<p>
+  Back up PostgreSQL and the S3 bucket as a coordinated pair. Enable bucket versioning/retention; retain
+  object versions at least as long as database backups. For a simple consistent snapshot, stop API writes and
+  drain/stop workers, take a PostgreSQL dump and bucket snapshot, then resume. Restore into a fresh database
+  and bucket, configure isolated API/worker instances, and verify template downloads, result checksums and a
+  test render before directing traffic there. The SQLite restore command does not restore PostgreSQL.
+</p>
+<h2 id="recovery">Failure recovery</h2>
+<p>
+  Restarted workers reclaim expired leases and fence stale writers. Conversion failures are bounded; the
+  bundled converter recycles after each attempt. Missing/corrupt S3 objects return an error instead of
+  incomplete data. Failed uploads can leave staged objects for the scheduled collector. Never delete a live
+  volume or bucket to resolve a queue problem.
+</p>

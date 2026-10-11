@@ -1,0 +1,89 @@
+<p class="eyebrow">Release scope</p>
+<h1>Roadmap, with evidence.</h1>
+<p class="lead">
+  This release implements the eight requested workstreams and adds these documentation pages. Each adapter has
+  a bounded support contract.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Workstream</th>
+      <th>Delivered</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Operations</td>
+      <td>Authenticated metrics, reproducible load runner, verified SQLite backup/restore.</td>
+    </tr>
+    <tr>
+      <td>Images</td>
+      <td>Contain/cover/fill, crop, rotation, EXIF orientation and repeated spreadsheet pictures.</td>
+    </tr>
+    <tr>
+      <td>Authoring</td>
+      <td>Field inspection, required flags, paragraph/cell diagnostics and PDF preview.</td>
+    </tr>
+    <tr>
+      <td>Expressions</td>
+      <td>
+        Locale/time-zone options, number/currency/date formatting, conditional values and array filters.
+      </td>
+    </tr>
+    <tr>
+      <td>Advanced Office</td>
+      <td>
+        Notes/comment fields, numbering preservation, spreadsheet multi-row blocks/merges and extra formulas.
+      </td>
+    </tr>
+    <tr>
+      <td>Additional formats</td>
+      <td>PPTX, ODT, ODS and ODP adapters with 100 regression cases each.</td>
+    </tr>
+    <tr>
+      <td>Document assembly</td>
+      <td>PDF merge/split, text watermarks, numbering, attachments and barcode/QR PNGs.</td>
+    </tr>
+    <tr>
+      <td>Distributed deployment</td>
+      <td>PostgreSQL/S3, independent workers, lease fencing and signed durable callbacks.</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="verification">Verification commands</h2>
+<pre><code>npm run typecheck
+npm run build
+npm test
+npm run corpus:render &amp;&amp; npm run corpus:score
+npm run test:formats
+npm run test:synthetic
+npm run docs:build
+# Real PostgreSQL and S3 integration, in disposable infrastructure:
+docker compose -p imprint-test -f compose.cluster-test.yml up -d --wait
+TEST_DATABASE_URL=postgres://imprint:isolated-integration-password@127.0.0.1:18432/imprint \
+AWS_ACCESS_KEY_ID=imprint-test AWS_SECRET_ACCESS_KEY=isolated-object-password \
+npm run test:cluster
+# Only remove the explicitly disposable test project:
+docker compose -p imprint-test -f compose.cluster-test.yml down --volumes</code></pre>
+<h2 id="future">Future work remains explicit</h2>
+<ul>
+  <li>
+    Application-specific pilot acceptance, repair-free Microsoft Office opening and approved visual baselines
+    on representative templates.
+  </li>
+  <li>
+    Dynamic charts/pivots, tracked changes, repeated notes/comments, restarted numbering and more spreadsheet
+    formula families.
+  </li>
+  <li>SVG and inline-image insertion with explicit sanitization and geometry contracts.</li>
+  <li>ODF repeated-formula rewriting and deeper format-specific progressive cases.</li>
+  <li>HTML/plain-text/CSV adapters, validated PDF/A or PDF/UA, signatures and specialist formats.</li>
+  <li>
+    Tenant self-service, SSO, billing, worker metrics aggregation and a verified SQLite-to-cluster migration
+    tool.
+  </li>
+</ul>
+<p>
+  The source repository keeps the detailed historical evidence and corpus roadmap. None of these future items
+  is implied by a passing current regression suite.
+</p>

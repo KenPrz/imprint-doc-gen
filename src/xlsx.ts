@@ -3,7 +3,7 @@ import { standardBindings, parseStandardPath } from './standard-syntax.ts';
 import { compileRowRenderer } from './xlsx-rows.ts';
 import { RenderError } from './errors.ts';
 import { validateData } from './data.ts';
-import { checkPath, lookup, scalar } from './scope.ts';
+import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { createRenderPackage } from './render-package.ts';
 import { limits, relsPath, resolvePart, type PackageParts } from './package.ts';
 import type { OfficePackage } from './ooxml.ts';
@@ -13,7 +13,7 @@ import { compileCellText, renderCellText, readLeaf, attributeEdit, type CellText
 
 export interface CellPlan { node: ElementSpan; payload: ElementSpan; text: CellText; shared?: number }
 export interface SheetPlan { part: string; name: string; source: string; nodes: ElementSpan[]; cells: CellPlan[] }
-interface Picture { standard?: boolean; path: string; description: AttributeSpan; reference: AttributeSpan }
+interface Picture { id: string; size?: { width: number; height: number }; standard?: boolean; path: string; description: AttributeSpan; reference: AttributeSpan }
 interface DrawingPlan { part: string; source: string; pictures: Picture[] }
 const attr = (node: ElementSpan, name: string) => node.attributes.find(a => a.name === name)?.value;
 function linksFor(parts: PackageParts, owner: string) {
@@ -39,14 +39,16 @@ function compileDrawing(parts: PackageParts, part: string): DrawingPlan {
     const match = /^\s*\{\{image:([^{}]+)\}\}\s*$/.exec(description.value);
     const standard = !match, single = /^\s*\{([^{}]+)\}\s*$/.exec(description.value);
     if (!match && !single) throw new RenderError('TEMPLATE_SYNTAX', 'Image binding must occupy the whole picture description', part);
-    const path = match ? match[1]!.trim() : parseStandardPath(single![1]!, part); checkPath(path, part);
+    const path = match ? match[1]!.trim() : parseStandardPath(single![1]!, part); checkPath(path.replace(/\[i(?:\+1)?\]/g, ''), part);
     const owner = ancestor(node, ns.spreadsheetDrawing, 'pic');
     if (!owner || owners.has(owner.start) || owner.parent?.uri !== ns.spreadsheetDrawing || !['oneCellAnchor', 'twoCellAnchor', 'absoluteAnchor'].includes(owner.parent.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one binding on an anchored spreadsheet picture', part);
     const blips = nodes.filter(n => n.uri === ns.drawing && n.local === 'blip' && n.start > owner.start && n.end < owner.end);
     const reference = blips[0]?.attributes.find(a => a.uri === ns.relationship && a.local === 'embed');
     if (blips.length !== 1 || !reference || blips[0]!.attributes.some(a => a.uri === ns.relationship && a.local === 'link')) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Expected one embedded picture per binding', part);
     if (!links.some(link => link.getAttribute('Id') === reference.value && link.getAttribute('Type') === `${ns.relationship}/image` && link.getAttribute('TargetMode') !== 'External')) throw new RenderError('INVALID_PACKAGE', 'Picture references an undefined image relationship', part);
-    owners.add(owner.start); pictures.push({ path, description, reference, standard });
+    const extent = nodes.find(n => n.local === 'ext' && n.start > owner.start && n.end < owner.end);
+    const size = extent ? { width: Math.max(1, Math.round(Number(attr(extent, 'cx')) / 9525)), height: Math.max(1, Math.round(Number(attr(extent, 'cy')) / 9525)) } : undefined;
+    owners.add(owner.start); pictures.push({ id: attr(node, 'id') ?? '', size, path, description, reference, standard });
   }
   return { part, source, pictures };
 }
@@ -116,15 +118,19 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
   if (!sheets.length) throw new RenderError('INVALID_PACKAGE', 'Workbook has no worksheets', mainPart);
   const drawings = [...drawingParts].map(part => compileDrawing(original, part));
   const rows = compileRowRenderer({ original, mainPart, workbook, bookNodes, sheets, sharedPart, sharedSource, sharedNodes, shared });
+  if (!rows && drawings.some(d=>d.pictures.some(p=>p.path.includes('[i')))) throw new RenderError('TEMPLATE_EXPRESSION','Item picture bindings require a repeated row');
   if (!rows && sheets.some(s => s.cells.some(c => c.text.bindings.some(b => b.path.startsWith('../'))))) throw new RenderError('TEMPLATE_EXPRESSION', 'Parent paths require a repeated row');
-  const renderPictures = async (output: ReturnType<typeof createRenderPackage>, attachments: Record<string, Uint8Array>, data: Record<string, unknown>, drawingEdits = new Map<string, Edit[]>()) => {
+  const renderPictures = async (output: ReturnType<typeof createRenderPackage>, attachments: Record<string, Uint8Array>, data: Record<string, unknown>, drawingSources = original, pictureScopes = new Map<string, Map<string, { scope: Scope; path: string }>>()) => {
     const imageKey = standardImageResolver(attachments);
-    for (const drawing of drawings) {
-      const edits: Edit[] = [...(drawingEdits.get(drawing.part) ?? [])];
+    for (const initial of drawings) {
+      const drawing = drawingSources === original ? initial : compileDrawing(drawingSources, initial.part);
+      const edits: Edit[] = [];
       for (const picture of drawing.pictures) {
-        const key = picture.standard ? imageKey(picture.path, [data], drawing.part) : Object.hasOwn(attachments, picture.path) ? picture.path : scalar(lookup([data], picture.path, drawing.part), picture.path, drawing.part);
+        const repeated = pictureScopes.get(drawing.part)?.get(picture.id), scope = repeated?.scope ?? [data];
+        const path = repeated && picture.standard ? picture.path.startsWith(`${repeated.path}[i].`) ? picture.path.slice(repeated.path.length + 4) : '../' + picture.path : picture.path;
+        const key = picture.standard ? imageKey(path, scope, drawing.part) : scope.length === 1 && Object.hasOwn(attachments, path) ? path : scalar(lookup(scope, path, drawing.part), path, drawing.part);
         if (!key && picture.standard) { edits.push({ start: picture.description.start, end: picture.description.end, value: 'Image placeholder' }); continue; }
-        const id = await output.addImage(drawing.part, key!);
+        const id = await output.addImage(drawing.part, key!, picture.size);
         edits.push({ start: picture.reference.start, end: picture.reference.end, value: id }, { start: picture.description.start, end: picture.description.end, value: picture.standard ? 'Image attachment' : escapeXml(`Attachment ${key}`) });
       }
       if (edits.length) output.setPart(drawing.part, Buffer.from(applyEdits(drawing.source, edits, limits.entry)));
@@ -134,13 +140,13 @@ export async function compileXlsx({ parts: original, mainPart }: OfficePackage):
     validateData(data);
     const attachments = Object.assign(Object.create(null), options.attachments ?? {}) as Record<string, Uint8Array>;
     if (rows) {
-      const expanded = rows(data), output = createRenderPackage(expanded.parts, mainPart, attachments);
+      const expanded = rows(data), output = createRenderPackage(expanded.parts, mainPart, attachments, options.images);
       const source = expanded.parts.get(mainPart)!.toString();
       output.setPart(mainPart, Buffer.from(recalculate(source, indexXml(source, mainPart))));
-      await renderPictures(output, attachments, data, expanded.drawingEdits);
+      await renderPictures(output, attachments, data, expanded.parts, expanded.pictureScopes);
       return output.finish();
     }
-    const output = createRenderPackage(original, mainPart, attachments);
+    const output = createRenderPackage(original, mainPart, attachments, options.images);
     let sharedInsertedBytes = 0;
     const renderedShared = shared.map(plan => {
       if (!plan.bindings.length) return undefined;

@@ -13,6 +13,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+      - run: npm run test:formats
+      - run: npm run docs:build
       - run: node scripts/generate-example.ts
       - run: git diff --exit-code -- examples/invoice
       - run: npm run corpus:generate
@@ -115,6 +117,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - name: Validate synthetic invoices and images through the standalone API
         run: npm run test:synthetic -- --api --pdf --smoke --output corpus/results/synthetic
+      - name: Compare new-format PDF text against independent expected documents
+        run: npm run test:formats
       - name: Verify converter timeouts recover in the standalone image
         run: |
           GOTENBERG_API_TIMEOUT=5s docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
@@ -136,13 +140,41 @@ jobs:
             corpus/results/converter-recovery.json
             corpus/results/standalone.log
             corpus/results/synthetic/
+            artifacts/formats/
       - name: Stop standalone services
         if: always()
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
 
+  cluster:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: docker compose -p imprint-cluster-ci -f compose.cluster-test.yml up -d --wait
+      - name: Verify PostgreSQL, S3, worker fencing and signed callbacks
+        run: npm run test:cluster
+        env:
+          TEST_DATABASE_URL: postgres://imprint:isolated-integration-password@127.0.0.1:18432/imprint
+          AWS_ACCESS_KEY_ID: imprint-test
+          AWS_SECRET_ACCESS_KEY: isolated-object-password
+      - name: Validate cluster Compose
+        run: docker compose -f compose.cluster.yml config --quiet
+        env:
+          POSTGRES_PASSWORD: isolated-configuration-password
+          S3_BUCKET: example-private-bucket
+          IMPRINT_API_KEY: isolated-configuration-key-32-chars
+      - name: Stop disposable dependencies
+        if: always()
+        run: docker compose -p imprint-cluster-ci -f compose.cluster-test.yml down --volumes
+
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [fixtures, conversion, standalone]
+    needs: [fixtures, conversion, standalone, cluster]
     runs-on: ubuntu-latest
     permissions:
       contents: read

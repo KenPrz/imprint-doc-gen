@@ -1,16 +1,21 @@
 {
-  "version": 1,
+  "version": 2,
   "current": {
     "formats": {
       "docx": 100,
-      "xlsx": 100
+      "xlsx": 100,
+      "pptx": 100,
+      "odt": 100,
+      "ods": 100,
+      "odp": 100
     },
     "purpose": "Cumulative synthetic generation challenges with independent expected outputs",
-    "nextGate": "Measure sustained load, memory and latency; add operational metrics.",
+    "nextGate": "Representative application pilot and approved visual baselines; deepen advanced structure coverage.",
     "docx": "Scalar/image replacement, repeated rows and blocks, nested scopes and item images.",
-    "xlsx": "Typed cells, single-row loops, formula/range rewriting, moved picture anchors and bounded calculation.",
+    "xlsx": "Typed cells, multi-row blocks, contained merges, repeated pictures and bounded formulas.",
     "standalone": "One image, tenant keys, immutable template versions and durable jobs.",
-    "syntheticValidation": "12 neutral invoice/signature scenarios. See synthetic-guide.txt."
+    "syntheticValidation": "12 neutral invoice/signature scenarios. See synthetic-guide.txt.",
+    "newFormatScope": "400 adapter regression cases and 12 selected PDF text comparisons; not every future band below is implemented."
   },
   "phases": [
     {
@@ -150,7 +155,7 @@
     }
   ],
   "separateRejectionSuite": {
-    "status": "planned",
+    "status": "Implemented for current bounded adapters; expand with each new format feature",
     "cases": [
       "truncated ZIP",
       "duplicate paths",
@@ -182,8 +187,9 @@
       "Generic invoice integration example"
     ],
     "next": [
-      "operational metrics and sustained-load testing",
-      "PostgreSQL/S3 adapters and separate workers when scaling requires them"
+      "Application pilot acceptance",
+      "Worker metrics aggregation",
+      "Verified SQLite-to-cluster migration"
     ],
     "guide": "standalone-guide.txt"
   },
@@ -193,9 +199,8 @@
     "legacy": "Double-brace bindings remain compatible; not the default",
     "futureFormats": "Reuse the same syntax; add format-specific structure adapters, never a new placeholder dialect",
     "next": [
-      "Formatter/filter adapters with independent fixtures",
-      "Advanced XLSX repetition and picture cloning",
-      "Expand independently authored template fixtures"
+      "Advanced structure adapters",
+      "Expand independently authored fixtures"
     ]
   }
 }

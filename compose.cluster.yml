@@ -1,0 +1,72 @@
+# Optional distributed deployment. Provision a private S3 bucket before starting.
+x-service: &service
+  image: ${IMPRINT_CLUSTER_IMAGE:-imprint-doc-gen:production}
+  build:
+    context: .
+    target: production
+  init: true
+  read_only: true
+  tmpfs: ['/tmp:size=128m,mode=1777']
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 128
+  mem_limit: 768m
+  cpus: 2
+  stop_grace_period: 150s
+  restart: unless-stopped
+x-environment: &environment
+  DATABASE_URL: postgres://imprint:${POSTGRES_PASSWORD:?Set a URL-safe database password}@postgres:5432/imprint
+  S3_BUCKET: ${S3_BUCKET:?Set the private bucket name}
+  S3_ENDPOINT: ${S3_ENDPOINT:-}
+  AWS_REGION: ${AWS_REGION:-us-east-1}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+  GOTENBERG_URL: http://gotenberg:3000
+  IMPRINT_CONCURRENCY: ${IMPRINT_CONCURRENCY:-2}
+services:
+  api:
+    <<: *service
+    environment:
+      <<: *environment
+      HOST: 0.0.0.0
+      IMPRINT_API_KEY: ${IMPRINT_API_KEY:?Set an API key of at least 24 characters}
+    ports: ['127.0.0.1:${IMPRINT_PORT:-8088}:3000']
+    depends_on:
+      postgres: { condition: service_healthy }
+      gotenberg: { condition: service_healthy }
+    networks: [application, rendering]
+  worker:
+    <<: *service
+    command: ['node', 'dist/worker.js']
+    healthcheck: { disable: true }
+    environment:
+      <<: *environment
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      gotenberg: { condition: service_healthy }
+    networks: [application, rendering]
+  postgres:
+    image: postgres:18-alpine@sha256:96d56f7f57c6aacd1fcb908bc83b345ec5f83231ee486dd66a1baadce274db88
+    environment:
+      POSTGRES_USER: imprint
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a URL-safe database password}
+      POSTGRES_DB: imprint
+    volumes: ['postgres-data:/var/lib/postgresql']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U imprint']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [application]
+    restart: unless-stopped
+  gotenberg:
+    extends:
+      file: compose.yml
+      service: gotenberg
+networks:
+  application: {}
+  rendering: { internal: true }
+volumes:
+  postgres-data: {}
