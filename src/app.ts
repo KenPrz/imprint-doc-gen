@@ -14,7 +14,7 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
     if (!value || value.length % 4 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new RenderError('INVALID_DATA', 'Expected canonical base64 bytes');
     return Buffer.from(value, 'base64');
   };
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 3, formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures'] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 4, formats: ['docx', 'xlsx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation'] }));
   app.addHook('onRequest', async (request, reply) => {
     if (request.routeOptions.url === '/health') return;
     const supplied = Buffer.from(request.headers.authorization ?? '');
