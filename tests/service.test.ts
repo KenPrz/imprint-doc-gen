@@ -66,13 +66,13 @@ test('idempotency is tenant scoped and a conflicting body cannot silently reuse 
   const store = new StandaloneStore(directory);
   try {
     const first = version(store), input = { templateId: first.templateId, data };
-    const job = store.enqueue('default', input, 'booking-42');
+    const job = store.enqueue('default', input, 'order-42');
     assert.equal(job.reused, false);
-    assert.equal(store.enqueue('default', input, 'booking-42').job.id, job.job.id);
-    assert.equal(store.enqueue('default', input, 'booking-42').reused, true);
-    assert.throws(() => store.enqueue('default', { ...input, output: 'pdf' }, 'booking-42'), code('IDEMPOTENCY_CONFLICT'));
+    assert.equal(store.enqueue('default', input, 'order-42').job.id, job.job.id);
+    assert.equal(store.enqueue('default', input, 'order-42').reused, true);
+    assert.throws(() => store.enqueue('default', { ...input, output: 'pdf' }, 'order-42'), code('IDEMPOTENCY_CONFLICT'));
     const other = store.createTenant('Other'), second = version(store, other.id);
-    assert.equal(store.enqueue(other.id, { templateId: second.templateId, data }, 'booking-42').reused, false);
+    assert.equal(store.enqueue(other.id, { templateId: second.templateId, data }, 'order-42').reused, false);
   } finally { store.close(); }
 }));
 
@@ -151,7 +151,7 @@ test('terminal job retention removes inputs/results and permits deleting the tem
 
 test('rotated and revoked keys immediately lose access, while key hashes persist across restart', async () => fixture(async directory => {
   let store = new StandaloneStore(directory);
-  const tenant = store.createTenant('PMS');
+  const tenant = store.createTenant('Example application');
   assert.equal(store.authenticate(tenant.apiKey), tenant.id);
   assert(!JSON.stringify(store.db.prepare('SELECT * FROM tenants').all()).includes(tenant.apiKey));
   store.close(); store = new StandaloneStore(directory);
@@ -168,8 +168,8 @@ test('HTTP service validates uploads, enforces admin boundaries and renders a pe
   let app = createApp({ apiKey: key, dataDir: directory, runQueue: false });
   const call = (method: 'GET' | 'POST' | 'DELETE', url: string, payload?: object, apiKey = key) => app.inject({ method, url, payload, headers: { authorization: `Bearer ${apiKey}` } });
   try {
-    assert.equal((await app.inject({ method: 'POST', url: '/v1/tenants', payload: { name: 'PMS' } })).statusCode, 401);
-    const owner = (await call('POST', '/v1/tenants', { name: 'PMS' })).json();
+    assert.equal((await app.inject({ method: 'POST', url: '/v1/tenants', payload: { name: 'Example application' } })).statusCode, 401);
+    const owner = (await call('POST', '/v1/tenants', { name: 'Example application' })).json();
     assert.equal((await call('POST', '/v1/tenants', { name: 'Escalation' }, owner.apiKey)).statusCode, 403);
     assert.equal((await call('POST', '/v1/templates', { name: 'Broken', template: Buffer.from('not a zip').toString('base64') }, owner.apiKey)).statusCode, 422);
     const upload = await call('POST', '/v1/templates', { name: 'Invoice', template: template.toString('base64') }, owner.apiKey);

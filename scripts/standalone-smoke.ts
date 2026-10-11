@@ -3,8 +3,7 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readPackage } from '../src/package.ts';
-import { snapshot } from './pms/snapshot.ts';
-import { ImprintClient } from '../examples/pms/client.ts';
+import { ImprintClient } from '../examples/invoice/client.ts';
 
 const execute = promisify(execFile);
 const endpoint = process.env.IMPRINT_URL ?? 'http://127.0.0.1:8091';
@@ -24,12 +23,12 @@ async function request(path: string, method: string, key: string, body?: object)
   return fetch(new URL(path, endpoint), { method, headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(35_000) });
 }
 await ready();
-const ownerResponse = await request('/v1/tenants', 'POST', adminKey, { name: 'PMS integration check' });
+const ownerResponse = await request('/v1/tenants', 'POST', adminKey, { name: 'Example integration check' });
 assert.equal(ownerResponse.status, 201);
 const owner = await ownerResponse.json() as { id: string; apiKey: string };
 const client = new ImprintClient(endpoint, owner.apiKey);
-const fixture = new URL('../examples/pms/', import.meta.url);
-const data = JSON.parse(await readFile(new URL('booking.json', fixture), 'utf8'));
+const fixture = new URL('../examples/invoice/', import.meta.url);
+const data = JSON.parse(await readFile(new URL('data.json', fixture), 'utf8'));
 const logo = await readFile(new URL('logo.png', fixture));
 let docxTemplate: { templateId: string; versionId: string } | undefined;
 const successful: string[] = [];
@@ -47,30 +46,27 @@ for (const format of ['docx', 'xlsx', 'pdf'] as const) {
     const parts = await readPackage(bytes);
     assert([...parts.values()].some(part => part.equals(logo)), 'The supplied logo must be embedded');
     const xml = parts.get(format === 'docx' ? 'word/document.xml' : 'xl/worksheets/sheet1.xml')!.toString();
-    assert(xml.includes('Alex Rivera')); assert(xml.includes('Breakfast')); assert(!/\{\{|\{d[.[]/.test(xml));
+    assert(xml.includes('Alex Example')); assert(xml.includes('Support services')); assert(!/\{\{|\{d[.[]/.test(xml));
     if (format === 'xlsx') { assert.match(xml, /<v>8000<\/v>/); assert.match(xml, /<v>8750<\/v>/); }
   }
   assert.equal((await request(`/v1/jobs/${job.id}/result`, 'GET', adminKey)).status, 404);
   successful.push(job.id);
   console.log(`Standalone ${format}: passed`);
 }
-// Exercise the original PMS request and template without rewriting any tags.
-const pmsFixture = new URL('../tests/fixtures/pms/', import.meta.url);
-const pmsTemplate = await readFile(new URL('folio_statement-template.docx', pmsFixture));
-const pmsData = JSON.parse(await readFile(new URL('folio_statement.json', pmsFixture), 'utf8'));
+// Exercise the one-shot API with the generated invoice template.
+const oneShotTemplate = await readFile(new URL('invoice.docx', fixture));
 for (const convertTo of ['docx', 'pdf']) {
-  const response = await request('/render/template?download=true', 'POST', owner.apiKey, { template: pmsTemplate.toString('base64'), data: pmsData, convertTo });
+  const response = await request('/render/template?download=true', 'POST', owner.apiKey, { template: oneShotTemplate.toString('base64'), data, attachments: { logo: logo.toString('base64') }, convertTo });
   assert.equal(response.status, 200, await response.clone().text());
   const bytes = Buffer.from(await response.arrayBuffer());
   if (convertTo === 'pdf') assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
-  else assert.deepEqual(await snapshot(bytes), JSON.parse(await readFile(new URL('folio_statement.expected.json', pmsFixture), 'utf8')));
-  console.log(`Original PMS Carbone request, ${convertTo}: passed`);
+  else {
+    const parts = await readPackage(bytes);
+    assert(parts.get('word/document.xml')!.toString().includes('Alex Example'));
+    assert([...parts.values()].some(part => part.equals(logo)));
+  }
+  console.log(`One-shot ${convertTo}: passed`);
 }
-const pmsUploaded = await client.upload('Original PMS folio', pmsTemplate);
-await client.publish(pmsUploaded.templateId, pmsUploaded.versionId);
-const pmsJob = await client.submit({ templateId: pmsUploaded.templateId, data: pmsData, output: 'docx' }, 'original-pms-folio');
-await client.wait(pmsJob.id);
-assert.deepEqual(await snapshot(await client.download(pmsJob.id)), JSON.parse(await readFile(new URL('folio_statement.expected.json', pmsFixture), 'utf8')));
 // Freeze the API once work is demonstrably running, then kill the whole container.
 // This exercises the persisted lease rather than relying on a graceful close.
 const interrupted = await Promise.all(Array.from({ length: 6 }, (_, n) => client.submit({ templateId: docxTemplate!.templateId, data, attachments: { logo }, output: 'pdf' }, `restart-${n}`)));
@@ -102,5 +98,5 @@ await docker('start', container); await ready();
 await docker('update', '--restart=unless-stopped', container);
 assert.equal((await client.download(successful[2]!)).subarray(0, 5).toString(), '%PDF-');
 await mkdir('corpus/results', { recursive: true });
-await writeFile('corpus/results/standalone-validation.json', JSON.stringify({ formats: ['docx', 'xlsx', 'pdf'], imageAttachment: true, originalPmsCarboneDocxAndPdf: true, originalPmsDurableJob: true, tenantIsolation: true, idempotency: true, queuedAndRunningRestartRecovery: true, interruptedJobs: interrupted.length, converterFailureExitsContainer: true, resultsPersist: true }, null, 2) + '\n');
+await writeFile('corpus/results/standalone-validation.json', JSON.stringify({ formats: ['docx', 'xlsx', 'pdf'], imageAttachment: true, oneShotDocxAndPdf: true, tenantIsolation: true, idempotency: true, queuedAndRunningRestartRecovery: true, interruptedJobs: interrupted.length, converterFailureExitsContainer: true, resultsPersist: true }, null, 2) + '\n');
 console.log('Converter failure supervision: passed');

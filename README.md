@@ -4,11 +4,11 @@
 
 Independent document generation in TypeScript and Node.js. Render a DOCX or XLSX template with JSON data and image attachments using the SDK, CLI or authenticated HTTP API. Run it as one Docker image with bundled PDF conversion, persistent templates and durable jobs, or use the separate development services.
 
-The template compiler and renderer are implemented in this repository. Carbone and Docxtemplater are not runtime dependencies. This is an early service foundation, with **DOCX and XLSX levels 1–100 passing**; it is not feature-complete. **Carbone-style syntax is the standard for DOCX and XLSX**, all 200 corpus templates, and the PMS examples. The 30 original seeded PMS DOCX reports also render unchanged. See the [syntax contract](docs/template-syntax.txt) and [PMS compatibility guide](docs/carbone-compatibility.txt) for the supported subset.
+The template compiler and renderer are implemented in this repository. This is a preview service with **100 DOCX and 100 XLSX corpus levels**. Templates use `{d.path}` fields, `[i]`/`[i+1]` repeats and picture bindings. See the [syntax contract](docs/template-syntax.txt) for supported features and limits.
 
 ## Current capabilities
 
-- Carbone-style `{d.customer.name}` placeholders in Word and Excel, including tags split across formatted text runs.
+- standard `{d.customer.name}` placeholders in Word and Excel, including tags split across formatted text runs.
 - `[i]`/`[i+1]` row repetition in both formats, nested DOCX blocks, and picture alternative text `{d.logo}`.
 - Text replacement in document bodies, tables, hyperlinks, content controls, headers and footers.
 - Replacement of existing pictures using alternative text such as `{d.logo}` and PNG/JPEG attachments.
@@ -18,9 +18,9 @@ The template compiler and renderer are implemented in this repository. Carbone a
 - XLSX shared/rich strings, typed cells, repeated rows, formula/range updates and anchored picture replacement.
 - Authenticated DOCX/XLSX/PDF API with bounded worker execution and request concurrency.
 - Tenant API keys, immutable template versions, publish/rollback, and durable jobs with restart recovery.
-- Single-container deployment with SQLite persistence and a working PMS invoice example.
+- Single-container deployment with SQLite persistence and a generated invoice example.
 
-**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, multiline/tabbed values in native DOCX `{{...}}` bindings, full Carbone formatter/filter syntax, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
+**Not implemented yet:** nested/multi-row XLSX loops, a general Excel calculation engine, multiline/tabbed values in native DOCX `{{...}}` bindings, formatter/filter expressions, inline image insertion, SVG, strict OOXML, customer login/SSO, PostgreSQL/S3 adapters or billing. `null` becomes empty text in DOCX and a blank cell for whole-cell XLSX bindings; `false` and `0` remain meaningful values.
 
 ## Quick start: one container
 
@@ -44,15 +44,15 @@ The API, queue, database and PDF converter run in that container. The named volu
 
 To build locally, use `docker build -f Dockerfile.standalone -t imprint-doc-gen:standalone .`, then set `IMPRINT_IMAGE=imprint-doc-gen:standalone` when starting [`compose.standalone.yml`](compose.standalone.yml). The registry tag becomes available only when publication succeeds. Pin a tested image digest for production and back up the volume before upgrades.
 
-Try the [PMS client](examples/pms/client.ts) and checked-in invoice templates with Node.js 24:
+Try the [example client](examples/invoice/client.ts) and checked-in invoice templates with Node.js 24:
 
 ```bash
 # Uses IMPRINT_API_KEY from your environment. Prefer a dedicated tenant key.
-IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts pdf
-IMPRINT_URL=http://127.0.0.1:8088 node examples/pms/generate.ts xlsx
+IMPRINT_URL=http://127.0.0.1:8088 node examples/invoice/generate.ts pdf
+IMPRINT_URL=http://127.0.0.1:8088 node examples/invoice/generate.ts xlsx
 ```
 
-The example uploads and publishes a template, submits booking data and a logo attachment, polls the durable job, and saves `artifacts/booking-invoice.<format>`. See the [standalone guide](docs/standalone-guide.txt) for tenant provisioning, endpoint contracts, retention, backups and limits.
+The example uploads and publishes a template, submits invoice data and a logo attachment, polls the durable job, and saves `artifacts/example-invoice.<format>`. See the [standalone guide](docs/standalone-guide.txt) for tenant provisioning, endpoint contracts, retention, backups and limits.
 
 ## Quick start: Docker development
 
@@ -93,7 +93,7 @@ Node and Gotenberg base images are pinned by digest. The converter image replace
 
 ## Standard template syntax
 
-Use **Carbone-style syntax** for every new template. No syntax flag or preprocessing is required; the SDK, CLI, synchronous endpoints and durable jobs use the same compiler.
+Use **standard syntax** for every new template. No syntax flag or preprocessing is required; the SDK, CLI, synchronous endpoints and durable jobs use the same compiler.
 
 | Purpose | Template |
 | --- | --- |
@@ -141,13 +141,11 @@ Without repeats, existing formulas and caches are preserved and recalculation is
 
 Merged cells or pictures intersecting changed rows, charts, pivots, comments and unsupported extensions need later adapters. See [XLSX calculation evidence](docs/xlsx-rows-validation.json).
 
-### Existing PMS templates and legacy bindings
+### Legacy bindings
 
-The 30 seeded PMS DOCX templates keep their existing bytes and keys. `POST /render/template?download=true` accepts the existing `template`, `data`, `convertTo` request shape; migration needs a service URL and Bearer credentials. Custom uploaded templates still need auditing. See the [PMS migration guide](docs/carbone-compatibility.txt).
+Earlier `{{name}}`, `{{#each items}}` and `{{image:logo}}` bindings remain supported. Their strict missing-data and relative-scope rules are unchanged. Do not mix legacy and standard repeat markers in one Word story or worksheet.
 
-Earlier `{{name}}`, `{{#each items}}` and `{{image:logo}}` bindings remain supported for compatibility. Their strict missing-data and scope rules are unchanged. They are no longer used in the corpus or examples. Do not mix legacy and Carbone repeat markers in one Word story or worksheet.
-
-Standardizing syntax does not imply complete Carbone feature parity. Formatter chains, filters/conditions, arbitrary iterators, translations and aliases require future adapters. Every future document-format adapter must use the same standard syntax; unsupported operations must fail explicitly.
+Formatter chains, filters/conditions, arbitrary iterators, translations and aliases require future adapters. Every future document-format adapter must use the standard syntax and reject unsupported operations explicitly.
 
 ## SDK and CLI
 
@@ -210,6 +208,18 @@ Content-Type: application/json
 | 503 | Render capacity is full |
 | 504 | Render or conversion deadline exceeded |
 
+## Synthetic invoice tests
+
+Generate neutral invoice examples using fictional data, PNG/JPEG signatures and a studio logo:
+
+```bash
+npm run test:synthetic
+# Optional: set IMPRINT_URL and IMPRINT_API_KEY to test a running service.
+npm run test:synthetic -- --api --pdf
+```
+
+The **12 cases** cover DOCX/XLSX invoices and signature variants with normal, empty, multilingual and larger datasets. Open `artifacts/synthetic/index.html` for documents, data, images, previews and results. PDF checks require Poppler tools; the default run performs offline document checks. See the [synthetic test guide](docs/synthetic-guide.txt).
+
 ## Test corpus and CI
 
 Browse [`corpus/index.html`](corpus/index.html) locally for **100 DOCX and 100 XLSX levels**. Each level contains a template, JSON input, attachment mapping and reference document: 400 document files in total.
@@ -231,9 +241,8 @@ Measured evidence (fixture package and full Office conversion counts are the mil
 
 | Check | Result |
 | --- | --- |
-| Automated tests | 181 passed |
-| Original PMS Carbone templates | 30 unchanged DOCX files match independent snapshots; 9 extra array-length cases |
-| Selected PMS PDF comparison | Five reports, seven pages: identical pixels at 96 DPI |
+| Automated tests | 162 passed |
+| Synthetic invoices and signatures | 12/12 cases and PDF conversions passed |
 | Fixture validation | 200 cases / 400 document packages passed |
 | DOCX renderer | All 100 levels passed |
 | XLSX renderer | All 100 levels passed |
@@ -250,8 +259,8 @@ These measurements do not establish complete OOXML schema conformance, repair-fr
 1. **Implemented:** bounded conversion failures, automatic LibreOffice recycling and Docker recovery tests. Continue investigating the upstream layout stall without changing the reference documents to hide it.
 2. **Implemented:** DOCX repeating rows, paragraph blocks, nested scopes and per-item images. Expand real-world template coverage and advanced cloning adapters.
 3. **Implemented:** XLSX typed cells, images, repeated rows, formula/range rewriting and bounded calculated results. Expand real-world fixtures, picture cloning and advanced formula adapters.
-4. **Implemented for standalone:** one image, tenant keys, SQLite storage, immutable template versions, durable jobs and a PMS invoice example. Add a real PMS pilot, operational metrics and measured load limits next; PostgreSQL/S3 and separate workers follow when multiple-server deployment is needed.
-5. **Implemented:** Carbone-style syntax is standard across DOCX, XLSX, all 200 corpus templates and PMS examples; legacy syntax remains supported. The original 30 PMS reports stay unchanged. Audit custom uploads and pilot the URL/auth change next; formatter/filter support and advanced repeats follow real-template requirements.
+4. **Implemented for standalone:** one image, tenant keys, SQLite storage, immutable template versions, durable jobs and a generic invoice client. Add operational metrics and measured load limits; PostgreSQL/S3 and separate workers follow when multiple-server deployment is needed.
+5. Expand formatter/filter expressions, advanced repetition and image placement using independently authored fixtures.
 6. Expand into PPTX, OpenDocument, charts, barcodes and advanced PDF operations.
 
-See the [corpus roadmap](docs/corpus-roadmap.json), [stack decisions](docs/stack-proposal.json) and [core-engine research](docs/core-engine-research.json) for the longer-term plan.
+See the [corpus roadmap](docs/corpus-roadmap.json) for the longer-term plan.
