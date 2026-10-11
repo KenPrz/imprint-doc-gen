@@ -1,7 +1,7 @@
 {
   "project": "Imprint Doc Gen",
   "researched_at": "2026-10-11",
-  "status": "milestone_1_implemented_remaining_components_proposed",
+  "status": "milestone_2_docx_loops_implemented_remaining_components_proposed",
   "repository": {
     "intended_owner": "KenPrz",
     "intended_name": "imprint-doc-gen",
@@ -148,9 +148,9 @@
   ],
   "gaps": [
     "Milestone 1 runs in development and production Docker configurations; production workload and sustained-load benchmarking remain pending",
-    "Independent DOCX scalar and image core implemented; structural repetition and other format adapters remain to be built",
+    "Independent DOCX scalar, image and structural repetition core implemented; other format adapters remain to be built",
     "Carbone-style JavaScript integration does not imply identical template syntax; existing Carbone repetition and formatter syntax requires an explicit compatibility adapter",
-    "Image replacement, geometry, headers and footers covered by synthetic DOCX fixtures; per-item loop context and real-world template coverage remain pending",
+    "Image replacement, geometry, headers, footers and per-item loop contexts covered by synthetic DOCX fixtures; real-world template coverage remains pending",
     "Advanced repetition, editable native charts, HTML-to-Office fragments, conformance validation and signatures need explicit implementations",
     "All-format fidelity must be tested against real Office/LibreOffice documents",
     "Commercial signing trust and proprietary converter equivalence cannot be inferred from basic PDF support"

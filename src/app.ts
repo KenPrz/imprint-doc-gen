@@ -13,7 +13,7 @@ export function createApp(config: { apiKey: string; converterUrl?: string; logge
     if (!value || value.length % 4 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new RenderError('INVALID_DATA', 'Expected canonical base64 bytes');
     return Buffer.from(value, 'base64');
   };
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 1, formats: ['docx'], features: ['text', 'pictures', 'headers', 'footers'] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 2, formats: ['docx'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes'] }));
   app.addHook('onRequest', async (request, reply) => {
     if (request.routeOptions.url === '/health') return;
     const supplied = Buffer.from(request.headers.authorization ?? '');

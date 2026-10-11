@@ -84,3 +84,8 @@ test('stored ZIP entries include sizes in local headers for Office interoperabil
   assert.equal(bytes.readUInt16LE(6) & 8, 0); // No streaming data descriptor.
   assert.equal(bytes.readUInt32LE(22), Buffer.byteLength('<sample/>'));
 });
+
+test('DOCX: duplicate drawing identities are detected independently of picture bytes', () => {
+  const expected = buildDocx(60, inputData(60), true);
+  assert.throws(() => validatePackage(mutate(expected, 'word/document.xml', '<wp:docPr id="2"', '<wp:docPr id="1"')), /Duplicate drawing ID/);
+});
