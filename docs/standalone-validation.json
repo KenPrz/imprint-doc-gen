@@ -1,0 +1,77 @@
+{
+  "milestone": 5,
+  "date": "2026-10-11",
+  "deployment": "one linux/amd64 container, persistent local SQLite volume",
+  "tests": 118,
+  "corpus": {
+    "docx": 100,
+    "xlsx": 100,
+    "failures": 0
+  },
+  "standalone": {
+    "formats": [
+      "docx",
+      "xlsx",
+      "pdf"
+    ],
+    "imageAttachment": true,
+    "tenantIsolation": true,
+    "idempotency": true,
+    "queuedAndRunningRestartRecovery": true,
+    "interruptedJobs": 6,
+    "converterFailureExitsContainer": true,
+    "resultsPersist": true
+  },
+  "converterRecovery": {
+    "timeout": "5s",
+    "results": [
+      {
+        "cycle": 1,
+        "level": 93,
+        "status": 503,
+        "elapsedMs": 5023
+      },
+      {
+        "cycle": 1,
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 858
+      },
+      {
+        "cycle": 2,
+        "level": 93,
+        "status": 503,
+        "elapsedMs": 5003
+      },
+      {
+        "cycle": 2,
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 696
+      }
+    ],
+    "apiResults": [
+      {
+        "level": 93,
+        "status": 504,
+        "elapsedMs": 5664
+      },
+      {
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 796
+      }
+    ]
+  },
+  "dependencyAudit": "npm audit --omit=dev: 0 known vulnerabilities",
+  "limits": [
+    "single instance per local volume",
+    "150-second lease recovery after forced kill",
+    "results retained seven days",
+    "at-least-once job execution; idempotent submissions",
+    "amd64 registry publication; arm64 not integration-tested",
+    "PostgreSQL/S3 adapters remain planned",
+    "real PMS pilot and sustained-load tests remain pending"
+  ],
+  "guide": "standalone-guide.txt"
+}

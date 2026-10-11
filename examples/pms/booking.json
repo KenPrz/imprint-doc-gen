@@ -1,0 +1,14 @@
+{
+  "hotel": "Harbour Hotel",
+  "invoiceNumber": "INV-2026-0042",
+  "guest": "Alex Rivera",
+  "room": "204",
+  "arrival": "2026-10-11",
+  "departure": "2026-10-13",
+  "currency": "PHP",
+  "total": "8,750.00",
+  "items": [
+    { "description": "Deluxe room / night", "quantity": 2, "price": 4000, "amount": "8,000.00" },
+    { "description": "Breakfast", "quantity": 2, "price": 375, "amount": "750.00" }
+  ]
+}

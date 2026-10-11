@@ -6,12 +6,13 @@
       "xlsx": 100
     },
     "purpose": "Cumulative synthetic generation challenges; fixtures are not completed engine support",
-    "nextGate": "Durable jobs, tenant-scoped storage and template versions; preserve DOCX 100 / XLSX 100 gates and expand real-world/advanced-feature fixtures",
+    "nextGate": "PMS pilot, operational metrics and measured load limits; preserve DOCX 100 / XLSX 100 and standalone restart/isolation gates. PostgreSQL/S3 adapters precede multi-server deployment.",
     "milestone1": "Own DOCX scalar/image renderer and Docker service implemented; measured coverage is recorded in milestone-1-validation.json",
     "converterRecovery": "Implemented and locally verified; docs/converter-recovery.json. Upstream layout stall remains.",
     "milestone2": "All 100 synthetic DOCX levels pass; repeated rows/blocks, nested scopes and per-item images implemented. See docx-loops-validation.json.",
     "milestone3": "XLSX typed cells and image attachments implemented; all 50 scalar/image/layout/formula-preservation levels pass. See xlsx-cells-images-validation.json.",
-    "milestone4": "All 100 XLSX levels pass: single-row loops, A1 formula and range rewriting, moved picture anchors and bounded calculated results. See xlsx-rows-validation.json."
+    "milestone4": "All 100 XLSX levels pass: single-row loops, A1 formula and range rewriting, moved picture anchors and bounded calculated results. See xlsx-rows-validation.json.",
+    "milestone5": "Single-image standalone deployment, tenant keys, immutable template versions, durable jobs and PMS invoice example. See standalone-guide.txt."
   },
   "phases": [
     {
@@ -171,5 +172,22 @@
     "Record highest contiguous level alongside total passed and not-run",
     "Separate fixture validity, engine semantics, visual fidelity and resource budgets",
     "Promote only reviewed goldens; never update them automatically to match failing renderer output"
-  ]
+  ],
+  "standaloneService": {
+    "milestone": 5,
+    "status": "implemented",
+    "features": [
+      "single Docker image",
+      "tenant ownership",
+      "immutable template versions",
+      "durable jobs",
+      "PMS integration example"
+    ],
+    "next": [
+      "real PMS pilot with representative guest documents",
+      "operational metrics and sustained-load testing",
+      "PostgreSQL/S3 adapters and separate workers when scaling requires them"
+    ],
+    "guide": "standalone-guide.txt"
+  }
 }
