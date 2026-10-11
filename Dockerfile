@@ -1,6 +1,7 @@
 ARG NODE_IMAGE=node:24.16.0-bookworm-slim@sha256:2c87ef9bd3c6a3bd4b472b4bec2ce9d16354b0c574f736c476489d09f560a203
 FROM ${NODE_IMAGE} AS dependencies
 WORKDIR /app
+RUN mkdir -p /data && chown node:node /data && chmod 700 /data
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 
@@ -23,6 +24,7 @@ RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 
 FROM ${NODE_IMAGE} AS production
 WORKDIR /app
+RUN mkdir -p /data && chown node:node /data && chmod 700 /data
 ENV NODE_ENV=production
 COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
