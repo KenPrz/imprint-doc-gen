@@ -22,34 +22,16 @@ function labelTheme() {
   );
 }
 labelTheme();
-let themeTransition;
 themeButton.addEventListener('click', () => {
-  themeTransition?.skipTransition();
   const root = document.documentElement;
   const next = root.classList.contains('dark') ? 'light' : 'dark';
-  const apply = () => {
-    root.classList.toggle('dark', next === 'dark');
-    try {
-      localStorage.setItem('imprint-docs-theme', next);
-    } catch {
-      /* Storage is optional. */
-    }
-    labelTheme();
-  };
-  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    apply();
-    return;
+  root.classList.toggle('dark', next === 'dark');
+  try {
+    localStorage.setItem('imprint-docs-theme', next);
+  } catch {
+    /* Storage is optional. */
   }
-  root.dataset.themeTransition = next;
-  const transition = document.startViewTransition(apply);
-  themeTransition = transition;
-  transition.finished
-    .catch(() => {})
-    .finally(() => {
-      if (themeTransition !== transition) return;
-      delete root.dataset.themeTransition;
-      themeTransition = undefined;
-    });
+  labelTheme();
 });
 const search = document.querySelector('#search'),
   results = document.querySelector('.search-results');
