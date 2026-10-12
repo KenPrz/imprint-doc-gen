@@ -179,6 +179,11 @@ summary:focus-visible {
   color: inherit;
   font-size: 13px;
 }
+.sidebar input:focus-visible {
+  border-color: var(--focus);
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
 .sidebar input::placeholder {
   color: var(--muted);
   opacity: 1;
