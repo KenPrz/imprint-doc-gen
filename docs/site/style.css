@@ -405,6 +405,7 @@ td:first-child {
   }
   .sidebar input {
     max-width: 440px;
+    font-size: 16px;
   }
   .sidebar footer {
     display: none;
