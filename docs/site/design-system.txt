@@ -1,0 +1,11 @@
+Imprint documentation uses the editorial design system from the owner's portfolio.
+
+Reference components: src/globals.css, layout-primitives.tsx, navbar.tsx and theme-toggle.tsx.
+Typography: Fraunces Variable for headings, Inter Variable for body text, JetBrains Mono Variable for labels, indices and code.
+Palette: warm neutral light and refined neutral dark; brass appears in eyebrow labels and active navigation.
+Layout: generous spacing, fine borders, numbered navigation, restrained cards and pill controls.
+Themes: light by default, persisted preference, top-left circular transition and reduced-motion fallback.
+
+The documentation remains a static HTML/CSS/JavaScript site. Fonts are served locally.
+Fontsource package versions: inter, fraunces and jetbrains-mono 5.3.0, matching the portfolio lockfile.
+Original SIL Open Font License notices are preserved in fonts/*-LICENSE.txt.

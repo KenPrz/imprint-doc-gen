@@ -1,7 +1,55 @@
 const toggle = document.querySelector('.menu');
-toggle?.addEventListener('click', () => {
-  const open = document.querySelector('.sidebar').classList.toggle('open');
+const sidebar = document.querySelector('.sidebar');
+function closeMenu() {
+  sidebar.classList.remove('open');
+  toggle.setAttribute('aria-expanded', 'false');
+}
+toggle.addEventListener('click', () => {
+  const open = sidebar.classList.toggle('open');
   toggle.setAttribute('aria-expanded', String(open));
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+    closeMenu();
+    toggle.focus();
+  }
+});
+const themeButton = document.querySelector('.theme-toggle');
+function labelTheme() {
+  themeButton.setAttribute(
+    'aria-label',
+    document.documentElement.classList.contains('dark') ? 'Use light theme' : 'Use dark theme',
+  );
+}
+labelTheme();
+let themeTransition;
+themeButton.addEventListener('click', () => {
+  themeTransition?.skipTransition();
+  const root = document.documentElement;
+  const next = root.classList.contains('dark') ? 'light' : 'dark';
+  const apply = () => {
+    root.classList.toggle('dark', next === 'dark');
+    try {
+      localStorage.setItem('imprint-docs-theme', next);
+    } catch {
+      /* Storage is optional. */
+    }
+    labelTheme();
+  };
+  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    apply();
+    return;
+  }
+  root.dataset.themeTransition = next;
+  const transition = document.startViewTransition(apply);
+  themeTransition = transition;
+  transition.finished
+    .catch(() => {})
+    .finally(() => {
+      if (themeTransition !== transition) return;
+      delete root.dataset.themeTransition;
+      themeTransition = undefined;
+    });
 });
 const search = document.querySelector('#search'),
   results = document.querySelector('.search-results');
