@@ -584,6 +584,14 @@ html[data-theme-transition='light']::view-transition-old(root) {
   }
 }
 @media print {
+  :root,
+  .dark {
+    --background: #ffffff;
+    --foreground: #0a0a0a;
+    --secondary: #f0eee8;
+    --muted-foreground: #6b6862;
+    --border: #e6e3dc;
+  }
   .masthead,
   .sidebar,
   .toc,
