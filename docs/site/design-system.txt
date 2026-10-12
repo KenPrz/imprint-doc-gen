@@ -1,11 +1,16 @@
-Imprint documentation uses the editorial design system from the owner's portfolio.
+Simple editorial documentation
 
-Reference components: src/globals.css, layout-primitives.tsx, navbar.tsx and theme-toggle.tsx.
-Typography: Fraunces Variable for headings, Inter Variable for body text, JetBrains Mono Variable for labels, indices and code.
-Palette: warm neutral light and refined neutral dark; brass appears in eyebrow labels and active navigation.
-Layout: generous spacing, fine borders, numbered navigation, restrained cards and pill controls.
-Themes: light by default, persisted preference, top-left circular transition and reduced-motion fallback.
+Direction: a technical reference designed for reading, with a modest serif title and quiet sans-serif navigation.
+Guidance: Claude's installed UI/UX Pro Max skill, with readability/navigation recommendations selected for documentation.
+The skill's oversized marketing typography, bright accent and scroll effects were excluded to match the user's request for simplicity.
 
-The documentation remains a static HTML/CSS/JavaScript site. Fonts are served locally.
-Fontsource package versions: inter, fraunces and jetbrains-mono 5.3.0, matching the portfolio lockfile.
+Typography: Fraunces for page titles only; Inter at 16px for body/navigation; JetBrains Mono for code.
+Measure: one reading column, maximum 66ch. Body leading 1.65. Plain links and sentence-case labels.
+Layout: compact masthead, unnumbered navigation, expandable page outline, no promotional cards or decorative section rules.
+Palette: paper #fcfbf8, ink #292826, muted #68655f, line #e4e2dc, code surface #f3f2ee.
+Themes: persisted light/dark preference; no decorative theme animation.
+Interaction: keyboard focus, 44px control/navigation targets, mobile menu and local document search.
+
+The documentation remains static HTML/CSS/JavaScript with locally served fonts.
+Fontsource package versions: inter, fraunces and jetbrains-mono 5.3.0.
 Original SIL Open Font License notices are preserved in fonts/*-LICENSE.txt.

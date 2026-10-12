@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir, copyFile, cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 const pages = [
   ['start', 'Getting started'],
   ['syntax', 'Template syntax'],
@@ -15,6 +16,15 @@ const source = 'docs/site',
   target = 'artifacts/docs';
 await rm(target, { recursive: true, force: true });
 await mkdir(target, { recursive: true });
+const assets = ['style.css', 'site.js', 'theme-init.js', 'fonts.css'];
+const assetUrls = new Map<string, string>();
+for (const asset of assets) {
+  const hash = createHash('sha256')
+    .update(await readFile(join(source, asset)))
+    .digest('hex')
+    .slice(0, 12);
+  assetUrls.set(asset, `${asset}?v=${hash}`);
+}
 const escape = (s: string) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
 const file = (slug: string) => (slug === 'start' ? 'index.html' : `${slug}.html`);
 const index: { title: string; file: string; text: string }[] = [];
@@ -28,11 +38,10 @@ for (const [slug, title] of pages) {
   const body = bodies.get(file(slug))!,
     headings = [...body.matchAll(/<h2 id="([^"]+)">([^<]+)<\/h2>/g)];
   const navigation = pages
-    .map(
-      ([s, t], n) =>
-        `<a href="${file(s)}"${s === slug ? ' aria-current="page"' : ''}><span class="nav-index" aria-hidden="true">${String(n + 1).padStart(2, '0')}</span><span>${escape(t)}</span></a>`,
-    )
+    .map(([s, t]) => `<a href="${file(s)}"${s === slug ? ' aria-current="page"' : ''}>${escape(t)}</a>`)
     .join('');
+  const contents = `<details class="contents"><summary>On this page</summary><nav aria-label="Page sections">${headings.map(([, id, text]) => `<a href="#${id}">${text}</a>`).join('')}</nav></details>`;
+  const article = body.replace('<h2 ', `${contents}<h2 `);
   const moon =
     '<svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg>';
   const sun =
@@ -45,33 +54,33 @@ for (const [slug, title] of pages) {
   <meta name="description" content="Imprint Doc Gen: ${escape(title)}. Self-hosted document generation with TypeScript and Node.js.">
   <meta name="color-scheme" content="light dark">
   <title>${escape(title)} · Imprint Doc Gen</title>
-  <script src="theme-init.js"></script>
+  <script src="${assetUrls.get('theme-init.js')}"></script>
   <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/fraunces-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="fonts.css">
-  <link rel="stylesheet" href="style.css">
-  <script src="site.js" defer></script>
+  <link rel="stylesheet" href="${assetUrls.get('fonts.css')}">
+  <link rel="stylesheet" href="${assetUrls.get('style.css')}">
+  <script src="${assetUrls.get('site.js')}" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="masthead">
-    <div class="identity"><a class="brand" href="index.html">imprint<span aria-hidden="true">.</span></a><span class="brand-note">Document generation / Docs</span></div>
+    <div class="identity"><a class="brand" href="index.html">imprint<span aria-hidden="true">.</span></a><span class="brand-note">Documentation</span></div>
     <div class="header-actions">
-      <a class="source-link" href="https://github.com/KenPrz/imprint-doc-gen">Source repository <span aria-hidden="true">↗</span></a>
+      <a class="source-link" href="https://github.com/KenPrz/imprint-doc-gen">GitHub</a>
       <button class="theme-toggle" type="button" aria-label="Use dark theme">${moon}${sun}</button>
       <button class="menu" type="button" aria-expanded="false" aria-controls="navigation">Menu</button>
     </div>
   </header>
   <aside class="sidebar">
     <label for="search" class="search-label">Search documentation</label>
-    <input id="search" type="search" placeholder="Fields, images, deployment…" autocomplete="off" aria-controls="search-results">
+    <input id="search" type="search" placeholder="Search topics…" autocomplete="off" aria-controls="search-results">
     <div id="search-results" class="search-results" aria-live="polite"></div>
-    <nav id="navigation" aria-label="Documentation"><p class="nav-label">Documentation</p>${navigation}</nav>
-    <footer>Preview release · Node.js 24<br><a href="https://github.com/KenPrz/imprint-doc-gen">Source repository ↗</a></footer>
+    <nav id="navigation" aria-label="Documentation">${navigation}</nav>
+    <footer>Preview release</footer>
   </aside>
   <div class="layout">
-    <main id="main">${body}<footer class="bottom">Imprint Doc Gen · Independently authored templates and examples. See format support for current limits.</footer></main>
-    <aside class="toc" aria-label="On this page"><strong>On this page</strong>${headings.map(([, id, text]) => `<a href="#${id}">${text}</a>`).join('')}</aside>
+    <main id="main">${article}<footer class="bottom">Imprint Doc Gen <span>Preview release</span></footer></main>
+
   </div>
 </body>
 </html>`;
@@ -84,8 +93,7 @@ for (const [slug, title] of pages) {
   }
   await writeFile(join(target, file(slug)), html);
 }
-for (const asset of ['style.css', 'site.js', 'theme-init.js', 'fonts.css'])
-  await copyFile(join(source, asset), join(target, asset));
+for (const asset of assets) await copyFile(join(source, asset), join(target, asset));
 await cp(join(source, 'fonts'), join(target, 'fonts'), { recursive: true });
 await writeFile(join(target, 'search.json'), JSON.stringify(index));
 await writeFile(join(target, '.nojekyll'), '');
