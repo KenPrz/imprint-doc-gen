@@ -10,3 +10,9 @@ dist/
 
 *.sqlite
 *.sqlite-*
+
+# Never commit private customer fixtures, samples, or render outputs.
+/tests/fixtures/pms/
+/examples/pms/
+/docs/pms-seeder-acceptance.json
+/brag-output/
