@@ -1,3 +1,4 @@
+import { odsFormulaRewriter } from './ods-formulas.ts';
 import { XMLSerializer } from '@xmldom/xmldom';
 import type { Element, Node, Text } from '@xmldom/xmldom';
 import { ns, parseXml, serialize, descendants } from './xml.ts';
@@ -58,6 +59,7 @@ export function scopedPath(path: string, contexts: string[], part: string) {
   return value;
 }
 export interface XmlTemplateOptions {
+  odsFormulas?: boolean;
   scope?: Scope;
   contexts?: string[];
   picture?: (node: Element, scope: Scope, contexts: string[]) => Promise<void>;
@@ -69,6 +71,7 @@ export async function renderXmlTemplate(
   options: XmlTemplateOptions = {},
 ): Promise<Buffer> {
   const document = parseXml(source, part);
+  const formulas = options.odsFormulas ? odsFormulaRewriter(document) : undefined;
   let iterations = 0,
     inserted = 0,
     expanded = 0,
@@ -126,7 +129,7 @@ export async function renderXmlTemplate(
         if (bindings(marker, part).some((b) => !b.path.startsWith(`${arrayPath}[i+1]`)))
           throw new RenderError('TEMPLATE_STRUCTURE', 'Mixed marker fields', part);
         if (
-          region.some((n) =>
+          !formulas && region.some((n) =>
             descendants(n, f.table, 'table-cell').some((c) => c.hasAttributeNS(f.table, 'formula')),
           )
         )
@@ -158,6 +161,7 @@ export async function renderXmlTemplate(
             throw new RenderError('INVALID_DATA', 'Expected object array items', part);
           for (const original of region) {
             const clone = original.cloneNode(true) as Element;
+            formulas?.clone(original,clone,child);
             for (const n of [clone, ...descendants(clone, '*', '*')]) {
               if (n.hasAttributeNS(f.draw, 'name')) n.setAttributeNS(f.draw, 'draw:name', fresh());
               if (n.hasAttributeNS(ns.xml, 'id'))
@@ -270,6 +274,7 @@ export async function renderXmlTemplate(
     if (options.picture) await options.picture(parent, scope, contexts);
   };
   await visit(document.documentElement!, options.scope ?? [data], options.contexts ?? []);
+  formulas?.finish();
   const bytes = serialize(document);
   if (bytes.length > limits.entry)
     throw new RenderError('LIMIT_EXCEEDED', 'Rendered XML exceeds 8 MiB', part);

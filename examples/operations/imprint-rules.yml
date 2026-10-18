@@ -1,0 +1,13 @@
+groups:
+  - name: imprint-fleet
+    rules:
+      - record: imprint:fleet_renders_per_second
+        expr: sum(rate(imprint_renders_total{job="imprint-workers"}[5m]))
+      - record: imprint:fleet_failures_per_second
+        expr: sum(rate(imprint_renders_total{job="imprint-workers",result="failed"}[5m]))
+      - record: imprint:fleet_render_p95_seconds
+        expr: histogram_quantile(0.95, sum by (le) (rate(imprint_render_duration_seconds_bucket{job="imprint-workers"}[5m])))
+      - record: imprint:fleet_active_renders
+        expr: sum(imprint_active_renders{job="imprint-workers"})
+      - record: imprint:shared_queued_jobs
+        expr: max(imprint_queued_jobs{job="imprint-workers"})

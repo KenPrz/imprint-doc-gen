@@ -6,6 +6,7 @@ const pages = [
   ['syntax', 'Template syntax'],
   ['images', 'Images & barcodes'],
   ['formats', 'Format support'],
+  ['features', 'Expanded features'],
   ['api', 'API & SDK'],
   ['pdf', 'PDF operations'],
   ['deployment', 'Deployment'],

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve, dirname, extname } from 'node:path';
-import { compile } from './index.ts';
+import { compile, encodeTextTemplate } from './index.ts';
 import { RenderError } from './errors.ts';
 
 const args = process.argv.slice(2);
@@ -18,7 +18,9 @@ if (args.includes('--help') || args.length < 3) {
       const entries = JSON.parse(await readFile(manifest, 'utf8')) as Record<string, string>;
       for (const [key, path] of Object.entries(entries)) attachments[key] = await readFile(resolve(dirname(manifest), path));
     }
-    const compiled = await compile(await readFile(template!));
+    const source = await readFile(template!);
+    const extension = extname(template!).slice(1).toLowerCase();
+    const compiled = await compile(extension === 'txt' || extension === 'csv' ? encodeTextTemplate(extension, new TextDecoder('utf-8', { fatal: true }).decode(source)) : source);
     if (extname(output!).toLowerCase() !== `.${compiled.format}`) throw new RenderError('ARGUMENTS', `Output extension must be .${compiled.format}`);
     const result = await compiled.render(JSON.parse(await readFile(data!, 'utf8')), { attachments });
     await writeFile(output!, result);

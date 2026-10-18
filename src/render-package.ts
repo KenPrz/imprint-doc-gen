@@ -1,3 +1,4 @@
+import { validateSvg } from './svg.ts';
 import { createHash } from 'node:crypto';
 import { posix } from 'node:path';
 import sharp from 'sharp';
@@ -9,9 +10,11 @@ import { ns, parseXml, serialize, descendants } from './xml.ts';
 export async function normalizeImage(bytes: Uint8Array, options: ImageOptions = {}, size?: { width: number; height: number }): Promise<{ bytes: Buffer; extension: string; contentType: string }> {
   if (!bytes.byteLength || bytes.byteLength > limits.image) throw new RenderError('LIMIT_EXCEEDED', 'Attachment must be between 1 byte and 8 MiB');
   try {
-    const buffer = Buffer.from(bytes), image = sharp(buffer, { limitInputPixels: limits.pixels, failOn: 'warning' });
+    const buffer = Buffer.from(bytes);
+    if (/^\s*(?:<\?xml[^>]*>\s*)?<svg[\s>]/i.test(buffer.toString('utf8'))) validateSvg(buffer);
+    const image = sharp(buffer, { limitInputPixels: limits.pixels, failOn: 'warning' });
     const metadata = await image.metadata();
-    if (!['png', 'jpeg'].includes(metadata.format ?? '') || !metadata.width || !metadata.height) throw new RenderError('UNSUPPORTED_IMAGE', 'Image attachments must be PNG or JPEG');
+    if (!['png', 'jpeg', 'svg'].includes(metadata.format ?? '') || !metadata.width || !metadata.height) throw new RenderError('UNSUPPORTED_IMAGE', 'Image attachments must be PNG, JPEG or passive SVG');
     if (Object.keys(options).some(key => !['fit','width','height','rotate','background','crop'].includes(key))) throw new RenderError('INVALID_IMAGE_OPTIONS', 'Unknown image option');
     if (options.fit !== undefined && !['contain','cover','fill'].includes(options.fit)) throw new RenderError('INVALID_IMAGE_OPTIONS', 'Expected contain, cover or fill');
     if (options.rotate !== undefined && (!Number.isFinite(options.rotate) || Math.abs(options.rotate) > 360)) throw new RenderError('INVALID_IMAGE_OPTIONS', 'Rotation must be between -360 and 360');
@@ -21,7 +24,8 @@ export async function normalizeImage(bytes: Uint8Array, options: ImageOptions = 
     if (Object.keys(options).length && (options.fit || options.width || options.height)) for (const value of [width, height]) if (!Number.isSafeInteger(value) || value! < 1 || value! > 4096) throw new RenderError('INVALID_IMAGE_OPTIONS', 'A fitting canvas must have dimensions between 1 and 4096 pixels');
     if (options.crop && (Object.keys(options.crop).sort().join(',') !== 'height,left,top,width' || Object.values(options.crop).some(n => !Number.isSafeInteger(n) || n < 0) || !options.crop.width || !options.crop.height)) throw new RenderError('INVALID_IMAGE_OPTIONS', 'Invalid crop rectangle');
     await image.stats(); // Fully decode rather than trusting only the header.
-    if (Object.keys(options).length) {
+    if (metadata.format === 'svg') validateSvg(buffer);
+    if (Object.keys(options).length || metadata.format === 'svg') {
       let pipeline = image.autoOrient();
       if (options.crop) pipeline = pipeline.extract(options.crop);
       if (options.rotate !== undefined) pipeline = pipeline.rotate(options.rotate, { background: options.background ?? '#00000000' });
@@ -64,8 +68,7 @@ export function createRenderPackage(original: PackageParts, mainPart: string, at
       const path = relsPath(owner);
       if (!relationships.has(path)) {
         const bytes = original.get(path);
-        if (!bytes) throw new RenderError('INVALID_PACKAGE', 'Picture is missing its relationship part', owner);
-        const document = parseXml(bytes.toString('utf8'), path);
+        const document = parseXml(bytes?.toString('utf8') ?? `<Relationships xmlns="${ns.packageRelationship}"/>`, path);
         relationships.set(path, { document, used: new Set(descendants(document, ns.packageRelationship, 'Relationship').map(e => e.getAttribute('Id'))), next: 1 });
       }
       const state = relationships.get(path)!;

@@ -107,7 +107,7 @@ test('One-shot endpoint renders standard syntax and retains authentication/schem
     const response = await app.inject({ method: 'POST', url, payload: input, headers });
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(await texts(response.rawPayload), 'Example Customer');
-    assert.equal((await app.inject({ method: 'POST', url, payload: { ...input, convertTo: 'csv' }, headers })).statusCode, 400);
+    assert.equal((await app.inject({ method: 'POST', url, payload: { ...input, convertTo: 'unsupported' }, headers })).statusCode, 400);
     assert.equal((await app.inject({ method: 'POST', url: '/render/template?download=false', payload: input, headers })).statusCode, 400);
   } finally { await app.close(); }
 });

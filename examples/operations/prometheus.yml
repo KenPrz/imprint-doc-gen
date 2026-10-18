@@ -1,0 +1,11 @@
+# Mount a token file readable by Prometheus; each target must be an individual worker.
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: imprint-workers
+    authorization:
+      credentials_file: /run/secrets/imprint-metrics-token
+    static_configs:
+      - targets: ['worker-1:3002', 'worker-2:3002']
+rule_files:
+  - /etc/prometheus/imprint-rules.yml

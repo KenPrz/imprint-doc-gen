@@ -1,0 +1,36 @@
+<h1>Expanded document features</h1>
+<p class="lead">Text exports, richer Word templates, spreadsheet references, chart data and cluster operations.</p>
+<h2 id="text">CSV and plain text</h2>
+<p>Use UTF-8 text and the existing <code>{d.path}</code> syntax. The CLI detects .txt and .csv inputs. For the SDK and HTTP service, wrap the source with <code>encodeTextTemplate</code>; this explicit envelope lets stored template versions retain their format.</p>
+<pre><code>import { encodeTextTemplate, render } from 'imprint-doc-gen';
+const template = encodeTextTemplate('csv',
+  'Name,Amount\n{d.rows[i].name},{d.rows[i].amount}\n{d.rows[i+1]},');
+const bytes = await render(template, {
+  rows: [{name: 'Alex, Jr', amount: 12.5}]
+});
+// HTTP: send template.toString('base64') as the template property.
+// CLI: npm run render -- template.csv data.json output.csv</code></pre>
+<p>CSV parses quoted input records and writes RFC 4180 escaping with CRLF separators. Cells starting with whitespace/control characters followed by =, +, -, or @ receive a leading apostrophe, including negative numbers. This deliberately favors safe spreadsheet opening over retaining numeric typing. Text output preserves line breaks. Repeats support one unfiltered array per record/line followed immediately by a standalone increment-marker record/line; nested and multi-record repeats are not supported. Scalar formatters accept locale/timeZone. Limits are 8 MiB and 10,000 repeated records. CSV/TXT do not convert to PDF.</p>
+<h2 id="word">Word lists, notes and inline pictures</h2>
+<p>Set <code>restartNumbering: true</code> in render options to assign a fresh numbering instance per repeated item. Explicit numId lists restart at 1; existing level formatting is retained. The default preserves numbering. Style-only list numbering is unchanged.</p>
+<p>Footnotes, endnotes and classic comments referenced inside repeated rows or blocks receive distinct definitions and reference IDs. Inside a cloned definition, <code>{{note}}</code> or <code>{d.note}</code> reads the current repeated item; use <code>{{../title}}</code> for its parent scope. Definitions outside repeats use the document root. Comment ranges must remain within one repeated region and must use separate paragraphs from footnote/endnote anchors; overlapping annotations misrenders endnote text in LibreOffice 26.2.5.2 and is rejected. Repeated comments and endnotes cannot share one story: LibreOffice can duplicate endnote text even when the native IDs are correct, so this combination is rejected. Threaded comments and bound pictures in repeated notes are also rejected.</p>
+<p>To insert a picture without preparing a placeholder, put <code>{{inline:logo:120:60}}</code> in a single Word text run. Width and height are pixels (1–4096); provide <code>attachments.logo</code> and optionally <code>data.logo</code> to select another attachment key. The marker becomes an inline DrawingML picture. A missing attachment is an error. Existing placeholder-image bindings remain available.</p>
+<h2 id="svg">Passive SVG</h2>
+<p>PNG/JPEG attachments now also accept a restricted SVG subset, rasterized to PNG before insertion. Supported geometry includes svg, g, path, rect, circle, ellipse, line, polyline and polygon, with explicit fill/stroke/transform attributes. CSS, scripts, text/fonts, embedded images, foreignObject, references and URL loading are rejected. Output therefore remains portable raster media, not editable vector artwork. Existing size and pixel budgets apply.</p>
+<h2 id="formulas">Spreadsheet formulas</h2>
+<p>XLSX adds LEFT, RIGHT, MID, TRIM, INT, MOD, SQRT, POWER, COUNTA and COUNTBLANK. LEFT and RIGHT currently require an explicit character count. Text slicing uses UTF-16 code units. Range evaluation retains the operation budget and error values. The independent LibreOffice comparison suite includes the new families. Negative SQRT returns Excel’s #NUM! (LibreOffice 26.2 uses #VALUE!); the cross-application test checks that case through IFERROR, while a scalar regression checks the Excel error code.</p>
+<p>ODS repeats rewrite local bracketed A1 references such as <code>of:=[.A1]*[.B$1]</code> and ranges such as <code>of:=SUM([.A1:.A3])</code>. Dollar-locked rows stay fixed when copied but move with structural row changes. Removed references become #REF!. Cached formula values are removed so the opening application recalculates. Cross-sheet/external references and compressed repeated rows/cells with formulas are rejected. This is reference rewriting, not an ODS calculation engine.</p>
+<h2 id="charts">Dynamic category charts</h2>
+<pre><code>await render(template, data, {
+  charts: {
+    'word/charts/chart1.xml': {
+      categories: ['January', 'February'],
+      series: [{name: 'Revenue', values: [120, 150]}]
+    }
+  }
+});</code></pre>
+<p>DOCX, XLSX and PPTX chart parts support a single bar, line, area or pie chart with literal data and an existing prototype series. Series names, categories and values are replaced; chart layout and series styling are retained. Point-specific formatting/labels are removed because indices may change. Pie charts accept one series. Limits: 32 charts, 100 series, 10,000 categories and the XML byte budget. Workbook-linked charts, formula references, pivots, combination/scatter charts and embedded workbook synchronization are outside this adapter and fail explicitly. A standard Office-authored chart may therefore need a literal-data template before this API can update it.</p>
+<h2 id="operations">Worker metrics and migration</h2>
+<p>See <a href="operations.html#workers">worker metrics aggregation</a> for authenticated worker scraping and Prometheus queries, and <a href="operations.html#migration">offline migration</a> for the verified SQLite-to-PostgreSQL/S3 workflow.</p>
+<h2 id="references">Implementation references</h2>
+<p>Numbering behavior was checked against Microsoft's <a href="https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.startoverridenumberingvalue">startOverride documentation</a>. ODS reference handling follows the bounded local-reference subset of <a href="https://docs.oasis-open.org/office/OpenDocument/v1.3/OpenDocument-v1.3-part4-formula.html">OASIS OpenFormula</a>. Regression fixtures are authored in this repository; no third-party sample documents or source code were incorporated.</p>

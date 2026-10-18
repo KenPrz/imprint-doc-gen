@@ -131,5 +131,10 @@
     "service": "https://github.com/KenPrz/imprint-doc-gen/actions/workflows/corpus.yml",
     "documentation": "https://github.com/KenPrz/imprint-doc-gen/actions/workflows/pages.yml",
     "policy": "Merge after required checks pass; verify image publication and Pages deployment."
+  },
+  "featureExpansion": {
+    "plan": "feature-expansion-plan.json",
+    "status": "implemented_and_locally_validated",
+    "validation": "feature-expansion-validation.json"
   }
 }
