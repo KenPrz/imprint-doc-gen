@@ -52,7 +52,8 @@
   },
   "documentation": {
     "pages": 10,
-    "internalLinks": "passed"
+    "internalLinks": "passed",
+    "desktopAndMobile": "passed: 1440px/390px layouts, no page horizontal overflow"
   },
   "limitations": [
     "Native package validation and LibreOffice checks do not establish repair-free Microsoft Office opening or full schema conformance.",
