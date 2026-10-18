@@ -63,3 +63,6 @@ export { veraPdfValidator, parseVeraPdfReport } from './verapdf.ts';
 export type { VeraPdfProfile } from './verapdf.ts';
 export { comparePdfDocuments } from './pdf-regression.ts';
 export type { PdfRegressionOptions, PdfRegressionResult } from './pdf-regression.ts';
+export { assembleDocxComponents } from './docx-components.ts';
+export type { DocxComponent, DocxComponentAssembly } from './docx-components.ts';
+export { inspectCrystalArtifact } from './crystal-artifact.ts';

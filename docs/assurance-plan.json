@@ -57,9 +57,10 @@
     "remote-ci"
   ],
   "remainingAcceptance": [
-    "Representative real customer templates and approved visual baselines",
+    "Customer-approved datasets and visual baselines, including long text, high volume and populated images",
     "Microsoft Office repair-free opening on supported desktop versions",
-    "Independent accessibility human review for any accessibility claim"
+    "Independent accessibility human review for any accessibility claim",
+    "Full Crystal semantic migration requires a supported SAP runtime/reference-output oracle"
   ],
   "releaseApproved": false,
   "validation": "assurance-validation.json"

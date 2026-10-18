@@ -20,6 +20,8 @@ import {
 } from './report-view.ts';
 import { migrateCarboneText, compileCarboneText, inventoryCrystalMetadata } from './template-migration.ts';
 import { ComponentRegistry, type DocumentComponent } from './components.ts';
+import { assembleDocxComponents } from './docx-components.ts';
+import { inspectCrystalArtifact } from './crystal-artifact.ts';
 import { reviewTemplateCandidate, acceptTemplateCandidate } from './template-review.ts';
 import { createReplayBundle, replayBundle } from './replay.ts';
 import { validateDelivery, pdfStructureValidator } from './delivery.ts';
@@ -33,6 +35,8 @@ export const assuranceOperations = [
   'report',
   'migrate',
   'components',
+  'docx-components',
+  'crystal-artifact',
   'review',
   'replay-create',
   'replay',
@@ -171,6 +175,26 @@ export async function executeAssurance(payload: unknown): Promise<unknown> {
       if (p.data === undefined) return { migration };
       const artifact = await compileCarboneText(source, migrationOptions).render(data(p.data));
       return { migration, artifact: artifact.toString('base64') };
+    }
+    if (op === 'crystal-artifact') {
+      const p = object(payload, ['operation', 'artifact']);
+      return inspectCrystalArtifact(bytes(p.artifact));
+    }
+    if (op === 'docx-components') {
+      const p = object(payload, ['operation', 'template', 'components']);
+      if (!Array.isArray(p.components) || p.components.length > 64)
+        fail('Expected up to 64 pinned DOCX components');
+      const components = p.components.map((item) => {
+        const c = object(item, ['id', 'version', 'document', 'sha256']);
+        return {
+          id: text(c.id, 128),
+          version: text(c.version, 128),
+          document: bytes(c.document),
+          sha256: text(c.sha256, 64),
+        };
+      });
+      const assembled = await assembleDocxComponents(bytes(p.template), components);
+      return { artifact: assembled.document.toString('base64'), lock: assembled.lock };
     }
     if (op === 'components') {
       const p = object(payload, ['operation', 'components', 'source'], ['impact']);

@@ -186,6 +186,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: sudo apt-get update && sudo apt-get install -y libreoffice-writer libreoffice-calc poppler-utils
       - run: npm run test:feature-office
+      - run: node tests/fixtures/docx-components/verify-office.ts "$PWD/artifacts/docx-components"
       - name: Verify worker metric aggregation rules
         run: docker run --rm --entrypoint promtool -v "$PWD/examples/operations:/work" -w /work prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996 test rules imprint-rules.test.yml
       - uses: actions/upload-artifact@v4
@@ -193,6 +194,8 @@ jobs:
         with:
           name: expanded-feature-office-validation
           path: |
+            artifacts/docx-components/validation.json
+            artifacts/docx-components/page.png
             artifacts/feature-expansion/office-validation.json
             artifacts/feature-expansion/*.png
             artifacts/feature-expansion/pdf/

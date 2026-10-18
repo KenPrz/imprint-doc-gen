@@ -7,7 +7,7 @@
     "typecheck": "passed",
     "build": "passed",
     "unit": {
-      "passed": 323,
+      "passed": 400,
       "failed": 0,
       "skipped": 0,
       "command": "npm test"
@@ -117,14 +117,35 @@
     },
     "crossFeatureExample": "node examples/assurance/demo.ts passed",
     "cli": "contract evidence generated; refuses overwrite; help works",
-    "compiledWorker": "Built dist/app.js worker trace and strict replay passed; enforced in CI"
+    "compiledWorker": "Built dist/app.js worker trace and strict replay passed; enforced in CI",
+    "richDocxComponents": {
+      "unitCases": 19,
+      "independentAuthor": "python-docx 1.2.0",
+      "converter": "LibreOffice",
+      "checks": [
+        "repeated styled clauses",
+        "two numbered lists restart at 1",
+        "tables preserved",
+        "both embedded PNG images survive"
+      ],
+      "desktopMicrosoftOffice": "pending"
+    },
+    "crystalArtifacts": {
+      "samples": 3,
+      "independentDirectoryEntries": 46,
+      "oracle": "olefile 0.47",
+      "scope": "directory metadata only",
+      "ledger": "crystal-investigation.json"
+    }
   },
   "independentEvidence": [
     "Carbone 3.8.2 public package runtime: 12 captured cases, not a claim about all Carbone versions",
     "CC BY 4.0 veraPDF corpus positive fixture pinned by source commit and SHA-256",
     "Actual Poppler rasterization of independently authored pdf-lib documents",
     "LibreOffice recalculation and PDF conversion",
-    "Chromium interaction and selected-export assertions"
+    "Chromium interaction and selected-export assertions",
+    "Three genuine pinned RPT files: 46 directory entries match independent olefile 0.47",
+    "Rich DOCX fixture authored with python-docx, converted and visually inspected in LibreOffice"
   ],
   "adversarialFixes": [
     "Mutable regression data and candidate options snapshots",
@@ -137,9 +158,9 @@
   ],
   "limitations": [
     "No exhaustive or 100-percent correctness claim",
-    "No native Crystal RPT parser or automatic formula/layout migration",
+    "Native RPT support is bounded passive CFB directory inventory only; no formula/layout extraction or rendering",
     "Carbone migration limited to proved scalar and guarded case formatter subset",
-    "Components are plain text; rich Office fragment composition is unsupported",
+    "Rich DOCX components require identical document defaults/referenced themes and reject unsupported dependencies; see assurance support contract",
     "Trace covers actual standard lookups, not every binding or page coordinates",
     "Semantic comparison is positional text/cell comparison; visual and exact checks are separate",
     "Replay excludes external PDF converter/font capture",
@@ -152,6 +173,7 @@
     "url": "https://github.com/KenPrz/imprint-doc-gen/pull/15/checks"
   },
   "corrections": [
-    "Clean-environment CI caught an unreachable TypeScript branch in the runnable demo; fixed and typecheck/build/demo revalidated."
+    "Clean-environment CI caught an unreachable TypeScript branch in the runnable demo; fixed and typecheck/build/demo revalidated.",
+    "Independent LibreOffice rendering caught imported numbered list continuation caused by duplicate style display names; remapped names and checked list restarts."
   ]
 }
