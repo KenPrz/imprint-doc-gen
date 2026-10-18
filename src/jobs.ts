@@ -19,7 +19,7 @@ export function renderDocumentInWorker(template: Uint8Array, data: Record<string
     const timer = setTimeout(() => finish(new RenderError('RENDER_TIMEOUT', 'Render exceeded its time budget')), timeoutMs);
     worker.on('message', message => {
       if (message?.type !== 'imprint-render-result') return;
-      if (message.ok && ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp'].includes(message.format)) finish(undefined, { bytes: Buffer.from(message.bytes), format: message.format });
+      if (message.ok && ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'txt', 'csv'].includes(message.format)) finish(undefined, { bytes: Buffer.from(message.bytes), format: message.format });
       else finish(new RenderError(typeof message.code === 'string' ? message.code : 'RENDER_FAILED', message.message, message.part));
     });
     worker.once('error', () => finish(new RenderError('RENDER_FAILED', 'Render worker failed')));

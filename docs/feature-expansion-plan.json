@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "status": "implemented_and_locally_validated",
+  "scope": [
+    {
+      "feature": "CSV and plain text",
+      "contract": "UTF-8 templates, standard scalar formatters and line/record repetition; RFC 4180 quoting and formula-injection protection; SDK, CLI and service via explicit text envelope"
+    },
+    {
+      "feature": "DOCX numbering restarts",
+      "contract": "Opt-in restart of explicit numId lists per repeated item; preserve original numbering by default"
+    },
+    {
+      "feature": "Repeated notes and comments",
+      "contract": "Clone classic footnote/endnote/comment definitions with scoped fields and remap references per item; reject threaded comments; repeated comments and endnotes cannot share a story because of a confirmed LibreOffice rendering defect"
+    },
+    {
+      "feature": "ODS repeated formulas",
+      "contract": "Local A1 cell/range references with absolute-row semantics, row insertion/deletion and cache invalidation; reject unsupported reference forms"
+    },
+    {
+      "feature": "Spreadsheet formulas",
+      "contract": "Text slicing/trimming, numeric INT/MOD/SQRT/POWER and COUNTA/COUNTBLANK with independent expected results"
+    },
+    {
+      "feature": "SVG and inline images",
+      "contract": "Strict passive SVG subset rasterized to PNG; DOCX inline insertion through explicit image bindings and pixel dimensions"
+    },
+    {
+      "feature": "Dynamic charts",
+      "contract": "Explicit chart-part data updates for category charts with literal series, preserving chart layout; reject external/embedded workbook-linked updates"
+    },
+    {
+      "feature": "Worker metrics aggregation",
+      "contract": "Worker Prometheus endpoints, authenticated scraping and documented Prometheus aggregation across processes"
+    },
+    {
+      "feature": "SQLite-to-cluster migration",
+      "contract": "Offline snapshot to empty PostgreSQL/S3 target, preserve identities and credentials, verify every blob, atomic metadata commit and rollback"
+    }
+  ],
+  "gates": [
+    "Typecheck and build",
+    "Feature positive/negative regression tests",
+    "Existing full unit suite",
+    "600-case format regression suites",
+    "Synthetic scenarios",
+    "Real PostgreSQL/S3 migration and metrics integration",
+    "LibreOffice rendering checks",
+    "Documentation build",
+    "Remote CI before main publication"
+  ],
+  "validation": "feature-expansion-validation.json"
+}

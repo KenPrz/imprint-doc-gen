@@ -1,3 +1,4 @@
+import { textMagic } from './text-template.ts';
 import { formatNs as f } from './format-namespaces.ts';
 import { openOfficePackage } from './ooxml.ts';
 import { compile } from './index.ts';
@@ -39,8 +40,6 @@ export async function inspectTemplate(bytes: Uint8Array): Promise<Inspection> {
       location,
     });
   try {
-    const office = await openOfficePackage(bytes);
-    format = office.format;
     const inspect = (text: string, part: string, location: string, image = false) => {
       try {
         for (const binding of standardBindings(text, part))
@@ -56,6 +55,14 @@ export async function inspectTemplate(bytes: Uint8Array): Promise<Inspection> {
         record(error, part, location);
       }
     };
+    if(Buffer.from(bytes).subarray(0,textMagic.length).toString()===textMagic){
+      const compiled=await compile(bytes);format=compiled.format;
+      const envelope=JSON.parse(Buffer.from(bytes).toString().slice(textMagic.length));
+      inspect(envelope.source,'text','source');
+      return {format,valid:diagnostics.length===0,fields,diagnostics};
+    }
+    const office = await openOfficePackage(bytes);
+    format = office.format;
     for (const [part, content] of office.parts) {
       if (!part.endsWith('.xml')) continue;
       const doc = parseXml(content.toString(), part);

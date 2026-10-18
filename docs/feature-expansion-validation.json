@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-18",
+  "status": "Local gates passed; remote release gates are reported by GitHub Actions.",
+  "unitTests": {
+    "passed": 222,
+    "failed": 0
+  },
+  "originalCorpus": {
+    "docx": 100,
+    "xlsx": 100,
+    "failed": 0
+  },
+  "additionalFormats": {
+    "pptx": 100,
+    "odt": 100,
+    "ods": 100,
+    "odp": 100,
+    "failed": 0
+  },
+  "synthetic": {
+    "passed": 12,
+    "failed": 0,
+    "mode": "SDK; PDF not included in this synthetic run"
+  },
+  "cluster": {
+    "passed": 2,
+    "realPostgresAndS3": true,
+    "migrationObjectReadback": true,
+    "migrationRollbackAndCleanup": true,
+    "tenantCredentialPreservation": true,
+    "jobIdempotencyPreservation": true,
+    "nonemptyDestinationRejected": true,
+    "runningSourceJobsRejected": true
+  },
+  "office": {
+    "converter": "LibreOffice 26.2.5.2 6d2b0d33fb0f5da53a12f98bed3e9973e56ff1f0",
+    "wordNoteText": true,
+    "inlineImage": true,
+    "literalChart": true,
+    "odsCalculatedValues": [
+      2,
+      4,
+      3,
+      6,
+      5
+    ],
+    "xlsxComparison": "67 formula caches match independent LibreOffice recalculation"
+  },
+  "metrics": {
+    "prometheusVersion": "3.5.0",
+    "ruleTests": "passed: throughput sum, active admission sum, shared queue max"
+  },
+  "documentation": {
+    "pages": 10,
+    "internalLinks": "passed",
+    "desktopAndMobile": "passed: 1440px/390px layouts, no page horizontal overflow"
+  },
+  "limitations": [
+    "Native package validation and LibreOffice checks do not establish repair-free Microsoft Office opening or full schema conformance.",
+    "Repeated comments and endnotes cannot share a story; overlapping comment/note anchors are rejected because LibreOffice misrenders endnote text.",
+    "Charts require literal category data; workbook-linked charts, pivots and combination charts are rejected.",
+    "SVG is a passive geometry subset rasterized to PNG.",
+    "ODS rewriting covers local A1 references; unchanged static formulas are preserved.",
+    "SQRT of a negative number uses Excel #NUM!; LibreOffice 26.2 returns #VALUE!. Independent comparison checks IFERROR and unit tests check Excel errors.",
+    "Migration requires an offline source backup and an empty, stopped destination; it does not switch application traffic."
+  ]
+}

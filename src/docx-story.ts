@@ -75,8 +75,25 @@ function loopsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: strin
   return loops;
 }
 function nestLoops(loops: LoopPlan[], nodes: ElementSpan[], part: string): LoopPlan[] {
-  const unsupported = new Set(['bookmarkStart', 'bookmarkEnd', 'commentRangeStart', 'commentRangeEnd', 'commentReference', 'footnoteReference', 'endnoteReference', 'permStart', 'permEnd', 'moveFrom', 'moveTo', 'ins', 'del', 'vMerge', 'dataBinding', 'pict', 'object', 'altChunk']);
+  const unsupported = new Set(['bookmarkStart', 'bookmarkEnd', 'permStart', 'permEnd', 'moveFrom', 'moveTo', 'ins', 'del', 'vMerge', 'dataBinding', 'pict', 'object', 'altChunk']);
   for (const loop of loops) for (const node of nodes) if (node.start >= loop.start && node.end <= loop.end && node.uri === ns.word && unsupported.has(node.local)) throw new RenderError('UNSUPPORTED_TEMPLATE', `Repeated ${node.local} requires a later cloning adapter`, part);
+  const repeatedNodes=nodes.filter(n=>loops.some(loop=>n.start>=loop.bodyStart&&n.end<=loop.bodyEnd));
+  if(repeatedNodes.some(n=>n.uri===ns.word&&n.local==='commentReference') && repeatedNodes.some(n=>n.uri===ns.word&&n.local==='endnoteReference'))throw new RenderError('UNSUPPORTED_TEMPLATE','Repeated comments and endnotes cannot share a story because LibreOffice misrenders their text',part);
+  for (const loop of loops) {
+    const comments=nodes.filter(n=>n.uri===ns.word && n.start>=loop.bodyStart && n.end<=loop.bodyEnd && ['commentRangeStart','commentRangeEnd'].includes(n.local));
+    for(const note of nodes.filter(n=>n.uri===ns.word&&['footnoteReference','endnoteReference'].includes(n.local)&&n.start>=loop.bodyStart&&n.end<=loop.bodyEnd)) {
+      const paragraph=ancestor(note,ns.word,'p');
+      if(paragraph && nodes.some(n=>n.uri===ns.word&&['commentRangeStart','commentRangeEnd','commentReference'].includes(n.local)&&n.start>paragraph.start&&n.end<paragraph.end))throw new RenderError('UNSUPPORTED_TEMPLATE','Repeated comments and note anchors must use separate paragraphs for converter compatibility',part);
+    }
+    const counts=new Map<string,number>();
+    for(const node of comments){const id=node.attributes.find(a=>a.uri===ns.word&&a.local==='id')?.value ?? '';counts.set(id,(counts.get(id)??0)+(node.local==='commentRangeStart'?1:-1));}
+    for(const start of comments.filter(n=>n.local==='commentRangeStart')) {
+      const id=start.attributes.find(a=>a.uri===ns.word&&a.local==='id')?.value;
+      const end=comments.find(n=>n.local==='commentRangeEnd'&&n.attributes.some(a=>a.uri===ns.word&&a.local==='id'&&a.value===id));
+      if(end && nodes.some(n=>n.start>start.start&&n.end<end.end&&n.uri===ns.word&&['footnoteReference','endnoteReference'].includes(n.local)))throw new RenderError('UNSUPPORTED_TEMPLATE','Repeated comment ranges must not enclose note references; LibreOffice can misrender their text',part);
+    }
+    if([...counts.values()].some(n=>n!==0))throw new RenderError('UNSUPPORTED_TEMPLATE','Repeated comment ranges must be contained within one repeat region',part);
+  }
   const roots: LoopPlan[] = [], parents: LoopPlan[] = [];
   for (const loop of loops.sort((a, b) => a.start - b.start || b.end - a.end)) {
     while (parents.length && loop.start >= parents.at(-1)!.end) parents.pop();
@@ -156,7 +173,7 @@ export function compileStory(part: string, source: string): StoryPlan {
   };
   return { part, source, nodes, images, segments: region(0, source.length, loops) };
 }
-export async function renderStory(plan: StoryPlan, data: Record<string, unknown>, budget: RenderBudget, imageEdits: (image: ImagePlan, scope: Scope) => Promise<Edit[]>, freshIdentity: (hex: boolean) => string): Promise<string> {
+export async function renderStory(plan: StoryPlan, data: Record<string, unknown>, budget: RenderBudget, imageEdits: (image: ImagePlan, scope: Scope) => Promise<Edit[]>, freshIdentity: (hex: boolean) => string, fragment?: (nodes: ElementSpan[], scope: Scope) => Promise<Edit[]>, initialScope?: Scope): Promise<string> {
   const chunks: string[] = []; let size = 0;
   const append = (chunk: string) => {
     size += Buffer.byteLength(chunk);
@@ -207,10 +224,12 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
       for (const image of segment.images) addEdit(...await imageEdits(image, scope));
       if (scope.length > 1) for (const { attribute, hex } of segment.identities) addEdit({ start: attribute.start, end: attribute.end, value: freshIdentity(hex) });
       const source = plan.source.slice(segment.start, segment.end);
-      append(applyEdits(source, edits.map(e => ({ ...e, start: e.start - segment.start, end: e.end - segment.start })), limits.entry - size));
+      if (fragment) addEdit(...await fragment(plan.nodes.filter(n => n.start >= segment.start && n.end <= segment.end), scope));
+      const rendered = applyEdits(source, edits.map(e => ({ ...e, start: e.start - segment.start, end: e.end - segment.start })), limits.entry - size);
+      append(rendered);
     }
   };
-  await visit(plan.segments, [data]);
+  await visit(plan.segments, initialScope ?? [data]);
   let result = chunks.join('');
   // Removing all block-loop paragraphs must not leave an empty table cell.
   // A cell ending in a nested table also needs a trailing paragraph.

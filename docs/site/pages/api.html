@@ -28,7 +28,7 @@
     </tr>
     <tr>
       <td>POST /v1/render</td>
-      <td>Base64 template, data, optional attachments/images/locale/timeZone/output. Binary result.</td>
+      <td>Base64 template, data, optional attachments/images/locale/timeZone/restartNumbering/charts/output. Binary result.</td>
     </tr>
     <tr>
       <td>POST /v1/inspect</td>
@@ -155,3 +155,5 @@ console.log(await inspectTemplate(await readFile('invoice.docx')));</code></pre>
   and bundled PDF conversion. Compile once and reuse for concurrent renders. This repository is private; no
   public npm publication is implied.
 </p>
+
+<p>CSV/TXT templates use <code>encodeTextTemplate</code> before base64 upload. See <a href="features.html">expanded feature examples</a> for text exports, chart data and numbering options.</p>

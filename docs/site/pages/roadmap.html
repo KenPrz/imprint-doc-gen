@@ -64,25 +64,14 @@ AWS_ACCESS_KEY_ID=imprint-test AWS_SECRET_ACCESS_KEY=isolated-object-password \
 npm run test:cluster
 # Only remove the explicitly disposable test project:
 docker compose -p imprint-test -f compose.cluster-test.yml down --volumes</code></pre>
+<h2 id="expansion">Feature expansion</h2>
+<p>The next feature cycle adds all nine scoped workstreams: CSV/plain text, DOCX numbering restarts, repeated notes/comments, ODS reference rewriting, additional XLSX formula families, passive SVG and inline pictures, literal category charts, worker metrics aggregation and verified offline cluster migration. See <a href="features.html">contracts and examples</a> and <a href="operations.html">operational instructions</a>.</p>
 <h2 id="future">Future work remains explicit</h2>
 <ul>
-  <li>
-    Application-specific pilot acceptance, repair-free Microsoft Office opening and approved visual baselines
-    on representative templates.
-  </li>
-  <li>
-    Dynamic charts/pivots, tracked changes, repeated notes/comments, restarted numbering and more spreadsheet
-    formula families.
-  </li>
-  <li>SVG and inline-image insertion with explicit sanitization and geometry contracts.</li>
-  <li>ODF repeated-formula rewriting and deeper format-specific progressive cases.</li>
-  <li>HTML/plain-text/CSV adapters, validated PDF/A or PDF/UA, signatures and specialist formats.</li>
-  <li>
-    Tenant self-service, SSO, billing, worker metrics aggregation and a verified SQLite-to-cluster migration
-    tool.
-  </li>
+<li>Representative application pilot acceptance, Microsoft Office repair-free opening and approved visual baselines.</li>
+<li>Workbook-linked chart editing, pivots, threaded comments, tracked changes, style-inherited numbering restarts and broader formula coverage.</li>
+<li>Cross-sheet ODS references, general SVG/CSS/vector preservation and deeper independent format fixtures.</li>
+<li>HTML-to-PDF, validated PDF/A or PDF/UA, signatures and specialist formats.</li>
+<li>Tenant self-service, SSO and billing.</li>
 </ul>
-<p>
-  The source repository keeps the detailed historical evidence and corpus roadmap. None of these future items
-  is implied by a passing current regression suite.
-</p>
+<p>Passing regression suites establishes the documented contracts, not universal Office compatibility.</p>

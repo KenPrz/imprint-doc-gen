@@ -60,6 +60,7 @@ export async function compileOpenDocument({
           parts.set(
             part,
             await renderXmlTemplate(parts.get(part)!.toString(), part, data, {
+              odsFormulas: format === 'ods',
               picture: async (node, scope, contexts) => {
                 if (node.namespaceURI !== f.draw || node.localName !== 'frame') return;
                 const description = descendants(node, f.svg, 'desc')[0],
