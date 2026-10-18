@@ -39,9 +39,7 @@ docker compose -f compose.cluster.yml up -d --scale worker=2</code></pre>
 </p>
 <p>
   Use a dedicated database. Initialization creates the <code>imprint</code> schema and rejects newer unknown
-  schema versions. DATABASE_URL and IMPRINT_DATA_DIR are mutually exclusive. Automatic migration of existing
-  SQLite data to PostgreSQL is not implemented; export and validate a migration separately before switching a
-  live service.
+  schema versions. DATABASE_URL and IMPRINT_DATA_DIR are mutually exclusive. Use the <a href="operations.html#migration">verified offline migration command</a> to copy an existing SQLite backup into an empty PostgreSQL/S3 deployment. Keep both services stopped during migration and switch traffic only after validation.
 </p>
 <h2 id="configuration">Configuration</h2>
 <table>
