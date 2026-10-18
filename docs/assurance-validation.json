@@ -116,7 +116,8 @@
       "internalLinks": "passed"
     },
     "crossFeatureExample": "node examples/assurance/demo.ts passed",
-    "cli": "contract evidence generated; refuses overwrite; help works"
+    "cli": "contract evidence generated; refuses overwrite; help works",
+    "compiledWorker": "Built dist/app.js worker trace and strict replay passed; enforced in CI"
   },
   "independentEvidence": [
     "Carbone 3.8.2 public package runtime: 12 captured cases, not a claim about all Carbone versions",
@@ -148,5 +149,8 @@
   ],
   "remoteCI": {
     "status": "pending"
-  }
+  },
+  "corrections": [
+    "Clean-environment CI caught an unreachable TypeScript branch in the runnable demo; fixed and typecheck/build/demo revalidated."
+  ]
 }
