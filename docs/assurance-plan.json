@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "status": "bounded_candidate_locally_validated_release_blocked",
+  "releasePolicy": "No main merge or container release until all required gates pass and documented unresolved scope is reviewed. Passing tests do not establish universal correctness.",
+  "workstreams": [
+    {
+      "id": "regression",
+      "contract": "Customer datasets, explicit expected output, semantic comparisons and bounded masks; visual checks require renderer integration."
+    },
+    {
+      "id": "trace",
+      "contract": "Field-level input and formatter explanations; distinguish preflight evaluation from executed layout traces."
+    },
+    {
+      "id": "contracts",
+      "contract": "Explicit JSON Schema subset, assertions, sample data and TypeScript generation; unsupported schema constructs fail closed."
+    },
+    {
+      "id": "migration",
+      "contract": "Carbone subset conversion with diagnostics and Crystal exported metadata inventory; no claim of arbitrary RPT compatibility."
+    },
+    {
+      "id": "diff",
+      "contract": "Structured and text comparisons with explicit equality rules and bounded differences."
+    },
+    {
+      "id": "replay",
+      "contract": "Hashed snapshot and asset bundle, environment identity checks, offline replay; hashes establish integrity, not authenticity."
+    },
+    {
+      "id": "delivery",
+      "contract": "Mandatory validators, immutable artifact snapshots, timeout/error quarantine and digest-bound evidence; machine PDF checks do not certify accessibility."
+    },
+    {
+      "id": "components",
+      "contract": "Pinned component versions, dependency validation, cycle detection and transitive impact analysis."
+    },
+    {
+      "id": "interactive",
+      "contract": "Bounded tabular report definition, filters and detail view, same selected snapshot for browser and template exports."
+    },
+    {
+      "id": "ai-review",
+      "contract": "Provider-neutral candidate verification against customer tests, digest-bound review and stale-base rejection; no automatic model trust or publishing."
+    }
+  ],
+  "requiredGates": [
+    "typecheck",
+    "build",
+    "unit-and-adversarial",
+    "cross-feature-integration",
+    "600-format-corpus",
+    "synthetic",
+    "independent-office",
+    "browser-interaction",
+    "documentation",
+    "remote-ci"
+  ],
+  "remainingAcceptance": [
+    "Representative real customer templates and approved visual baselines",
+    "Microsoft Office repair-free opening on supported desktop versions",
+    "Independent accessibility human review for any accessibility claim"
+  ],
+  "releaseApproved": false,
+  "validation": "assurance-validation.json"
+}

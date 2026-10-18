@@ -39,12 +39,16 @@
     "load": "node scripts/operations/load.ts",
     "docs:build": "node scripts/docs/build.ts",
     "migrate": "node scripts/operations/migrate.ts",
-    "test:feature-office": "node scripts/verify-feature-office.ts"
+    "test:feature-office": "node scripts/verify-feature-office.ts",
+    "assurance": "node scripts/assurance/cli.ts",
+    "test:assurance:browser": "node scripts/assurance/browser-check.ts",
+    "test:assurance:verapdf": "node scripts/assurance/verapdf-check.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",
     "@types/node": "24.13.3",
     "@types/pg": "8.23.1",
+    "playwright": "1.64.1",
     "prettier": "3.9.10",
     "typescript": "6.0.3"
   },

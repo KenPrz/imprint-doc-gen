@@ -1,0 +1,102 @@
+{
+  "oracle": "carbone@3.8.2 renderXML extension=txt",
+  "cases": [
+    {
+      "name": "basic",
+      "source": "Hello {d.firstname} {d.lastname} !",
+      "data": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "output": "Hello John Doe !"
+    },
+    {
+      "name": "nested",
+      "source": "{d.person.name}",
+      "data": {
+        "person": {
+          "name": "Example"
+        }
+      },
+      "output": "Example"
+    },
+    {
+      "name": "missing",
+      "source": "{d.name}",
+      "data": {},
+      "output": ""
+    },
+    {
+      "name": "null",
+      "source": "{d.name}",
+      "data": {
+        "name": null
+      },
+      "output": ""
+    },
+    {
+      "name": "false",
+      "source": "{d.name}",
+      "data": {
+        "name": false
+      },
+      "output": "false"
+    },
+    {
+      "name": "zero",
+      "source": "{d.name}",
+      "data": {
+        "name": 0
+      },
+      "output": "0"
+    },
+    {
+      "name": "upper",
+      "source": "{d.name:upperCase}",
+      "data": {
+        "name": "Straße café σ"
+      },
+      "output": "STRASSE CAFÉ Σ"
+    },
+    {
+      "name": "lower",
+      "source": "{d.name:lowerCase}",
+      "data": {
+        "name": "İSTANBUL CAFÉ Σ"
+      },
+      "output": "i̇stanbul café σ"
+    },
+    {
+      "name": "chain",
+      "source": "{d.name:upperCase:lowerCase}",
+      "data": {
+        "name": "AbC"
+      },
+      "output": "abc"
+    },
+    {
+      "name": "upper-null",
+      "source": "{d.name:upperCase}",
+      "data": {
+        "name": null
+      },
+      "output": ""
+    },
+    {
+      "name": "upper-number",
+      "source": "{d.name:upperCase}",
+      "data": {
+        "name": 123
+      },
+      "output": "123"
+    },
+    {
+      "name": "lower-false",
+      "source": "{d.name:lowerCase}",
+      "data": {
+        "name": false
+      },
+      "output": "false"
+    }
+  ]
+}

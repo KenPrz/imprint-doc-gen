@@ -7,6 +7,7 @@ const pages = [
   ['images', 'Images & barcodes'],
   ['formats', 'Format support'],
   ['features', 'Expanded features'],
+  ['assurance', 'Document assurance'],
   ['api', 'API & SDK'],
   ['pdf', 'PDF operations'],
   ['deployment', 'Deployment'],

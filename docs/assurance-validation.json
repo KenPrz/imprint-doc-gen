@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "date": "2026-10-18",
+  "status": "local_checks_passed_remote_ci_pending_release_blocked",
+  "releaseApproved": false,
+  "checks": {
+    "typecheck": "passed",
+    "build": "passed",
+    "unit": {
+      "passed": 323,
+      "failed": 0,
+      "skipped": 0,
+      "command": "npm test"
+    },
+    "releaseGate": {
+      "cases": 1,
+      "passed": true,
+      "productionGate": "blocked as intended"
+    },
+    "corpus": {
+      "docx": 100,
+      "xlsx": 100,
+      "pptx": 100,
+      "odt": 100,
+      "ods": 100,
+      "odp": 100,
+      "failed": 0
+    },
+    "synthetic": {
+      "passed": 12,
+      "failed": 0,
+      "pdf": "not requested in SDK suite"
+    },
+    "cluster": {
+      "passed": 2,
+      "failed": 0,
+      "infrastructure": "disposable PostgreSQL/S3 Docker project imprint-assurance-test removed after completion"
+    },
+    "office": {
+      "converter": "LibreOffice 26.2.5.2 6d2b0d33fb0f5da53a12f98bed3e9973e56ff1f0",
+      "wordNoteText": true,
+      "inlineImage": true,
+      "literalChart": true,
+      "odsCalculatedValues": [
+        2,
+        4,
+        3,
+        6,
+        5
+      ],
+      "xlsxComparison": "67 formula caches match independent LibreOffice recalculation"
+    },
+    "browser": {
+      "passed": true,
+      "engine": "156.0.8078.4",
+      "checks": [
+        "desktop",
+        "mobile",
+        "escaping",
+        "CSP",
+        "no-external-requests",
+        "filter",
+        "details",
+        "CSV-selection",
+        "CSV-injection",
+        "JSON-selection",
+        "SDK-same-selection",
+        "empty-selection",
+        "print-PDF"
+      ]
+    },
+    "verapdf": {
+      "image": "ghcr.io/verapdf/cli@sha256:8cac3d462f6ef749c619b0973186cc9f949678600b2c545bdce3762445b0aec4",
+      "positive": {
+        "sha256": "0a578e09d02ca14e2b669cae84e66056d646d47680688f62468d527bc4c9e222",
+        "size": 10231,
+        "status": "approved",
+        "checks": [
+          {
+            "id": "verapdf-1b",
+            "version": "1.31.50",
+            "passed": true,
+            "details": "veraPDF 1.31.50: 1b passed; machine-verifiable checks only"
+          }
+        ]
+      },
+      "negative": {
+        "sha256": "012e5e745f23eda53d0dd2737f45f3837e7bce649f8efc12c7d832ed3f7c59d5",
+        "size": 873,
+        "status": "quarantined",
+        "checks": [
+          {
+            "id": "verapdf-1b",
+            "version": "1.31.50",
+            "passed": false,
+            "details": "veraPDF 1.31.50: 1b failed; machine-verifiable checks only"
+          }
+        ]
+      },
+      "malformed": {
+        "sha256": "3564bf8140dfb9a0efa3e9ee08f2ea4b455c707272c07717fdcad6c20d325025",
+        "size": 11,
+        "status": "quarantined",
+        "checks": [
+          {
+            "id": "verapdf-1b",
+            "version": "1.31.50",
+            "passed": false,
+            "details": "Validator failed or returned an invalid result"
+          }
+        ]
+      }
+    },
+    "documentation": {
+      "pages": 11,
+      "internalLinks": "passed"
+    },
+    "crossFeatureExample": "node examples/assurance/demo.ts passed",
+    "cli": "contract evidence generated; refuses overwrite; help works"
+  },
+  "independentEvidence": [
+    "Carbone 3.8.2 public package runtime: 12 captured cases, not a claim about all Carbone versions",
+    "CC BY 4.0 veraPDF corpus positive fixture pinned by source commit and SHA-256",
+    "Actual Poppler rasterization of independently authored pdf-lib documents",
+    "LibreOffice recalculation and PDF conversion",
+    "Chromium interaction and selected-export assertions"
+  ],
+  "adversarialFixes": [
+    "Mutable regression data and candidate options snapshots",
+    "Getter/proxy/symbol/hidden property and sparse-array rejection",
+    "Missing semantic tabs/breaks and shared formula metadata",
+    "Vacuous image thresholds and whole-document masks",
+    "Wrong-size PDF raster evidence",
+    "Contradictory veraPDF summaries, failed checks and wrong-artifact identity",
+    "Mobile report overflow and hostile HTML/CSV values"
+  ],
+  "limitations": [
+    "No exhaustive or 100-percent correctness claim",
+    "No native Crystal RPT parser or automatic formula/layout migration",
+    "Carbone migration limited to proved scalar and guarded case formatter subset",
+    "Components are plain text; rich Office fragment composition is unsupported",
+    "Trace covers actual standard lookups, not every binding or page coordinates",
+    "Semantic comparison is positional text/cell comparison; visual and exact checks are separate",
+    "Replay excludes external PDF converter/font capture",
+    "AI integration verifies supplied candidates; no hosted model or autonomous authoring UI",
+    "Delivery gate is explicit SDK/API handoff, not persistent quarantine integrated into all existing jobs",
+    "Customer-approved production baselines, Microsoft Office desktop opening and human accessibility acceptance remain outstanding"
+  ],
+  "remoteCI": {
+    "status": "pending"
+  }
+}

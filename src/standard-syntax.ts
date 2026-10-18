@@ -1,3 +1,4 @@
+import { recordLookupExecution } from './execution-trace.ts';
 import { parseExpression, formatValue, type Formatter, type ArrayFilter } from './expressions.ts';
 import { RenderError } from './errors.ts';
 import { checkPath, lookup, type Scope } from './scope.ts';
@@ -33,12 +34,21 @@ export function standardBindings(text: string, part: string): StandardBinding[] 
   return bindings;
 }
 export function standardLookup(scope: Scope, path: string, part: string, formatters?: Formatter[]): unknown {
-  let value: unknown;
+  let value: unknown, missingInput = false;
+  const record = (output?: unknown, errorCode?: string) => recordLookupExecution({ scopedPath: path, part, scopeDepth: scope.length - 1, formatters: (formatters ?? []).map(f => f.name), missingInput, input: value, output, errorCode });
   try { value = lookup(scope, path, part); }
-  catch (error) { if (error instanceof RenderError && error.code === 'MISSING_DATA') value = null; else throw error; }
-  try { return formatValue(value, formatters); }
-  catch (error) { if (error instanceof RenderError) throw new RenderError(error.code, `${error.message} at ${path}`, part); throw error; }
+  catch (error) {
+    if (error instanceof RenderError && error.code === 'MISSING_DATA') { value = null; missingInput = true; }
+    else { record(undefined, error instanceof RenderError ? error.code : 'LOOKUP_FAILED'); throw error; }
+  }
+  try { const output = formatValue(value, formatters); record(output); return output; }
+  catch (error) {
+    record(undefined, error instanceof RenderError ? error.code : 'FORMAT_FAILED');
+    if (error instanceof RenderError) throw new RenderError(error.code, `${error.message} at ${path}`, part);
+    throw error;
+  }
 }
+
 function relativePath(path: string, context: RepeatRegion[], part: string): string {
   for (let index = context.length - 1; index >= 0; index--) {
     const prefix = context[index]!.arrayPath! + '[i].';

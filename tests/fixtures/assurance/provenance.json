@@ -1,0 +1,9 @@
+{
+  "source": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/377728596647e40edf16003d68d620773ce96ec5/PDF_A-1b/6.6%20Actions/6.6.1%20General/veraPDF%20test%20suite%206-6-1-t02-pass-a.pdf",
+  "commit": "377728596647e40edf16003d68d620773ce96ec5",
+  "sha256": "0a578e09d02ca14e2b669cae84e66056d646d47680688f62468d527bc4c9e222",
+  "purpose": "Independent PDF/A-1b positive validation fixture, upstream named pass; separately verified with pinned veraPDF image",
+  "licenseSource": "https://github.com/veraPDF/veraPDF-corpus/blob/377728596647e40edf16003d68d620773ce96ec5/README.md",
+  "license": "CC BY 4.0",
+  "attribution": "veraPDF Consortium, veraPDF test corpus"
+}
