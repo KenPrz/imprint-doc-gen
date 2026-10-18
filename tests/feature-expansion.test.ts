@@ -186,6 +186,14 @@ test('DOCX repeated footnotes, endnotes, classic comments and restarted numberin
     const result = await readPackage(
       await render(await writePackage(variant), data, { restartNumbering: true }),
     );
+    const empty = await readPackage(await render(await writePackage(variant), { rows: [] }));
+    for (const kind of mode === 'notes' ? ['footnote', 'endnote'] : ['comment'])
+      assert.equal(
+        descendants(parseXml(empty.get(`word/${kind}s.xml`)!.toString(), kind), ns.word, kind).filter(
+          (n) => Number(n.getAttributeNS(ns.word, 'id')) > 0,
+        ).length,
+        0,
+      );
     const main = parseXml(result.get('word/document.xml')!.toString(), 'main');
     for (const kind of mode === 'notes' ? ['footnote', 'endnote'] : ['comment']) {
       const refs = descendants(main, ns.word, kind + 'Reference').map((n) => n.getAttributeNS(ns.word, 'id'));
