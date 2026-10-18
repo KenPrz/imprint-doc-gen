@@ -1,7 +1,7 @@
 {
   "version": 1,
   "date": "2026-10-18",
-  "status": "local_checks_passed_remote_ci_pending_release_blocked",
+  "status": "local_checks_passed_release_blocked",
   "releaseApproved": false,
   "checks": {
     "typecheck": "passed",
@@ -148,7 +148,8 @@
     "Customer-approved production baselines, Microsoft Office desktop opening and human accessibility acceptance remain outstanding"
   ],
   "remoteCI": {
-    "status": "pending"
+    "status": "Recorded separately by pull-request checks; this file contains local evidence only",
+    "url": "https://github.com/KenPrz/imprint-doc-gen/pull/15/checks"
   },
   "corrections": [
     "Clean-environment CI caught an unreachable TypeScript branch in the runnable demo; fixed and typecheck/build/demo revalidated."
