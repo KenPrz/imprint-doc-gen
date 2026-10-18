@@ -9,7 +9,7 @@ export interface ExcelError { error: string }
 export type Value = number | string | boolean | null | ExcelError;
 const error = (code: string): ExcelError => ({ error: code });
 const isError = (value: Value): value is ExcelError => typeof value === 'object' && value !== null;
-const functions = new Set(['SUM', 'MIN', 'MAX', 'AVERAGE', 'COUNT', 'IF', 'IFERROR', 'ABS', 'ROUND', 'ROUNDUP', 'ROUNDDOWN', 'LEN', 'LOWER', 'UPPER', 'CONCAT', 'AND', 'OR', 'NOT']);
+const functions = new Set(['SUM', 'MIN', 'MAX', 'AVERAGE', 'COUNT', 'IF', 'IFERROR', 'ABS', 'ROUND', 'ROUNDUP', 'ROUNDDOWN', 'LEN', 'LOWER', 'UPPER', 'CONCAT', 'AND', 'OR', 'NOT', 'LEFT', 'RIGHT', 'MID', 'TRIM', 'INT', 'MOD', 'SQRT', 'POWER', 'COUNTA', 'COUNTBLANK']);
 export function parseFormula(source: string, allowRangeRoot = false): Formula {
   if (source.length > 8192) throw new RenderError('LIMIT_EXCEEDED', 'Formula exceeds 8192 characters');
   const tokens: (Token | Reference)[] = [], refs: Reference[] = [];
@@ -57,7 +57,7 @@ export function parseFormula(source: string, allowRangeRoot = false): Formula {
         if (peek() !== ')') { args.push(expression()); while (peek() === ',') { position++; args.push(expression()); } }
         take(')');
         if (name === 'IF' && (args.length < 2 || args.length > 3)) throw new RenderError('UNSUPPORTED_FORMULA', 'IF requires two or three arguments');
-        const arity: Record<string, number> = { IFERROR: 2, ABS: 1, ROUND: 2, ROUNDUP: 2, ROUNDDOWN: 2, LEN: 1, LOWER: 1, UPPER: 1, NOT: 1 };
+        const arity: Record<string, number> = { IFERROR: 2, ABS: 1, ROUND: 2, ROUNDUP: 2, ROUNDDOWN: 2, LEN: 1, LOWER: 1, UPPER: 1, NOT: 1, LEFT: 2, RIGHT: 2, MID: 3, TRIM: 1, INT: 1, MOD: 2, SQRT: 1, POWER: 2, COUNTBLANK: 1 };
         if (arity[name] !== undefined && args.length !== arity[name]) throw new RenderError('UNSUPPORTED_FORMULA', `${name} requires ${arity[name]} arguments`);
         left = { kind: 'call', name, args };
       }
@@ -81,7 +81,7 @@ export function parseFormula(source: string, allowRangeRoot = false): Formula {
     }
     if (node.kind === 'binary') pending.push([node.left, depth + 1, false], [node.right, depth + 1, false]);
     else if (node.kind === 'unary') pending.push([node.child, depth + 1, false]);
-    else if (node.kind === 'call') for (const argument of node.args) pending.push([argument, depth + 1, ['SUM','MIN','MAX','AVERAGE','COUNT','CONCAT','AND','OR'].includes(node.name)]);
+    else if (node.kind === 'call') for (const argument of node.args) pending.push([argument, depth + 1, ['SUM','MIN','MAX','AVERAGE','COUNT','CONCAT','AND','OR','COUNTA','COUNTBLANK'].includes(node.name)]);
   }
   return { source, refs, expression: tree };
 }
@@ -137,6 +137,33 @@ export function evaluateFormula(formula: Formula, sheet: string, read: (sheet: s
       if (node.op === '^' && a === 0 && b <= 0) throw new RenderError('UNSUPPORTED_FORMULA', 'Zero raised to a nonpositive power is outside the supported calculation domain');
       if (node.op === '/' && b === 0) return error('#DIV/0!');
       return checked(node.op === '+' ? a + b : node.op === '-' ? a - b : node.op === '*' ? a * b : node.op === '/' ? a / b : a ** b);
+    }
+    if (['LEFT','RIGHT','MID','TRIM'].includes(node.name)) {
+      const values = node.args.map(visit); const failure = values.find(isError); if (failure) return failure;
+      const v = values[0], text = typeof v === 'boolean' ? (v ? 'TRUE' : 'FALSE') : String(v ?? '');
+      if (node.name === 'TRIM') return text.replace(/ +/g, ' ').replace(/^ | $/g, '');
+      const n = numeric(values[1]!); if (typeof n !== 'number') return n;
+      if (n < (node.name === 'MID' ? 1 : 0)) return error('#VALUE!');
+      if (node.name === 'MID') { const count = numeric(values[2]!); if (typeof count !== 'number') return count; return count < 0 ? error('#VALUE!') : text.slice(Math.trunc(n)-1, Math.trunc(n)-1+Math.trunc(count)); }
+      return node.name === 'LEFT' ? text.slice(0,Math.trunc(n)) : Math.trunc(n) === 0 ? '' : text.slice(-Math.trunc(n));
+    }
+    if (['INT','MOD','SQRT','POWER'].includes(node.name)) {
+      const a = numeric(visit(node.args[0]!)); if (typeof a !== 'number') return a;
+      if (node.name === 'INT') return Math.floor(a);
+      if (node.name === 'SQRT') return a < 0 ? error('#NUM!') : Math.sqrt(a);
+      const b = numeric(visit(node.args[1]!)); if (typeof b !== 'number') return b;
+      if (node.name === 'MOD') return b === 0 ? error('#DIV/0!') : checked(a - b * Math.floor(a/b));
+      if (a === 0 && b < 0) return error('#DIV/0!');
+      return a === 0 && b === 0 ? error('#NUM!') : checked(a ** b);
+    }
+    if (['COUNTA','COUNTBLANK'].includes(node.name)) {
+      let count = 0;
+      const add = (value: Value) => { if (node.name === 'COUNTA' ? value !== null : value === null || value === '') count++; };
+      for (const arg of node.args) {
+        if (arg.kind === 'reference' && arg.last) for (let r=arg.first.row; r<=arg.last.row; r++) for (let c=columnNumber(arg.first.column); c<=columnNumber(arg.last.column); c++) { tick(); add(read(arg.sheet ?? sheet,columnName(c)+r)); }
+        else add(visit(arg));
+      }
+      return count;
     }
     if (node.name === 'IF') {
       const value = visit(node.args[0]!);

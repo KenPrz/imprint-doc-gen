@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "current": {
     "formats": {
       "docx": 100,
@@ -184,12 +184,12 @@
       "tenant ownership",
       "immutable template versions",
       "durable jobs",
-      "Generic invoice integration example"
+      "Generic invoice integration example",
+      "Authenticated worker metrics with Prometheus aggregation",
+      "Verified offline SQLite-to-PostgreSQL/S3 migration"
     ],
     "next": [
-      "Application pilot acceptance",
-      "Worker metrics aggregation",
-      "Verified SQLite-to-cluster migration"
+      "Application pilot acceptance"
     ],
     "guide": "standalone-guide.txt"
   },
@@ -202,5 +202,21 @@
       "Advanced structure adapters",
       "Expand independently authored fixtures"
     ]
+  },
+  "featureExpansion": {
+    "plan": "feature-expansion-plan.json",
+    "status": "implemented_and_locally_validated",
+    "features": [
+      "CSV and plain text",
+      "DOCX numbering restarts",
+      "Repeated notes and comments",
+      "ODS repeated-formula rewriting",
+      "Additional spreadsheet formula families",
+      "Passive SVG and inline DOCX images",
+      "Literal category chart updates",
+      "Worker metrics aggregation",
+      "Verified offline SQLite-to-cluster migration"
+    ],
+    "validation": "feature-expansion-validation.json"
   }
 }

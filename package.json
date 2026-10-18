@@ -37,7 +37,9 @@
     "test:formats": "node scripts/formats/check.ts",
     "test:cluster": "node --test tests/integration/*.test.ts",
     "load": "node scripts/operations/load.ts",
-    "docs:build": "node scripts/docs/build.ts"
+    "docs:build": "node scripts/docs/build.ts",
+    "migrate": "node scripts/operations/migrate.ts",
+    "test:feature-office": "node scripts/verify-feature-office.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",

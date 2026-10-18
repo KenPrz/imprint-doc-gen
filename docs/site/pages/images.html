@@ -1,6 +1,6 @@
 <h1>Images and barcodes</h1>
 <p class="lead">
-  Insert a placeholder picture, bind its description, and provide PNG or JPEG bytes. Keep layout decisions in
+  Insert a placeholder picture, bind its description, and provide PNG, JPEG or passive SVG bytes. Keep layout decisions in
   the template.
 </p>
 <h2 id="binding">Bind a picture</h2>
@@ -8,7 +8,7 @@
   Set its alternative-text description to <code>{d.logo}</code>. In OpenDocument use the frame description.
   Supply base64 bytes in HTTP <code>attachments.logo</code>, or a Uint8Array in the SDK.
   <code>data.logo</code> can point to another attachment key. Missing optional bindings retain their
-  placeholder. Remote image fetching and SVG are unsupported.
+  placeholder. Remote image fetching is unsupported. Passive SVG is rasterized; see <a href="features.html#svg">SVG limits</a> and <a href="features.html#word">inline Word insertion</a>.
 </p>
 <pre><code>{
   "data": {"logo":"brand"},

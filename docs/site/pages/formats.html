@@ -1,5 +1,5 @@
 <h1>Format support</h1>
-<p class="lead">Six editable output formats, one syntax, explicit boundaries.</p>
+<p class="lead">Six Office formats plus CSV and plain text, with explicit boundaries.</p>
 <table>
   <thead>
     <tr>
@@ -16,7 +16,7 @@
         nested scopes, item images; preserved numbering definitions.
       </td>
       <td>
-        Repeated note/comment references and numbering restarts need dedicated adapters. No tracked-change,
+        Repeated classic notes/comments and opt-in explicit-list restarts are supported; threaded comments remain unsupported. No tracked-change,
         vertical-merge, VML/OLE or strict-OOXML support.
       </td>
     </tr>
@@ -39,7 +39,7 @@
       </td>
       <td>
         Custom slide shows/sections rejected. Internal slide links target the first generated copy; links to
-        removed markers fail. Dynamic chart data is not implemented.
+        removed markers fail. Literal category-chart data can be updated; linked workbooks are not synchronized.
       </td>
     </tr>
     <tr>
@@ -51,8 +51,7 @@
       <td>ODS</td>
       <td>Text and native number/boolean cells, repeated rows and frame pictures.</td>
       <td>
-        Formulas inside repeated rows rejected because reference rewriting is not implemented. Static formulas
-        are preserved.
+        Local A1 formulas are rewritten across repeated rows. Cross-sheet/external references and compressed repeated formula rows/cells are rejected. Formula caches are invalidated for application recalculation.
       </td>
     </tr>
     <tr>
@@ -65,12 +64,13 @@
     </tr>
   </tbody>
 </table>
+<p>See <a href="features.html">expanded features</a> for CSV/TXT, note cloning, numbering, SVG, inline images and literal chart contracts.</p>
 <h2 id="formulas">Spreadsheet calculations</h2>
 <p>
   XLSX repeats update row addresses, A1 formulas, tables, filters, names, validation and conditional-format
   ranges. Formula copies respect relative rows and dollar locks. Deleted references become <code>#REF!</code>.
   Supported functions are SUM, MIN, MAX, AVERAGE, COUNT, IF, IFERROR, ABS, ROUND, ROUNDUP, ROUNDDOWN, LEN,
-  LOWER, UPPER, CONCAT, AND, OR and NOT. Calculation is bounded by depth and operation limits. Unsupported
+  LOWER, UPPER, CONCAT, AND, OR, NOT, LEFT, RIGHT, MID, TRIM, INT, MOD, SQRT, POWER, COUNTA and COUNTBLANK. Calculation is bounded by depth and operation limits. Unsupported
   formulas fail when recalculation is needed; unchanged workbooks preserve existing formula caches and request
   application recalculation.
 </p>

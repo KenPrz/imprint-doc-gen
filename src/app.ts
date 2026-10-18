@@ -35,7 +35,7 @@ export function createApp(config: AppConfig) {
     request.log.error({ err: error }, 'Request failed');
     return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
-  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 7, storage: store?.kind ?? 'disabled', formats: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'standard-docx-tags', 'standard-xlsx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
+  app.get('/health', async () => ({ status: 'ok', service: 'imprint-doc-gen', milestone: 7, storage: store?.kind ?? 'disabled', formats: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'txt', 'csv'], features: ['text', 'pictures', 'headers', 'footers', 'loops', 'nested-scopes', 'typed-cells', 'spreadsheet-pictures', 'spreadsheet-rows', 'formula-calculation', 'standard-docx-tags', 'standard-xlsx-tags', ...(store ? ['tenants', 'template-versions', 'durable-jobs'] : [])] }));
   app.get('/ready', async (_request, reply) => {
     if (store) try { await store.ready(); } catch { return reply.code(503).send({ status: 'unavailable' }); }
     if (config.converterUrl) {
@@ -85,7 +85,7 @@ export function createApp(config: AppConfig) {
     schema: {
       querystring: { type: 'object', required: ['download'], additionalProperties: false, properties: { download: { type: 'string', const: 'true' } } },
       body: { type: 'object', additionalProperties: false, required: ['template', 'data'], properties: {
-        template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: inputProperties.data, attachments: inputProperties.attachments, images: inputProperties.images, locale: inputProperties.locale, timeZone: inputProperties.timeZone, convertTo: inputProperties.output,
+        template: { type: 'string', maxLength: 12 * 1024 * 1024 }, data: inputProperties.data, attachments: inputProperties.attachments, images: inputProperties.images, charts: inputProperties.charts, restartNumbering: inputProperties.restartNumbering, locale: inputProperties.locale, timeZone: inputProperties.timeZone, convertTo: inputProperties.output,
       } },
     },
   }, async (request, reply) => {

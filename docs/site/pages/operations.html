@@ -91,3 +91,29 @@ npm run backup -- restore /secure/backup.sqlite /path/to/empty-data</code></pre>
   incomplete data. Failed uploads can leave staged objects for the scheduled collector. Never delete a live
   volume or bucket to resolve a queue problem.
 </p>
+<h2 id="workers">Worker metrics aggregation</h2>
+<p>Set WORKER_METRICS_PORT (for example 3002), WORKER_METRICS_TOKEN (at least 24 characters), and optionally WORKER_METRICS_HOST on each independent worker. Scrape GET /metrics with Bearer authentication. The endpoint reports that process's render counters, latency buckets, admission usage and memory; database failure returns 503. Keep it on a private monitoring network. Disabled unless the port is configured.</p>
+<pre><code># Prometheus scrape configuration; list each worker as a distinct target.
+scrape_configs:
+  - job_name: imprint-workers
+    authorization:
+      credentials_file: /run/secrets/imprint-metrics-token
+    static_configs:
+      - targets: ['worker-1:3002', 'worker-2:3002']
+
+# Fleet throughput, failures and p95 latency:
+sum(rate(imprint_renders_total{job="imprint-workers"}[5m]))
+sum(rate(imprint_renders_total{job="imprint-workers",result="failed"}[5m]))
+histogram_quantile(0.95, sum by (le) (rate(imprint_render_duration_seconds_bucket{job="imprint-workers"}[5m])))
+# Shared queue counts are duplicated at each scrape target: use max, not sum.
+max(imprint_queued_jobs{job="imprint-workers"})
+sum(imprint_active_renders{job="imprint-workers"})</code></pre>
+<p>Prometheus performs aggregation and handles process counter resets. The API endpoint remains process-local. Scrape both API and worker targets when synchronous API rendering contributes to fleet totals.</p>
+<h2 id="migration">Verified offline SQLite-to-cluster migration</h2>
+<ol>
+<li>Stop accepting writes and drain/stop the SQLite service. Create a verified backup using the existing backup command. Keep the source and backup for rollback.</li>
+<li>Provision an empty PostgreSQL database and private S3 bucket. Keep destination APIs and workers stopped. Configure DATABASE_URL, S3_BUCKET, AWS_REGION and credentials; set S3_ENDPOINT for compatible storage.</li>
+<li>Run <code>npm run migrate -- /path/to/offline-backup.sqlite</code>. The command prints counts and verified bytes, never credentials.</li>
+<li>Start the cluster, verify tenant authentication, published template versions and downloaded results, then switch application traffic. Do not resume writes to the old instance after cutover.</li>
+</ol>
+<p>The migration preserves tenant IDs/key hashes, template/version IDs, publication pointers, job payloads/statuses/results and idempotency keys. Every uploaded blob is read back and checksum-verified before metadata commits atomically. Running source jobs, nonempty destinations, bad foreign keys, invalid publication/ownership links and quota violations are rejected. Failed attempts roll back metadata and remove unreferenced uploaded blobs; cleanup failure is reported. Ambiguous commits never trigger deletion of referenced objects. No historical webhook events are synthesized. This is an offline migration, not live replication or automatic traffic switching.</p>

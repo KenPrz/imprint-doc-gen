@@ -8,6 +8,8 @@ import { mediaTypes } from './types.ts';
 
 export interface Principal { tenant: string; admin: boolean }
 export const inputProperties = {
+  restartNumbering: { type: 'boolean' },
+  charts: { type: 'object', maxProperties: 32, additionalProperties: { type: 'object', additionalProperties: false, required: ['categories','series'], properties: { categories: { type: 'array', maxItems: 10000, items: { type: 'string', maxLength: 32767 } }, series: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object', additionalProperties: false, required: ['name','values'], properties: { name: { type: 'string', maxLength: 32767 }, values: { type: 'array', maxItems: 10000, items: { type: 'number' } } } } } } } },
   locale: { type: 'string', maxLength: 80 }, timeZone: { type: 'string', maxLength: 80 },
   images: { type: 'object', maxProperties: 32, additionalProperties: { type: 'object', additionalProperties: false, properties: {
     fit: { type: 'string', enum: ['contain','cover','fill'] }, width: { type: 'integer', minimum: 1, maximum: 4096 }, height: { type: 'integer', minimum: 1, maximum: 4096 }, rotate: { type: 'number', minimum: -360, maximum: 360 }, background: { type: 'string', pattern: '^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$' },
@@ -15,7 +17,7 @@ export const inputProperties = {
   } } },
   data: { type: 'object', additionalProperties: true },
   attachments: { type: 'object', maxProperties: 32, additionalProperties: { type: 'string', maxLength: 12 * 1024 * 1024 } },
-  output: { type: 'string', enum: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'pdf'] },
+  output: { type: 'string', enum: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'txt', 'csv', 'pdf'] },
 };
 const id = { type: 'string', pattern: '^[a-zA-Z0-9-]{1,64}$' };
 const body = (required: string[], properties: object) => ({ body: { type: 'object', additionalProperties: false, required, properties } });

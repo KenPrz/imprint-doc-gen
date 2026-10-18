@@ -137,7 +137,7 @@ test('inline blocks, multi-row boundaries and duplicate row selections are rejec
 });
 
 test('unsupported reference-bearing structures inside repeats fail instead of being duplicated', async () => {
-  for (const content of ['<w:bookmarkStart w:id="1" w:name="bookmark"/>', '<w:commentReference w:id="1"/>', '<w:vMerge w:val="continue"/>', '<w:footnoteReference w:id="1"/>']) {
+  for (const content of ['<w:bookmarkStart w:id="1" w:name="bookmark"/>', '<w:vMerge w:val="continue"/>']) {
     await assert.rejects(compile(await template(block(p('value') + content))), errorCode('UNSUPPORTED_TEMPLATE'));
   }
 });

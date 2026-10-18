@@ -41,6 +41,9 @@ services:
     healthcheck: { disable: true }
     environment:
       <<: *environment
+      WORKER_METRICS_PORT: ${WORKER_METRICS_PORT:-}
+      WORKER_METRICS_TOKEN: ${WORKER_METRICS_TOKEN:-}
+      WORKER_METRICS_HOST: 0.0.0.0
       WEBHOOK_URL: ${WEBHOOK_URL:-}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
     depends_on:

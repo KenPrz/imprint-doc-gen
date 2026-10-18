@@ -10,6 +10,9 @@ import { render } from '../src/index.ts';
 
 const dir = resolve('corpus/results/calculation');
 const formulas = [
+  ['LEFT("abcd",2)', 'RIGHT("abcd",0)', 'MID("abcd",2,2)', 'TRIM("  a   b  ")', 'INT(-2.3)'],
+  ['MOD(-3,2)', 'MOD(3,-2)', 'SQRT(9)', 'POWER(2,3)', 'IFERROR(SQRT(-1),"invalid")'],
+  ['COUNTA(A100:A103)', 'COUNTBLANK(A100:A103)', 'LEFT("a",0)', 'RIGHT("abc",1)', 'MID("a",0,1)'],
   ["SUM('Report'!B40:B40)", "MIN('Report'!B40:B40)", "MAX('Report'!B40:B40)", "AVERAGE('Report'!B40:B40)", "COUNT('Report'!B40:B40)"],
   ['2^3^2', '-2^2', '2^-2', 'IF(1<2,"yes",1/0)', 'SUM("3",TRUE,2)'],
   ['2^0', '2^-1', '(-1)^0.5', '"TRUE"&"FALSE"', 'IF("TRUE",1,2)'],
