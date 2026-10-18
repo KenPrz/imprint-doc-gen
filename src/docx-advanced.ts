@@ -187,18 +187,22 @@ export function advancedCloner(
     },
     async finish(rendered: Map<string, Buffer>, data: Record<string, unknown>) {
       for (const [kind, state] of definitions) {
-        const refs = new Set<string>();
+        const refs = new Set<string>(),
+          originalRefs = new Set<string>();
         for (const [part, original] of parts) {
           if (!part.endsWith('.xml') || [...definitions.values()].some((v) => v.part === part)) continue;
           const doc = parseXml((rendered.get(part) ?? original).toString(), part);
+          const originalDoc = rendered.has(part) ? parseXml(original.toString(), part) : doc;
+          for (const n of descendants(originalDoc, ns.word, kind + 'Reference'))
+            originalRefs.add(n.getAttributeNS(ns.word, 'id')!);
           for (const n of descendants(doc, ns.word, kind + 'Reference'))
             refs.add(n.getAttributeNS(ns.word, 'id')!);
         }
         for (const original of descendants(state.doc, ns.word, kind)) {
           const id = original.getAttributeNS(ns.word, 'id')!;
-          // Drop unused original definitions only when they were actually cloned.
+          // Drop definitions whose references were cloned or removed by an empty repeat.
           const cloned = clonedIds.get(kind)?.has(id);
-          if (cloned && !refs.has(id) && (kind === 'comment' || Number(id) > 0)) {
+          if ((cloned || originalRefs.has(id)) && !refs.has(id) && (kind === 'comment' || Number(id) > 0)) {
             original.parentNode!.removeChild(original);
             continue;
           }
