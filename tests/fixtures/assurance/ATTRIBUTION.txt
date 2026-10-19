@@ -1,0 +1,4 @@
+pdfa-1b-pass.pdf is an unmodified veraPDF Consortium test corpus fixture.
+Source and SHA-256: provenance.json.
+Licensed CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Upstream license declaration: https://github.com/veraPDF/veraPDF-corpus/blob/377728596647e40edf16003d68d620773ce96ec5/README.md

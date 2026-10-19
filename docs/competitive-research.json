@@ -1,0 +1,50 @@
+{
+  "schema": "imprint-competitive-research-v1",
+  "date": "2026-10-18",
+  "scope": "Migration and shared component foundations; not full competitor feature parity",
+  "sources": [
+    {
+      "url": "https://carbone.io/documentation/design/substitutions/the-basics.html",
+      "evidenceType": "official documentation",
+      "observation": "Scalar data tags use d-prefixed dotted paths; arrays and parent lookups have additional semantics."
+    },
+    {
+      "url": "https://carbone.io/documentation/design/formatters/text.html",
+      "evidenceType": "official documentation",
+      "observation": "Carbone offers upperCase and lowerCase text formatters."
+    },
+    {
+      "url": "https://registry.npmjs.org/carbone/-/carbone-3.8.2.tgz",
+      "evidenceType": "downloaded public source package and executed runtime oracle",
+      "integrity": "sha512-ejuZ//MywH4uTIhWPIqSOEWLq9y2s3kPadoOh92rZZCNkYg31y8mpPaQT4rZb6oGmaclLDvOW6Ye0iACVH+c+w==",
+      "observation": "Twelve renderXML cases captured in tests/fixtures/migration/carbone-oracle.json. Case formatters preserve numeric and boolean inputs, while Imprint requires strings. A general formatter mapping would silently change supported behavior.",
+      "reproduction": "Install carbone@3.8.2 into an isolated temporary prefix with --ignore-scripts, then invoke tests/fixtures/migration/carbone-probe.cjs with the absolute installed module path. No competitor source redistributed or added to production dependencies."
+    },
+    {
+      "url": "https://help.sap.com/doc/305e804dfee640ac9aadeb4ac352f05c/SP21/en-US/crnet13_sp21_dg_en.pdf",
+      "evidenceType": "official documentation",
+      "observation": "Report Definition is described as a text description of report design. This does not establish a stable native interchange grammar or equivalent executable formula semantics."
+    }
+  ],
+  "implemented": [
+    {
+      "feature": "Carbone extracted-text migration",
+      "status": "bounded implementation",
+      "design": "Preserve scalar placeholders; optionally map upperCase/lowerCase chains to upper()/lower() only with an explicit stringFields contract and en-US locale. Report unsupported tokens by exact source offset. An unsupported token cancels all proposed edits. Return original source, required contracts and required follow-up checks.",
+      "limits": "compileCarboneText enforces string contracts and pins en-US on every TXT render; callers using the migration report directly must enforce the reported contracts themselves. Lexical compatibility does not establish package structure or layout equivalence. No Office package editing, repeat translation, numeric/date formatter migration or arbitrary expression execution."
+    },
+    {
+      "feature": "Crystal inventory",
+      "status": "custom interchange inventory only",
+      "design": "Validate imprint-crystal-inventory-v1 metadata and enumerate field, formula, group and subreport migration tasks.",
+      "limits": "No proprietary RPT decoding, native SAP export parsing, automatic formulas or layout conversion; no licensed Crystal runtime or authentic RPT oracle was available."
+    },
+    {
+      "feature": "Shared components",
+      "status": "plain-text SDK foundation",
+      "design": "Immutable registry of exact component versions; nested expansion with content hashes, transitive template impact, missing/cycle checks and bounded graph/output expansion.",
+      "limits": "Plain text only. No rich Office fragment merging, persisted authoring UI or automatic rollout. Impact enumerates caller-supplied templates, not an undisclosed template database."
+    }
+  ],
+  "confidence": "Bounded evidence, not a claim of exhaustive coverage or 100 percent correctness. Release of full migration and rich document components remains blocked by the listed gaps."
+}

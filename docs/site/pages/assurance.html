@@ -1,0 +1,76 @@
+<h1>Document assurance</h1>
+<p class="lead">Test template changes, explain rendered fields, compare outputs and preserve evidence. These capabilities have bounded contracts; passing a suite does not prove correctness for every possible document.</p>
+<h2 id="contracts">Validate input contracts and business rules</h2>
+<p>The SDK exposes <code>validateContract(schema, data)</code>, <code>contractTypeScript(schema)</code> and <code>contractSample(schema)</code>. Supported explicit types are object, array, string, number, integer, boolean and null. Properties, required keys, additionalProperties, enum, numeric bounds, string lengths and array lengths are supported. Unknown keywords, references, unions, regular expressions and unsupported combinations fail closed. Integer values must be safe JavaScript integers. Generated TypeScript describes structure; runtime validation enforces constraints. Samples are deterministic structural examples, not exhaustive or realistic test data.</p>
+<pre><code>const schema = {
+  type: 'object', additionalProperties: false,
+  properties: { total: { type: 'number', minimum: 0 } },
+  required: ['total']
+};
+const validation = validateContract(schema, { total: 12.5 });
+const checks = evaluateAssertions(
+  { total: 12.5, lines: [{ amount: 10 }, { amount: 2.5 }] },
+  [{ name: 'balanced', left: { sum: '/lines', field: '/amount' },
+     operator: 'equals', right: { path: '/total' }, tolerance: 0.000001 }]
+);</code></pre>
+<p>Assertion paths use RFC 6901 JSON Pointers. Calculations use JavaScript numbers, not a decimal money engine. Declare rounding and tolerances appropriate to your application. Contract and assertion results must be checked before rendering or delivery.</p>
+<h2 id="trace">Explain values without exposing data by default</h2>
+<p><code>traceTemplateInputs(template, data)</code> provides inspector-discovered preflight fields and scalar formatter evaluation. <code>renderWithTrace(template, data, renderOptions, traceOptions)</code> records actual standard lookup operations, their scoped paths, document parts, scope depth, formatter names, types, missing inputs and failures. Output values are excluded unless <code>includeValues: true</code>. Event and value limits are explicit; inspect <code>truncated</code> and <code>droppedEvents</code>.</p>
+<p>Execution traces do not cover every legacy binding, infer original array indexes, or identify PDF page coordinates. A successful lookup does not prove that its result is visible on a rendered page. Rendering returns either <code>{ok: true, value, trace}</code> or <code>{ok: false, error, trace}</code>.</p>
+<h2 id="regression">Customer regression suites and comparisons</h2>
+<pre><code>const result = await runRegressionSuite(template, [
+  { name: 'empty order', data: { items: [] }, approved: approvedBytes },
+  { name: 'unicode customer', data: customerData, approved: unicodeBytes }
+]);
+if (!result.passed) throw new Error('Template change rejected');</code></pre>
+<p>Expected documents must be independently approved. Exact bytes are the default comparison. Explicit semantic mode compares text, spreadsheet values and formulas at positional locations; it does not assess formatting, images or page layout. Exact location masks are recorded, stale masks fail, and masks cannot exclude the entire document. Row insertion can produce multiple positional differences; there is no inferred business row identity.</p>
+<p><code>comparePageImages(beforePng, afterPng, options)</code> compares bounded PNG pixels. <code>comparePdfDocuments(beforePdf, afterPdf, {pdftoppmPath: '/usr/bin/pdftoppm'})</code> rasterizes real PDF pages with Poppler and compares them, reporting page counts and renderer version. Configure executable paths only in trusted application code. Thresholds and rectangular masks must be explicit. Identical rasterization is not proof of document accessibility or correctness.</p>
+<h2 id="replay">Replay a captured render</h2>
+<p><code>createReplayBundle(template, data, options)</code> stores the template, data, attachments, options, exact output digest and engine identity. <code>replayBundle(bundle)</code> verifies integrity, rejects environment mismatches and confirms the output digest. Bundles contain potentially sensitive data and are not automatically uploaded.</p>
+<p>Replay covers native renderer output. The engine fingerprint binds source/build bytes, lockfile, Node version, platform and architecture. Source and compiled builds intentionally have different identities. PDF converters and fonts are not captured. A digest detects corruption; it does not authenticate an author who can rewrite a bundle and recompute its digest.</p>
+<h2 id="migration">Migrate with evidence and explicit incompatibilities</h2>
+<p><code>migrateCarboneText(source, options)</code> inventories and converts a conservative scalar text subset. <code>compileCarboneText</code> enforces the declared input contract at render time. Case formatter migration requires declared string fields and en-US settings: a downloaded Carbone 3.8.2 runtime showed that Carbone accepts numeric case inputs while our engine requires strings. Unsupported loops, expressions and formatter semantics produce diagnostics and are not silently translated.</p>
+<p><code>inventoryCrystalMetadata</code> accepts the documented <code>imprint-crystal-inventory-v1</code> JSON interchange for fields, formulas, groups and subreports. It is an inventory tool, not a native SAP export schema or a raw .rpt parser. Crystal extraction through an available licensed SDK and representative real reports remains separate work. See <a href="https://help.sap.com/docs/r/product/SAP_CRYSTAL_REPORTS">SAP documentation</a> and <a href="https://carbone.io/documentation/design/overview/version-lifecycle.html">Carbone version lifecycle</a>.</p>
+<p>DOCX supports the exact sibling-paragraph conditional pair <code>{d.field:ifNEM():showBegin}</code> and <code>{d.field:showEnd}</code>. Null, missing, empty string, empty array and empty object hide the block; zero and false retain it. Nested conditions, conditions mixed with repeats in a story, and unsafe document anchors reject explicitly.</p>
+<h2 id="rich-components">Pinned rich DOCX components</h2>
+<p><code>assembleDocxComponents(host, components)</code> inserts versioned, SHA-256-pinned DOCX fragments at whole top-level body paragraphs containing <code>{{&gt;clause@1}}</code>. Each component has <code>id, version, document, sha256</code>; the result contains <code>document</code> and a lock with occurrence counts. Assemble before passing the result to <code>render</code>.</p>
+<p>Paragraph styles, tables, embedded PNG/JPEG and ordinary numbered lists are imported with fresh identities; lists restart per occurrence. Host and fragment document defaults, and any referenced themes, must match. The host controls page settings. Nested components, notes/comments, fields/bookmarks, tracked changes, external links, custom sections and picture bullets are unsupported and rejected. LibreOffice checks cover an independently authored fixture; Microsoft Word acceptance remains pending.</p>
+<p><code>inspectCrystalArtifact(bytes)</code> inventories bounded CFB v3/v4 directory names, kinds and declared sizes. Three real RPT samples match an independent olefile oracle. This does not decode formulas, layout or stream content, render reports, or establish Crystal compatibility. Extended DIFAT is unsupported. Semantic migration still needs a supported SAP runtime and reference outputs.</p>
+<h2 id="components">Pinned reusable text components</h2>
+<p><code>ComponentRegistry</code> expands exact-version references such as <code>{{&gt; address@v1}}</code>, produces component hash locks and reports templates transitively affected by a component version. Missing dependencies, cycles, malformed references and excessive expansion fail. Registry entries are snapshots. This implementation handles text composition; merging Office styles, relationships, numbering and document fragments is not supported.</p>
+<h2 id="delivery">Validate before returning an artifact</h2>
+<p><code>validateDelivery(bytes, validators)</code> snapshots the artifact, runs each required trusted validator and returns a digest-bound evidence report. Failed, timed-out, thrown or malformed checks produce <code>status: 'quarantined'</code> and no artifact. Validators receive separate byte copies. This is an in-memory handoff, not a durable quarantine store or a modification to existing job delivery routes. Applications must call it before their own delivery step.</p>
+<p><code>pdfStructureValidator</code> checks PDF parsing and page bounds only. <code>veraPdfValidator({executable, version, profile})</code> invokes a locally installed trusted veraPDF executable without a shell and requires the expected core version and profile in its report. Set <code>version</code> to veraPDF's <em>core</em> releaseDetails version; the CLI application version can differ. Missing tools, report mismatches and parsing errors fail closed.</p>
+<p>PDF/A and PDF/UA checks require the corresponding output and validation profile. Machine checks do not replace human accessibility review. This release does not claim to generate universally compliant PDF/A or PDF/UA. <a href="https://docs.verapdf.org/validation/">veraPDF validation scope</a>.</p>
+<h2 id="interactive">Filter and export the same report data</h2>
+<p><code>createReportSnapshot(definition, filters)</code> supports a bounded typed table with equality, substring and numeric range filters. It computes selected-row totals and a digest. <code>reportSnapshotHtml(snapshot)</code> creates a self-contained browser view with row details, search, selected CSV/data downloads and print-to-PDF. HTML escapes input, uses a script hash policy, and does not make external requests. CSV export guards against formula injection.</p>
+<p><code>renderReportSnapshot(template, snapshot)</code> validates the snapshot and binds it under <code>d.report</code> for Office or text exports. A browser selection downloads a report definition; pass that definition to <code>createReportSnapshot</code> before exporting through the SDK. Browser print is a browser PDF, not the Office template layout. Filtering is not access control: distribute only data the recipient may inspect. Numeric totals use compensated floating-point summation.</p>
+<h2 id="review">Verify AI-proposed edits</h2>
+<p><code>reviewTemplateCandidate(base, candidate, approvedCases)</code> inspects a proposed template and runs its approved fixtures. <code>acceptTemplateCandidate(review, currentBase)</code> only returns bytes for a passing in-process review with an unchanged base. Public report mutation cannot turn a failed review into an accepted candidate. Persisted reviews must be re-run. No model-generated JavaScript is executed and no template is automatically published.</p>
+<p>This is a provider-neutral verification interface, not an included LLM service, prompt editor or autonomous authoring agent. It works with candidate files produced by either people or AI tools.</p>
+<h2 id="api">Authenticated API and CLI</h2>
+<p><code>POST /v1/assurance</code> uses the existing bearer authentication and concurrency limit. Operations run in a worker with a 30-second deadline and a 12 MiB request limit. Unknown properties fail. Binary fields use canonical base64; artifact responses use base64. Report HTML is returned inside JSON, not served as an executable page.</p>
+<table><thead><tr><th>operation</th><th>Required fields</th><th>Optional fields</th></tr></thead><tbody>
+<tr><td>contract</td><td>schema, data</td><td>assertions</td></tr>
+<tr><td>trace</td><td>template, data</td><td>options, includeValues</td></tr>
+<tr><td>diff</td><td>before, after, format</td><td>masks</td></tr>
+<tr><td>regression</td><td>template, cases</td><td>mode</td></tr>
+<tr><td>report</td><td>definition</td><td>filters</td></tr>
+<tr><td>migrate</td><td>sourceType, source</td><td>stringFields, locale, data</td></tr>
+<tr><td>docx-components</td><td>template, components (id, version, document, sha256)</td><td>—</td></tr>
+<tr><td>crystal-artifact</td><td>artifact</td><td>—</td></tr>
+<tr><td>components</td><td>components, source</td><td>impact</td></tr>
+<tr><td>review</td><td>base, candidate, cases</td><td>mode</td></tr>
+<tr><td>replay-create</td><td>template, data</td><td>options</td></tr>
+<tr><td>replay</td><td>bundle</td><td>—</td></tr>
+<tr><td>delivery</td><td>artifact</td><td>maxPages</td></tr>
+</tbody></table>
+<p>HTTP options currently support locale, timeZone and restartNumbering; SDK render options additionally support assets. HTTP delivery performs structural PDF checks only. External executable selection and custom validation callbacks are SDK-only trusted configuration.</p>
+<p>Run <code>node examples/assurance/demo.ts</code> for a complete contract → component → trace → regression → replay → review → delivery example with independent expected text.</p>
+<pre><code>npm run assurance -- request.json evidence.json
+npm run test:assurance:browser
+npm run test:assurance:verapdf</code></pre>
+<p>The CLI accepts the same JSON operation payload and writes a new private evidence file. It refuses to overwrite an existing file. A successful CLI invocation means the operation completed; inspect returned validation, passed or status fields before accepting an artifact.</p>
+<h2 id="release">Release gates and remaining acceptance</h2>
+<p>Version 1.0.0 is approved by the repository owner with the remaining acceptance below explicitly deferred, not marked passed. Required evidence includes typecheck/build, adversarial units, cross-feature API tests, all existing format corpora, independent Office/PDF checks, browser interaction and remote CI. Each production deployment still needs its own approved datasets and visual baselines. Microsoft Office repair-free opening and human accessibility acceptance cannot be inferred from Linux rendering tests.</p>
+<p>Research distinguishes observed runtime behavior, documented capabilities and our own design choices. No feature-count comparison or passing test count establishes universal compatibility with Crystal Reports or Carbone.</p>

@@ -12,6 +12,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run typecheck
       - run: npm run build
+      - run: node scripts/assurance/compiled-check.mjs
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: npm test
       - run: npm run test:formats
       - run: npm run docs:build
@@ -184,6 +186,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: sudo apt-get update && sudo apt-get install -y libreoffice-writer libreoffice-calc poppler-utils
       - run: npm run test:feature-office
+      - run: node tests/fixtures/docx-components/verify-office.ts "$PWD/artifacts/docx-components"
       - name: Verify worker metric aggregation rules
         run: docker run --rm --entrypoint promtool -v "$PWD/examples/operations:/work" -w /work prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996 test rules imprint-rules.test.yml
       - uses: actions/upload-artifact@v4
@@ -191,36 +194,79 @@ jobs:
         with:
           name: expanded-feature-office-validation
           path: |
+            artifacts/docx-components/validation.json
+            artifacts/docx-components/page.png
             artifacts/feature-expansion/office-validation.json
             artifacts/feature-expansion/*.png
             artifacts/feature-expansion/pdf/
             corpus/results/calculation/formula-comparison.json
 
+  assurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: node examples/assurance/demo.ts
+      - run: npm run test:assurance:browser
+      - run: npm run test:assurance:verapdf
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: document-assurance-validation
+          path: artifacts/assurance/
+
   publish:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [fixtures, conversion, standalone, cluster, feature-office]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    needs: [fixtures, conversion, standalone, cluster, feature-office, assurance]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - name: Require approved release acceptance
+        run: node scripts/assurance/release-gate.mjs
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Select validated release image tags
+        id: image-tags
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, appendFileSync } from 'node:fs';
+          const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+          const image = 'ghcr.io/kenprz/imprint-doc-gen';
+          const tags = [`${image}:sha-${process.env.GITHUB_SHA}`, `${image}:standalone`];
+          if (process.env.GITHUB_REF_TYPE === 'tag') {
+            if (!/^[1-9]\d*\.\d+\.\d+$/.test(version) || process.env.GITHUB_REF_NAME !== `v${version}`) {
+              throw new Error('Release tag must exactly match the stable package version');
+            }
+            tags.push(`${image}:v${version}`, `${image}:v${version.split('.')[0]}`, `${image}:latest`);
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `tags<<TAGS\n${tags.join('\n')}\nTAGS\n`);
+          NODE
       - name: Publish tested amd64 image
+        id: published-image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.standalone
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/kenprz/imprint-doc-gen:sha-${{ github.sha }}
-            ghcr.io/kenprz/imprint-doc-gen:standalone
+          tags: ${{ steps.image-tags.outputs.tags }}
           cache-from: type=gha,scope=standalone
           provenance: mode=max
           sbom: true
+      - name: Record immutable image digest
+        env:
+          IMAGE_DIGEST: ${{ steps.published-image.outputs.digest }}
+        run: echo "Published ghcr.io/kenprz/imprint-doc-gen@$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"

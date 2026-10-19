@@ -1,0 +1,258 @@
+{
+  "sourceCommit": "065de89f390665cfb657ff95a56e754128ee74c2",
+  "sourceRepository": "https://github.com/kleinjoshuaa/Crystal-Reports",
+  "oracle": "Python olefile 0.47; directory paths, kinds and declared lengths only",
+  "samples": [
+    {
+      "filename": "Customer List.rpt",
+      "sha256": "628047c02b066edebc303d2714437dc213e2decb9470b4b1fc73b395a61eba72",
+      "bytes": 123392,
+      "entries": [
+        {
+          "path": ["\u0005SummaryInformation"],
+          "kind": "stream",
+          "declaredBytes": 36189
+        },
+        {
+          "path": ["AnalysisGridsStream 7l"],
+          "kind": "stream",
+          "declaredBytes": 56
+        },
+        {
+          "path": ["Contents"],
+          "kind": "stream",
+          "declaredBytes": 3459
+        },
+        {
+          "path": ["DataSourceManager 4l"],
+          "kind": "stream",
+          "declaredBytes": 1269
+        },
+        {
+          "path": ["Embedding 1"],
+          "kind": "storage",
+          "declaredBytes": 0
+        },
+        {
+          "path": ["Embedding 1", "\u0001CompObj"],
+          "kind": "stream",
+          "declaredBytes": 106
+        },
+        {
+          "path": ["Embedding 1", "\u0001Ole"],
+          "kind": "stream",
+          "declaredBytes": 20
+        },
+        {
+          "path": ["Embedding 1", "CONTENTS"],
+          "kind": "stream",
+          "declaredBytes": 57846
+        },
+        {
+          "path": ["QESession"],
+          "kind": "stream",
+          "declaredBytes": 2350
+        },
+        {
+          "path": ["ReportInfo"],
+          "kind": "stream",
+          "declaredBytes": 58
+        },
+        {
+          "path": ["ReportParametersStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 95
+        },
+        {
+          "path": ["SavedRecordsStream 6l"],
+          "kind": "stream",
+          "declaredBytes": 16756
+        },
+        {
+          "path": ["TotallerStream 5l"],
+          "kind": "stream",
+          "declaredBytes": 45
+        },
+        {
+          "path": ["ViewInformationStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 90
+        }
+      ]
+    },
+    {
+      "filename": "Formulas.rpt",
+      "sha256": "aeaef818bdb608b9354a228741e71aa99f8e9317ca7e04525a76986e16d4b857",
+      "bytes": 48640,
+      "entries": [
+        {
+          "path": ["\u0005SummaryInformation"],
+          "kind": "stream",
+          "declaredBytes": 36189
+        },
+        {
+          "path": ["AnalysisGridsStream 4l"],
+          "kind": "stream",
+          "declaredBytes": 56
+        },
+        {
+          "path": ["Contents"],
+          "kind": "stream",
+          "declaredBytes": 2802
+        },
+        {
+          "path": ["DataSourceManager 1l"],
+          "kind": "stream",
+          "declaredBytes": 1173
+        },
+        {
+          "path": ["QESession"],
+          "kind": "stream",
+          "declaredBytes": 2203
+        },
+        {
+          "path": ["ReportInfo"],
+          "kind": "stream",
+          "declaredBytes": 58
+        },
+        {
+          "path": ["ReportParametersStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 95
+        },
+        {
+          "path": ["SavedRecordsStream 3l"],
+          "kind": "stream",
+          "declaredBytes": 993
+        },
+        {
+          "path": ["TotallerStream 2l"],
+          "kind": "stream",
+          "declaredBytes": 44
+        },
+        {
+          "path": ["ViewInformationStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 90
+        }
+      ]
+    },
+    {
+      "filename": "Top5USAwithSub.rpt",
+      "sha256": "f533d389ff843ec5ef1752a4b61015cf3ec4089b6839f202782cffd7ab3b5599",
+      "bytes": 158720,
+      "entries": [
+        {
+          "path": ["\u0005SummaryInformation"],
+          "kind": "stream",
+          "declaredBytes": 36249
+        },
+        {
+          "path": ["AnalysisGridsStream 30l"],
+          "kind": "stream",
+          "declaredBytes": 306
+        },
+        {
+          "path": ["CHART 27l"],
+          "kind": "stream",
+          "declaredBytes": 10278
+        },
+        {
+          "path": ["Contents"],
+          "kind": "stream",
+          "declaredBytes": 5017
+        },
+        {
+          "path": ["DataSourceManager 26l"],
+          "kind": "stream",
+          "declaredBytes": 1706
+        },
+        {
+          "path": ["QESession"],
+          "kind": "stream",
+          "declaredBytes": 2696
+        },
+        {
+          "path": ["ReportInfo"],
+          "kind": "stream",
+          "declaredBytes": 58
+        },
+        {
+          "path": ["ReportParametersStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 105
+        },
+        {
+          "path": ["SavedRecordsStream 29l"],
+          "kind": "stream",
+          "declaredBytes": 11340
+        },
+        {
+          "path": ["Subdocument 2"],
+          "kind": "storage",
+          "declaredBytes": 0
+        },
+        {
+          "path": ["Subdocument 2", "AnalysisGridsStream 36l"],
+          "kind": "stream",
+          "declaredBytes": 56
+        },
+        {
+          "path": ["Subdocument 2", "Contents"],
+          "kind": "stream",
+          "declaredBytes": 4679
+        },
+        {
+          "path": ["Subdocument 2", "DataSourceManager 33l"],
+          "kind": "stream",
+          "declaredBytes": 1590
+        },
+        {
+          "path": ["Subdocument 2", "Embedding 2"],
+          "kind": "storage",
+          "declaredBytes": 0
+        },
+        {
+          "path": ["Subdocument 2", "Embedding 2", "\u0001CompObj"],
+          "kind": "stream",
+          "declaredBytes": 106
+        },
+        {
+          "path": ["Subdocument 2", "Embedding 2", "\u0001Ole"],
+          "kind": "stream",
+          "declaredBytes": 20
+        },
+        {
+          "path": ["Subdocument 2", "Embedding 2", "CONTENTS"],
+          "kind": "stream",
+          "declaredBytes": 57846
+        },
+        {
+          "path": ["Subdocument 2", "QESession"],
+          "kind": "stream",
+          "declaredBytes": 2696
+        },
+        {
+          "path": ["Subdocument 2", "SavedRecordsStream 35l"],
+          "kind": "stream",
+          "declaredBytes": 14143
+        },
+        {
+          "path": ["Subdocument 2", "TotallerStream 34l"],
+          "kind": "stream",
+          "declaredBytes": 843
+        },
+        {
+          "path": ["TotallerStream 28l"],
+          "kind": "stream",
+          "declaredBytes": 315
+        },
+        {
+          "path": ["ViewInformationStream 0l"],
+          "kind": "stream",
+          "declaredBytes": 98
+        }
+      ]
+    }
+  ]
+}

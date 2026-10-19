@@ -1,11 +1,12 @@
+import { recordLookupExecution } from './execution-trace.ts';
 import { parseExpression, formatValue, type Formatter, type ArrayFilter } from './expressions.ts';
 import { RenderError } from './errors.ts';
 import { checkPath, lookup, type Scope } from './scope.ts';
 import { ns, ancestor, type ElementSpan } from './xml.ts';
 
-export interface StandardBinding { formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
+export interface StandardBinding { block?: 'showBegin' | 'showEnd'; formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
 export interface StandardParagraph { node: ElementSpan; text: string; bindings: StandardBinding[] }
-export interface RepeatRegion { start: number; end: number; bodyStart: number; bodyEnd: number; path: string; children: RepeatRegion[]; filters?: ArrayFilter[]; standard?: boolean; arrayPath?: string }
+export interface RepeatRegion { condition?: 'ifNEM'; start: number; end: number; bodyStart: number; bodyEnd: number; path: string; children: RepeatRegion[]; filters?: ArrayFilter[]; standard?: boolean; arrayPath?: string }
 
 export function parseStandardPath(tag: string, part: string): string {
   if (!/^d\.[A-Za-z_$][\w$]*(?:\[i(?:\+1)?\])?(?:\.[A-Za-z_$][\w$]*(?:\[i(?:\+1)?\])?)*$/.test(tag)) throw new RenderError('UNSUPPORTED_EXPRESSION', `Unsupported standard expression: ${tag}`, part);
@@ -26,19 +27,39 @@ export function standardBindings(text: string, part: string): StandardBinding[] 
       if(!quote && character==='{')throw new RenderError('TEMPLATE_SYNTAX','Nested standard tag',part);
     }
     if(close===text.length)throw new RenderError('TEMPLATE_SYNTAX','Unclosed standard tag',part);
-    const expression = parseExpression(text.slice(start.index + 1, close), part);
+    const raw = text.slice(start.index + 1, close);
+    // Structural conditional markers are accepted only in Word stories. Their
+    // pairing and paragraph boundaries are validated by compileStory.
+    const block = /^(d\.[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*):(?:(ifNEM\(\)):)?(showBegin|showEnd)$/.exec(raw);
+    if (block && /^word\/.*\.xml$/.test(part)) {
+      if ((block[3] === 'showBegin') !== Boolean(block[2]))
+        throw new RenderError('UNSUPPORTED_EXPRESSION', 'Only ifNEM():showBegin paired with showEnd is supported', part);
+      const path = parseStandardPath(block[1]!, part);
+      bindings.push({ start: start.index, end: close + 1, path, kind: 'value', standard: true, block: block[3] as 'showBegin' | 'showEnd' });
+      continue;
+    }
+    const expression = parseExpression(raw, part);
     const path = parseStandardPath(expression.path, part);
     bindings.push({ start: start.index, end: close + 1, path, formatters: expression.formatters, filters: expression.filters, kind: 'value', standard: true });
   }
   return bindings;
 }
 export function standardLookup(scope: Scope, path: string, part: string, formatters?: Formatter[]): unknown {
-  let value: unknown;
+  let value: unknown, missingInput = false;
+  const record = (output?: unknown, errorCode?: string) => recordLookupExecution({ scopedPath: path, part, scopeDepth: scope.length - 1, formatters: (formatters ?? []).map(f => f.name), missingInput, input: value, output, errorCode });
   try { value = lookup(scope, path, part); }
-  catch (error) { if (error instanceof RenderError && error.code === 'MISSING_DATA') value = null; else throw error; }
-  try { return formatValue(value, formatters); }
-  catch (error) { if (error instanceof RenderError) throw new RenderError(error.code, `${error.message} at ${path}`, part); throw error; }
+  catch (error) {
+    if (error instanceof RenderError && error.code === 'MISSING_DATA') { value = null; missingInput = true; }
+    else { record(undefined, error instanceof RenderError ? error.code : 'LOOKUP_FAILED'); throw error; }
+  }
+  try { const output = formatValue(value, formatters); record(output); return output; }
+  catch (error) {
+    record(undefined, error instanceof RenderError ? error.code : 'FORMAT_FAILED');
+    if (error instanceof RenderError) throw new RenderError(error.code, `${error.message} at ${path}`, part);
+    throw error;
+  }
 }
+
 function relativePath(path: string, context: RepeatRegion[], part: string): string {
   for (let index = context.length - 1; index >= 0; index--) {
     const prefix = context[index]!.arrayPath! + '[i].';

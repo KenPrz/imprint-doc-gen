@@ -7,7 +7,7 @@ Independent document generation in TypeScript and Node.js. Render **DOCX, XLSX, 
 
 **[Read the documentation →](https://kenprz.github.io/imprint-doc-gen/)** · [API](https://kenprz.github.io/imprint-doc-gen/api.html) · [Template syntax](https://kenprz.github.io/imprint-doc-gen/syntax.html) · [Support matrix](https://kenprz.github.io/imprint-doc-gen/formats.html)
 
-This is a preview release with bounded format support. The template compiler, repeat expansion and package adapters live in this repository. Third-party libraries provide ZIP/XML primitives, image transforms, PDF manipulation, barcodes and infrastructure clients. It is not a universal Office editor or a complete spreadsheet calculation engine.
+Version 1.0.0 provides bounded format support. The template compiler, repeat expansion and package adapters live in this repository. Third-party libraries provide ZIP/XML primitives, image transforms, PDF manipulation, barcodes and infrastructure clients. It is not a universal Office editor or a complete spreadsheet calculation engine.
 
 ## Capabilities
 
@@ -22,7 +22,7 @@ This is a preview release with bounded format support. The template compiler, re
 
 ## Quick start: one container
 
-The release workflow publishes a **linux/amd64 preview** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. Tested `main` builds publish `standalone`, and every release also receives a `sha-<commit>` tag.
+The release workflow publishes a **linux/amd64 image** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. Tested `main` builds publish `standalone`, and each build receives a `sha-<commit>` tag. Versioned releases additionally publish `v1.0.0`, `v1` and `latest` tags.
 
 ```bash
 docker login ghcr.io -u YOUR_GITHUB_USERNAME
@@ -108,6 +108,12 @@ The documentation is static HTML/CSS with a small search index: no frontend fram
 
 ## Roadmap
 
-The requested eight workstreams are implemented within the documented support contract. The next feature cycle adds CSV/plain text, repeated classic notes/comments, explicit numbering restarts, passive SVG and inline DOCX pictures, ODS reference rewriting, more XLSX formulas, literal category charts, worker metrics aggregation and offline cluster migration. See [expanded feature contracts](https://kenprz.github.io/imprint-doc-gen/features.html). Remaining work includes representative application pilot acceptance, workbook-linked charts/pivots, threaded comments, broader formulas, full Office repair/schema validation and specialist formats. See the [release roadmap](https://kenprz.github.io/imprint-doc-gen/roadmap.html), [implementation tracking](docs/implementation-plan.json) and [longer-term corpus roadmap](docs/corpus-roadmap.json).
+The requested eight workstreams are implemented within the documented support contract. The completed feature expansion adds CSV/plain text, repeated classic notes/comments, explicit numbering restarts, passive SVG and inline DOCX pictures, ODS reference rewriting, more XLSX formulas, literal category charts, worker metrics aggregation and offline cluster migration. See [expanded feature contracts](https://kenprz.github.io/imprint-doc-gen/features.html). Remaining work includes representative application pilot acceptance, workbook-linked charts/pivots, threaded comments, broader formulas, full Office repair/schema validation and specialist formats. See the [release roadmap](https://kenprz.github.io/imprint-doc-gen/roadmap.html), [implementation tracking](docs/implementation-plan.json) and [longer-term corpus roadmap](docs/corpus-roadmap.json).
 
 Current tests do not establish universal layout fidelity, PDF conformance or production capacity. The known LibreOffice DOCX stress-case timeout remains explicit and is covered by recovery checks.
+
+## Document assurance (implementation branch)
+
+The SDK, `POST /v1/assurance`, and `npm run assurance -- request.json evidence.json` expose typed input contracts, execution traces, customer regression suites, semantic/PDF visual comparisons, replay bundles, conservative migration, pinned text and rich DOCX components, bounded RPT artifact inspection, validated artifact handoff, interactive report snapshots and candidate-template verification. See [support contracts and examples](docs/site/pages/assurance.html), [implementation gates](docs/assurance-plan.json), and [independent research](docs/competitive-research.json). Version 1.0.0 is owner-approved with documented limitations: customer-specific visual acceptance, desktop Office repair-free validation, accessibility certification and full Crystal semantic migration remain unverified.
+
+Run `npm test` (requires Poppler), `npm run test:assurance:browser` (requires `npx playwright install chromium`) and `npm run test:assurance:verapdf` (requires Docker; uses a pinned independent validator image). Generated evidence is in `artifacts/assurance/`.

@@ -1,0 +1,121 @@
+{
+  "schema": "imprint-crystal-investigation-v1",
+  "date": "2026-10-18",
+  "status": "partial-artifact-inventory-only",
+  "releaseGate": "blocked-for-full-crystal-migration",
+  "questions": [
+    {
+      "question": "Can genuine RPT artifacts be acquired and passively inventoried?",
+      "status": "answered",
+      "observation": "Three publicly downloadable .rpt artifacts are CFB v3. Directory paths, kinds and lengths match independent Python olefile 0.47. No stream semantics are inferred.",
+      "evidence": "tests/fixtures/crystal/directory-oracle.json"
+    },
+    {
+      "question": "Can this host execute an SAP-supported extraction/render oracle?",
+      "status": "unresolved",
+      "observation": "java, dotnet, wine and pwsh absent from PATH. No SAP/Crystal/BusinessObjects-named directories in /opt or /usr/share/java. This bounded search does not prove no remote installation exists. No configured SAP endpoint was provided."
+    },
+    {
+      "question": "Does SAP document a supported semantic extraction route?",
+      "status": "answered-from-documentation-not-execution",
+      "observation": "ReportClientDocument exposes ReportDefController, DataDefController and SubreportController; PrintOutputController exports reference output. Enterprise deployments use IReportAppFactory. APIs and deployment prerequisites must be exercised against an available supported installation."
+    },
+    {
+      "question": "Have formulas, grouping, subreport links, pagination and original rendered outputs been reproduced?",
+      "status": "unresolved",
+      "observation": "No SAP runtime output obtained. Directory names and saved stream presence do not establish formula or layout semantics."
+    }
+  ],
+  "samples": [
+    {
+      "filename": "Customer List.rpt",
+      "sha256": "628047c02b066edebc303d2714437dc213e2decb9470b4b1fc73b395a61eba72",
+      "bytes": 123392,
+      "directoryEntries": 14,
+      "url": "https://raw.githubusercontent.com/kleinjoshuaa/Crystal-Reports/065de89f390665cfb657ff95a56e754128ee74c2/Customer%20List.rpt"
+    },
+    {
+      "filename": "Formulas.rpt",
+      "sha256": "aeaef818bdb608b9354a228741e71aa99f8e9317ca7e04525a76986e16d4b857",
+      "bytes": 48640,
+      "directoryEntries": 10,
+      "url": "https://raw.githubusercontent.com/kleinjoshuaa/Crystal-Reports/065de89f390665cfb657ff95a56e754128ee74c2/Formulas.rpt"
+    },
+    {
+      "filename": "Top5USAwithSub.rpt",
+      "sha256": "f533d389ff843ec5ef1752a4b61015cf3ec4089b6839f202782cffd7ab3b5599",
+      "bytes": 158720,
+      "directoryEntries": 22,
+      "url": "https://raw.githubusercontent.com/kleinjoshuaa/Crystal-Reports/065de89f390665cfb657ff95a56e754128ee74c2/Top5USAwithSub.rpt"
+    }
+  ],
+  "provenance": {
+    "sourceRepository": "https://github.com/kleinjoshuaa/Crystal-Reports",
+    "sourceCommit": "065de89f390665cfb657ff95a56e754128ee74c2",
+    "authorDescription": "Repository describes Crystal Reports coursework using Xtreme sample data. Runtime authenticity was not independently confirmed with SAP.",
+    "redistribution": "No downloaded report binaries or database content committed; only directory metadata and hashes.",
+    "failedOfficialDownload": {
+      "url": "https://crystal-reports-downloads.s3.amazonaws.com/SAP-Crystal-Reports-sample-reports.zip",
+      "httpStatus": 404,
+      "discoveredVia": "https://pages.community.sap.com/topics/crystal-reports/faq"
+    }
+  },
+  "implementation": {
+    "function": "inspectCrystalArtifact",
+    "path": "src/crystal-artifact.ts",
+    "supported": "CFB v3/v4 directory inventory with header-resident DIFAT; bounded bytes, directory sectors, nesting and graph traversal.",
+    "notSupported": [
+      "Extended DIFAT",
+      "Decoding stream content or validating stream allocation chains",
+      "Formula extraction/evaluation",
+      "SQL execution or database connections",
+      "RPT rendering or conversion"
+    ],
+    "candidateDetection": "Observed ReportInfo and QESession stream names are heuristic; never authenticates Crystal format or executable compatibility."
+  },
+  "validation": {
+    "unitTests": 26,
+    "independentOracle": "Python olefile 0.47; 46 directory entries across three samples",
+    "reproduce": "node scripts/assurance/crystal-sample-check.ts /tmp/imprint-crystal-validation",
+    "cases": [
+      "CFB v3 and v4",
+      "Wrong signature, version, byte order, reserved fields",
+      "Truncation and 64 MiB input limit",
+      "FAT markers, out-of-bounds references and overlapping/cyclic chains",
+      "Directory types, names, unreachable entries and graph cycles",
+      "Oversized declared lengths, stream children",
+      "Non-Crystal OLE is not classified from container alone"
+    ]
+  },
+  "rea": {
+    "skill": "/home/haru/.agents/skills/reverse-engineer-anything/SKILL.md",
+    "cli": "rea-agents@6.4.0",
+    "diagnostic": "Codex registration aligned; no REA tools connected in session; no native engine installed. Registration was not changed.",
+    "evidenceType": "ordinary shell CFB inspection and independent olefile output; not REA Evidence or runtime observation"
+  },
+  "nextSteps": [
+    "Provide a supported Crystal Reports .NET installation or SAP RAS service and known data source for the downloaded samples.",
+    "Run a narrow exporter using supported ReportClientDocument controllers and retain SDK version, original RPT SHA, complete field/formula/group/subreport definitions, and reference PDF output.",
+    "Add explicit formula dialect/version and unsupported-construct reporting; preserve original expressions without pretending translation occurred.",
+    "Implement one executable report subset and compare numeric values, null/date/locale behavior, grouping/order, page breaks and nested subreports against SAP outputs.",
+    "Keep the full Crystal migration release gate blocked until supported features have executable source-vs-target acceptance evidence."
+  ],
+  "sources": [
+    {
+      "title": "Microsoft Compound File Header",
+      "url": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-cfb/05060311-bfce-4b12-874d-71fd4ce63aea"
+    },
+    {
+      "title": "Microsoft Compound File Directory Sectors",
+      "url": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-cfb/a94d7445-c4be-49cd-b6b9-2f4abc663817"
+    },
+    {
+      "title": "SAP ReportClientDocument Object Model",
+      "url": "https://help.sap.com/doc/9d27aa5deea4415a841e7937da865e38/latest/en-US/topic10.html"
+    },
+    {
+      "title": "SAP ReportClientDocument Java API",
+      "url": "https://help.sap.com/doc/9e9e57a5c65944febd923997fbc04fb3/4.3/en-US/com/crystaldecisions/sdk/occa/report/application/ReportClientDocument.html"
+    }
+  ]
+}

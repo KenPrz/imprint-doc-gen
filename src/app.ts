@@ -1,3 +1,4 @@
+import { registerAssuranceRoutes } from './assurance-routes.ts';
 import { registerPdfRoutes } from './pdf-routes.ts';
 import { runTask } from './task-runner.ts';
 import Fastify from 'fastify';
@@ -79,6 +80,7 @@ export function createApp(config: AppConfig) {
     return reply.type('application/pdf').header('Content-Disposition', 'inline; filename="preview.pdf"').send(result.bytes);
   });
   registerPdfRoutes(app, renderer);
+  registerAssuranceRoutes(app, renderer);
   // One-shot document rendering shares authentication
   // and resource limits; only the request/response protocol is adapted here.
   app.post<{ Body: RenderInput & { template: string; convertTo?: RenderInput['output'] }; Querystring: { download: string } }>('/render/template', {

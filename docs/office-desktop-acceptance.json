@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-real-windows-execution",
+  "releaseApproved": false,
+  "runner": "scripts/assurance/office-desktop.ps1",
+  "scope": "Desktop Microsoft Word DOCX and Excel XLSX read-only opening and PDF export evidence. This is not visual approval, formula correctness proof, repair-free proof, or coverage of PPTX/OpenDocument formats.",
+  "executionEvidence": {
+    "officeExecuted": false,
+    "powershellRuntimeExecuted": false,
+    "reason": "The implementation environment is Linux without desktop Microsoft Office or PowerShell. The Windows acceptance run remains mandatory."
+  },
+  "prerequisites": [
+    "Dedicated disposable Windows VM with interactive signed-in desktop, licensed and activated Microsoft Word and Excel, and Windows PowerShell 5.1 (Desktop edition). Do not run as a service or shared user session.",
+    "Install the actual production fonts and record their versions in the review evidence; Office build and Windows version are captured automatically.",
+    "Complete Office first-run dialogs before testing. Close all Word and Excel processes; do not launch Office manually during the run.",
+    "Use only operator-reviewed, trusted fixture files. Disconnect VM networking; COM link-update switches do not sandbox external connections, embedded content, add-ins, or templates.",
+    "Snapshot the VM before each acceptance matrix. Do not disable Protected View, Trust Center, or security policy merely to obtain a passing run.",
+    "Fixture paths may be local absolute Windows paths or portable paths relative to the manifest directory. Relative paths cannot contain parent traversal or escape that directory. UNC/network drives, alternate data streams and symlink/junction paths are rejected. OutputDirectory must not exist. Preserve output evidence privately when fixtures contain customer data."
+  ],
+  "commands": [
+    "powershell.exe -NoProfile -File .\\scripts\\assurance\\office-desktop.ps1 -Manifest C:\\fixtures\\manifest.json -OutputDirectory C:\\evidence\\run-001 -TimeoutSeconds 90",
+    "Get-FileHash -Algorithm SHA256 -LiteralPath C:\\fixtures\\invoice.docx"
+  ],
+  "inputManifest": {
+    "schemaVersion": 1,
+    "fixtures": [
+      {
+        "id": "invoice-normal",
+        "path": "invoice.docx",
+        "sha256": "REPLACE_WITH_ACTUAL_LOWERCASE_64_HEX_SHA256"
+      }
+    ]
+  },
+  "reportContract": {
+    "file": "OutputDirectory/report.json",
+    "rootFields": [
+      "schemaVersion=1",
+      "kind=office-desktop-run",
+      "startedAt",
+      "completedAt",
+      "platform=win32",
+      "osVersion",
+      "manifestSha256",
+      "scriptSha256",
+      "releaseApproved=false",
+      "humanReviewRequired=true",
+      "results"
+    ],
+    "resultFields": [
+      "id",
+      "inputPath",
+      "inputSha256",
+      "application",
+      "applicationVersion",
+      "applicationBuild",
+      "status",
+      "pdfPath",
+      "pdfSha256",
+      "error",
+      "readonly",
+      "macrosDisabled",
+      "externalLinkUpdatesDisabled",
+      "repairRequested=false",
+      "interactiveWarnings=unknown"
+    ],
+    "statuses": {
+      "opened-and-exported": "Office opened the hash-pinned input and exported a nonempty PDF; input hash was unchanged. Does not establish visual correctness or absence of repair/warnings.",
+      "failed": "Opening, export, hashing or cleanup failed; cannot approve.",
+      "timeout": "Per-fixture child process exceeded the deadline; cannot approve. Recorded Office process is stopped only if its PID and start time match."
+    },
+    "exitCodes": {
+      "0": "All fixtures opened and exported; human acceptance is still required.",
+      "1": "At least one failure or timeout, or PowerShell invocation/configuration error."
+    },
+    "cleanupLimit": "If COM activation stalls before the HWND/PID can be recorded, the parent cannot safely identify that Office process. Stop the run, inspect the VM and restore the snapshot. No global Office process killing is attempted."
+  },
+  "scenarioMatrix": [
+    {
+      "id": "word-layout",
+      "fixtures": "Customer-approved invoices, contracts, multi-page tables, headers/footers, page breaks, Unicode/RTL, long words, empty repeats, nested repeats and style-heavy documents.",
+      "expected": "Open/export; human checks all pages against approved baseline; verify clipping, overflow, pagination and fonts."
+    },
+    {
+      "id": "word-rich-parts",
+      "fixtures": "Restarted numbered lists, footnotes/endnotes, classic comments, inline rasterized SVG, charts and supported reusable components, including zero/one/many repeats.",
+      "expected": "Open/export and inspect placement, IDs, list continuation, note references, legends, images and links; unsupported combinations must already fail in renderer tests."
+    },
+    {
+      "id": "excel-calculation",
+      "fixtures": "All supported formulas including errors, empty values, negative operands, relative/absolute references, repeating rows, styles, charts and print areas.",
+      "expected": "Open/export; independently inspect Excel calculated cells against expected values. PDF output alone does not verify hidden cells or formulas."
+    },
+    {
+      "id": "encrypted",
+      "fixtures": "Operator-created encrypted DOCX/XLSX with passwords deliberately not supplied to the runner.",
+      "expected": "Failure or bounded timeout. No password request is answered and no protection is removed. Store negative runs separately from positive acceptance runs."
+    },
+    {
+      "id": "editing-protection",
+      "fixtures": "Read-only recommended, protected worksheets and documents with editing restrictions.",
+      "expected": "Read-only open/export when permitted by Office policy, otherwise explicit failure. No claim of supporting removal of protection."
+    },
+    {
+      "id": "protected-view",
+      "fixtures": "Trusted operator-created files carrying Mark-of-the-Web and fixtures blocked by configured Office policy.",
+      "expected": "Preserve Office protection settings. Capture outcome and any warnings manually; failure/timeout is not a positive acceptance. Never automatically unblock fixtures."
+    },
+    {
+      "id": "corrupt-repair",
+      "fixtures": "Truncated ZIP, missing relationships, malformed XML and independently prepared known-repair prompts.",
+      "expected": "Reject or time out with no requested repair. Operator separately opens exact hash-pinned fixture in interactive Word/Excel and records whether any repair was offered/performed; automatic success is insufficient."
+    },
+    {
+      "id": "timeout",
+      "fixtures": "Known slow large test file or known modal-prompt fixture, run with a five-second timeout.",
+      "expected": "If Office exceeds deadline, record timeout, terminate only the owned PID, preserve partial evidence, and verify no unrelated applications were affected. Repeat normal case afterwards in a restored VM."
+    },
+    {
+      "id": "external-links-and-code",
+      "fixtures": "Reviewed DOCX with external fields/templates and XLSX external workbook references, including invalid renamed macro-bearing negative fixtures.",
+      "expected": "Use network-disconnected VM. Observe no external workbook updates; macros must not execute. ForceDisable does not cover Excel 4.0 macros, so reject macro-bearing fixtures from the supported positive set and record any prompts manually."
+    },
+    {
+      "id": "runner-inputs",
+      "fixtures": "Missing file, changed hash, duplicate IDs, invalid IDs, UNC/network drive, parent traversal, alternate data stream, symlink/junction escape, oversized manifest/file, wrong extension, existing output directory, relative fixture basenames/subdirectories and paths containing spaces/apostrophes.",
+      "expected": "Invalid inputs fail before Office launch; valid local absolute paths and manifest-relative paths with spaces/apostrophes work independently of the process working directory. Never overwrite prior evidence."
+    }
+  ],
+  "humanAcceptance": [
+    "Review exact input hashes, application versions/builds, generated PDF hashes and every result. Keep the renderer source commit and fixture provenance with the evidence.",
+    "Independently open each supported positive fixture interactively, without accepting repair. Record reviewer, date, Office build, input hash, no-repair/no-warning observation and visual verdict. The runner intentionally sets interactiveWarnings to unknown.",
+    "Review exported pages against customer-approved baselines, including layout and accessible reading order where required; inspect spreadsheet formulas/cells directly.",
+    "Do not label failures or missing fixtures as passes. Negative robustness outcomes demonstrate bounded handling only, not document compatibility.",
+    "No report produced by this runner can by itself approve a release. Keep releaseApproved false until the separate release acceptance procedure verifies the required human and automated evidence."
+  ],
+  "sources": [
+    "https://learn.microsoft.com/en-us/office/vba/api/word.documents.opennorepairdialog",
+    "https://learn.microsoft.com/en-us/office/vba/api/excel.workbooks.open",
+    "https://learn.microsoft.com/en-us/office/vba/api/excel.application.automationsecurity",
+    "https://learn.microsoft.com/en-us/office/vba/api/word.document.exportasfixedformat",
+    "https://learn.microsoft.com/en-us/office/vba/api/excel.workbook.exportasfixedformat"
+  ],
+  "manifestLimits": {
+    "bytes": 4194304,
+    "fixtures": 1000,
+    "fixtureBytes": 268435456,
+    "fixturePathCharacters": 240,
+    "pathResolution": "Resolve portable paths against the manifest directory; copy the manifest and fixture folder together to the Windows VM. Absolute local Windows paths remain supported. Input must remain unchanged throughout the run."
+  }
+}

@@ -6,12 +6,12 @@ import { checkPath, lookup, scalar, type Scope } from './scope.ts';
 import { ns, indexXml, ancestor, applyEdits, decodeXml, escapeXml, type ElementSpan, type AttributeSpan, type Edit } from './xml.ts';
 
 interface TextSpan { node: ElementSpan; value: string; offset: number }
-interface Binding { formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
+interface Binding { block?: 'showBegin' | 'showEnd'; formatters?: Formatter[]; filters?: ArrayFilter[]; start: number; end: number; path: string; kind: 'value' | 'open' | 'close'; standard?: boolean }
 interface ParagraphPlan { node: ElementSpan; text: string; spans: TextSpan[]; bindings: Binding[] }
 export interface ImagePlan { size?: { width: number; height: number }; description: AttributeSpan; reference: AttributeSpan; path: string; start: number; end: number; standard?: boolean }
 type LoopPlan = RepeatRegion;
 interface Fragment { kind: 'fragment'; start: number; end: number; paragraphs: ParagraphPlan[]; images: ImagePlan[]; identities: Identity[] }
-interface Loop { filters?: ArrayFilter[]; kind: 'loop'; path: string; children: Segment[]; standard?: boolean }
+interface Loop { condition?: 'ifNEM'; filters?: ArrayFilter[]; kind: 'loop'; path: string; children: Segment[]; standard?: boolean }
 type Segment = Fragment | Loop;
 interface Identity { attribute: AttributeSpan; hex: boolean }
 export interface StoryPlan { part: string; source: string; nodes: ElementSpan[]; images: ImagePlan[]; segments: Segment[] }
@@ -73,6 +73,39 @@ function loopsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: strin
   }
   if (stack.length) throw new RenderError('TEMPLATE_SYNTAX', 'Unclosed #each loop', part);
   return loops;
+}
+/** Narrow Carbone-compatible sibling-paragraph conditional. No implicit scope
+ * changes, nested blocks, repeat mixing, inline blocks or cross-container cuts. */
+function conditionsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: string): LoopPlan[] {
+  const result: LoopPlan[] = [];
+  let open: { paragraph: ParagraphPlan; binding: Binding } | undefined;
+  for (const paragraph of paragraphs) for (const binding of paragraph.bindings) {
+    if (!binding.block) continue;
+    if (binding.block === 'showBegin') {
+      if (open) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Nested conditional blocks are unsupported', part);
+      if (paragraph.text.slice(0, binding.start).trim()) throw new RenderError('TEMPLATE_STRUCTURE', 'showBegin must start its paragraph', part);
+      open = { paragraph, binding }; continue;
+    }
+    if (!open || open.binding.path !== binding.path) throw new RenderError('TEMPLATE_STRUCTURE', 'showEnd must match the opening field', part);
+    const first = open.paragraph.node, last = paragraph.node;
+    if (first === last || first.parent !== last.parent || first.parent?.uri !== ns.word ||
+        !['body', 'hdr', 'ftr', 'tc', 'sdtContent', 'footnote', 'endnote', 'comment'].includes(first.parent.local) ||
+        !markerOnly(paragraph, binding, nodes) || ancestor(first, ns.word, 'p'))
+      throw new RenderError('TEMPLATE_STRUCTURE', 'Conditional blocks require sibling paragraphs and a standalone showEnd', part);
+    const unsafe = new Set(['sectPr', 'bookmarkStart', 'bookmarkEnd', 'permStart', 'permEnd', 'commentRangeStart', 'commentRangeEnd', 'commentReference', 'footnoteReference', 'endnoteReference', 'ins', 'del', 'moveFrom', 'moveTo']);
+    if (nodes.some(n => n.start >= first.start && n.end <= last.end && n.uri === ns.word && unsafe.has(n.local)))
+      throw new RenderError('UNSUPPORTED_TEMPLATE', 'Conditional blocks cannot contain section, range, revision or note anchors', part);
+    // Carbone keeps the closing marker paragraph, empty, in both branches.
+    result.push({ start: first.start, end: last.start, bodyStart: first.start, bodyEnd: last.start, path: binding.path, children: [], condition: 'ifNEM', standard: true });
+    open = undefined;
+  }
+  if (open) throw new RenderError('TEMPLATE_STRUCTURE', 'Unclosed showBegin conditional block', part);
+  return result;
+}
+function isNonempty(value: unknown): boolean {
+  return value !== null && value !== undefined && value !== '' &&
+    !(Array.isArray(value) && value.length === 0) &&
+    !(typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0);
 }
 function nestLoops(loops: LoopPlan[], nodes: ElementSpan[], part: string): LoopPlan[] {
   const unsupported = new Set(['bookmarkStart', 'bookmarkEnd', 'permStart', 'permEnd', 'moveFrom', 'moveTo', 'ins', 'del', 'vMerge', 'dataBinding', 'pict', 'object', 'altChunk']);
@@ -137,8 +170,10 @@ export function compileStory(part: string, source: string): StoryPlan {
     }
     if (bindings.length) paragraphs.push({ node, text: logical, spans, bindings });
   }
+  const conditions = conditionsFor(paragraphs, nodes, part);
   const standardLoops = inferStandardLoops(paragraphs, part);
   const nativeLoops = loopsFor(paragraphs, nodes, part);
+  if (conditions.length && (standardLoops.length || nativeLoops.length)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Conditional blocks cannot share a story with repetition markers', part);
   if (standardLoops.length && nativeLoops.length) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Do not mix standard and legacy repetition markers in one story', part);
   if (nativeLoops.length) for (const paragraph of paragraphs) for (const binding of paragraph.bindings) if (binding.standard) binding.path = scopedStandardPath(binding.path, paragraph.node.start, nativeLoops, part);
   const images: ImagePlan[] = [], owners = new Set<number>();
@@ -160,7 +195,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       owners.add(owner.start); images.push({ size, description, reference, path, start: owner.start, end: owner.end, standard });
     }
   }
-  const loops = nestLoops([...nativeLoops, ...standardLoops], nodes, part), identities = nodes.flatMap(identityAttributes);
+  const loops = conditions.length ? conditions : nestLoops([...nativeLoops, ...standardLoops], nodes, part), identities = nodes.flatMap(identityAttributes);
   const region = (start: number, end: number, loops: LoopPlan[]): Segment[] => {
     const result: Segment[] = [];
     const fragment = (a: number, b: number) => {
@@ -168,7 +203,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       result.push({ kind: 'fragment', start: a, end: b, paragraphs: paragraphs.filter(p => p.node.start >= a && p.node.end <= b), images: images.filter(i => i.start >= a && i.end <= b), identities: identities.filter(i => i.attribute.start >= a && i.attribute.end <= b) });
     };
     let cursor = start;
-    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', path: loop.path, filters: loop.filters, standard: loop.standard, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
+    for (const loop of loops) { fragment(cursor, loop.start); result.push({ kind: 'loop', condition: loop.condition, path: loop.path, filters: loop.filters, standard: loop.standard, children: region(loop.bodyStart, loop.bodyEnd, loop.children) }); cursor = loop.end; }
     fragment(cursor, end); return result;
   };
   return { part, source, nodes, images, segments: region(0, source.length, loops) };
@@ -183,6 +218,10 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
   const visit = async (segments: Segment[], scope: Scope): Promise<void> => {
     for (const segment of segments) {
       if (segment.kind === 'loop') {
+        if (segment.condition === 'ifNEM') {
+          if (isNonempty(standardLookup(scope, segment.path, plan.part))) await visit(segment.children, scope);
+          continue;
+        }
         const items = segment.standard ? filterArray(standardLookup(scope, segment.path, plan.part) ?? [], segment.filters, plan.part) : lookup(scope, segment.path, plan.part);
         if (!Array.isArray(items)) throw new RenderError('INVALID_DATA', `Expected an array at ${segment.path}`, plan.part);
         for (const item of items) {
@@ -203,7 +242,7 @@ export async function renderStory(plan: StoryPlan, data: Record<string, unknown>
       for (const paragraph of segment.paragraphs) {
         const localEdits = new Map<TextSpan, Edit[]>();
         for (const binding of paragraph.bindings) {
-          const value = binding.kind === 'value' ? scalar(binding.standard ? standardLookup(scope, binding.path, plan.part, binding.formatters) : lookup(scope, binding.path, plan.part), binding.path, plan.part, Boolean(binding.standard)) : '';
+          const value = binding.kind === 'value' && !binding.block ? scalar(binding.standard ? standardLookup(scope, binding.path, plan.part, binding.formatters) : lookup(scope, binding.path, plan.part), binding.path, plan.part, Boolean(binding.standard)) : '';
           for (const span of paragraph.spans) {
             const start = Math.max(binding.start, span.offset), end = Math.min(binding.end, span.offset + span.value.length);
             if (start >= end) continue;

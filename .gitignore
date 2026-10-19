@@ -11,6 +11,10 @@ dist/
 *.sqlite
 *.sqlite-*
 
+# Private customer acceptance outputs and manifests must never be committed.
+**/pms-acceptance/
+**/pms-seeder-acceptance.json
+
 # Never commit private customer fixtures, samples, or render outputs.
 /tests/fixtures/pms/
 /examples/pms/
