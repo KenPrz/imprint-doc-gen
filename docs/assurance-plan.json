@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "status": "bounded_candidate_locally_validated_release_blocked",
-  "releasePolicy": "No main merge or container release until all required gates pass and documented unresolved scope is reviewed. Passing tests do not establish universal correctness.",
+  "status": "owner_approved_bounded_release",
+  "releasePolicy": "Publish only after all required automated CI gates pass. Deferred acceptance stays explicit and does not imply certification or universal compatibility.",
   "workstreams": [
     {
       "id": "regression",
@@ -62,6 +62,19 @@
     "Independent accessibility human review for any accessibility claim",
     "Full Crystal semantic migration requires a supported SAP runtime/reference-output oracle"
   ],
-  "releaseApproved": false,
-  "validation": "assurance-validation.json"
+  "releaseApproved": true,
+  "validation": "assurance-validation.json",
+  "releaseApproval": {
+    "version": "1.0.0",
+    "date": "2026-10-19",
+    "approvedBy": "repository owner",
+    "disposition": "release-with-documented-limitations",
+    "reason": "Owner explicitly requested merging PR #15 and a major release after the remaining acceptance gaps were disclosed. Outstanding acceptance is deferred, not reported as passed.",
+    "deferredAcceptance": [
+      "Customer-approved datasets and visual baselines, including long text, high volume and populated images",
+      "Microsoft Office repair-free opening on supported desktop versions",
+      "Independent accessibility human review for any accessibility claim",
+      "Full Crystal semantic migration requires a supported SAP runtime/reference-output oracle"
+    ]
+  }
 }

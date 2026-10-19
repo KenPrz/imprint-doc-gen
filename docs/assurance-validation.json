@@ -1,8 +1,8 @@
 {
   "version": 1,
   "date": "2026-10-18",
-  "status": "local_checks_passed_release_blocked",
-  "releaseApproved": false,
+  "status": "automated_checks_passed_owner_approved_bounded_release",
+  "releaseApproved": true,
   "checks": {
     "typecheck": "passed",
     "build": "passed",
@@ -175,5 +175,6 @@
   "corrections": [
     "Clean-environment CI caught an unreachable TypeScript branch in the runnable demo; fixed and typecheck/build/demo revalidated.",
     "Independent LibreOffice rendering caught imported numbered list continuation caused by duplicate style display names; remapped names and checked list restarts."
-  ]
+  ],
+  "releaseApprovalRecord": "assurance-plan.json"
 }
