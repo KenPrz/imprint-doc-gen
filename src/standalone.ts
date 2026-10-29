@@ -43,7 +43,9 @@ const converter = launch('gotenberg', [
 ]);
 for (const sig of ['SIGTERM', 'SIGINT'] as const) process.once(sig, () => { void shutdown(0); });
 let ready = false;
-for (let attempt = 0; attempt < 60 && !stopping; attempt++) {
+// The bundled font catalog is loaded before Gotenberg starts its API. Allow
+// its 60-second LibreOffice startup budget plus time to bind the HTTP server.
+for (let attempt = 0; attempt < 180 && !stopping; attempt++) {
   try {
     const response = await fetch(`${converterUrl}/health`, { signal: AbortSignal.timeout(1000) });
     ready = response.ok; await response.body?.cancel();

@@ -1,0 +1,206 @@
+{
+  "validated": "2026-10-30",
+  "platform": "linux/amd64",
+  "googleFonts": {
+    "revision": "6157dfaa640ca5738b4d1a7070fe389c3036d7fc",
+    "url": "https://codeload.github.com/google/fonts/tar.gz/6157dfaa640ca5738b4d1a7070fe389c3036d7fc",
+    "sha256": "8875a8fdffcf3867f97df06d255853fec33d681d60cdfb6bbd018dcfcb9d9654",
+    "fontFiles": 3913,
+    "families": 2066,
+    "licenses": [
+      "OFL-1.1",
+      "Apache-2.0",
+      "UFL-1.0"
+    ]
+  },
+  "carboneReference": {
+    "url": "https://carbone.io/img/doc/carbone-cloud-font-list.txt",
+    "retrieved": "2026-10-29",
+    "sha256": "e72e6f4f0da65007967e2ccb2ebd7216856cc3c4030e97f1b4011b711d4f7167",
+    "entries": 6361
+  },
+  "coverage": {
+    "total": 6361,
+    "presentCount": 4771,
+    "missingCount": 1590,
+    "installedFiles": 4232,
+    "matchPolicy": "Installed full names or primary family/style names; no fallback aliases"
+  },
+  "images": [
+    {
+      "tag": "imprint-doc-gen:fonts-check",
+      "id": "sha256:db8d154f3584a468287d9648048f94eb5a5cb53f21c1fdd6d714dfb0c02683ec",
+      "sizeBytes": 6263882591
+    },
+    {
+      "tag": "imprint-doc-gen:standalone-fonts-check",
+      "id": "sha256:535ee641b6e8d6e0459e752ff0fb16bf01f57ba51f9dd193bff6d85bb5d813d7",
+      "sizeBytes": 6599410809
+    }
+  ],
+  "runtime": {
+    "network": "none",
+    "readOnlyRoot": true,
+    "nonRootUser": "gotenberg",
+    "cpusPerContainer": 2,
+    "converterMemoryMiB": 1536,
+    "standaloneMemoryMiB": 2048,
+    "requestTimeout": "5s",
+    "libreofficePreload": true,
+    "libreofficeStartTimeout": "60s"
+  },
+  "fontSmoke": {
+    "converter": [
+      {
+        "family": "Roboto",
+        "embeddedFonts": [
+          "Roboto-Bold",
+          "Roboto-BoldItalic",
+          "Roboto-Italic",
+          "Roboto-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "f22456a39c8c1bdfd696eba158d0d482a2465663bdc1c17a4df0d10ff67b2765"
+      },
+      {
+        "family": "Open Sans",
+        "embeddedFonts": [
+          "OpenSansItalic-Bold",
+          "OpenSansItalic-Regular",
+          "OpenSansRoman-Bold",
+          "OpenSansRoman-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "e2e4e0371480a6a8099ad545a1b9a4e5002da63e96b8f7e498055e979d05b968"
+      },
+      {
+        "family": "Lobster",
+        "embeddedFonts": [
+          "Lobster-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "35178520555481772e596521b7f0bc6cb0c08273a92d2aa6460cbc53fe2b9dee"
+      },
+      {
+        "family": "Ubuntu",
+        "embeddedFonts": [
+          "Ubuntu-Bold",
+          "Ubuntu-BoldItalic",
+          "Ubuntu-Italic",
+          "Ubuntu-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "3e235782f7be7ee5522356b30e299aa37ab84f5c3226176a94531700bc8f1bb6"
+      }
+    ],
+    "standalone": [
+      {
+        "family": "Roboto",
+        "embeddedFonts": [
+          "Roboto-Bold",
+          "Roboto-BoldItalic",
+          "Roboto-Italic",
+          "Roboto-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "b0397ee07177b92dfe3d1233dbd4db1b459de65ec966811512a2a589960c85dd"
+      },
+      {
+        "family": "Open Sans",
+        "embeddedFonts": [
+          "OpenSansItalic-Bold",
+          "OpenSansItalic-Regular",
+          "OpenSansRoman-Bold",
+          "OpenSansRoman-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "fd59da8f18fc0b67aeb80e67a059658eccb3750fc0b1241a0c5488569dbd9f1a"
+      },
+      {
+        "family": "Lobster",
+        "embeddedFonts": [
+          "Lobster-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "2f96a1768dc51fb8d1044882180c425a964868742354fc0e5ab1db136606b570"
+      },
+      {
+        "family": "Ubuntu",
+        "embeddedFonts": [
+          "Ubuntu-Bold",
+          "Ubuntu-BoldItalic",
+          "Ubuntu-Italic",
+          "Ubuntu-Regular"
+        ],
+        "passed": true,
+        "pdfSha256": "8d3a5f4190935fd6653b91bf5a86da9822533ea025e09d0fed375f04312b71ba"
+      }
+    ]
+  },
+  "checks": {
+    "fontUnitTests": 7,
+    "converterUnitTests": 8,
+    "typecheck": true,
+    "typescriptBuild": true,
+    "documentationBuild": true,
+    "composeValidation": true,
+    "existingDocxXlsxPdfApiSmoke": true,
+    "popplerConfirmedEmbeddedFonts": [
+      "Roboto",
+      "Open Sans"
+    ],
+    "visualCheck": "Roboto regular/bold/italic/bold-italic",
+    "missingRequiredAptosRejected": true,
+    "strictCarboneParityRejected": true,
+    "sameCoverageInBothImages": true
+  },
+  "timeoutRecovery": {
+    "timeout": "5s",
+    "results": [
+      {
+        "cycle": 1,
+        "level": 93,
+        "status": 503,
+        "elapsedMs": 5053
+      },
+      {
+        "cycle": 1,
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 2449
+      },
+      {
+        "cycle": 2,
+        "level": 93,
+        "status": 503,
+        "elapsedMs": 5005
+      },
+      {
+        "cycle": 2,
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 2717
+      }
+    ],
+    "apiResults": [
+      {
+        "level": 93,
+        "status": 504,
+        "elapsedMs": 6282
+      },
+      {
+        "level": 1,
+        "status": 200,
+        "elapsedMs": 2588
+      }
+    ]
+  },
+  "limitations": [
+    "Not full Carbone parity: 1590 exact face names are absent.",
+    "Default images exclude Aptos and other independently licensed commercial fonts.",
+    "Name coverage is conservative; variable-axis combinations and historical names are not inferred.",
+    "The smoke suite validates representative Latin fonts, not all glyphs or every document layout.",
+    "Operator-supplied font files require separate coverage and rendering validation.",
+    "Local image builds only; no registry publication or running application replacement."
+  ]
+}

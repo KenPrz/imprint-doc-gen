@@ -1,4 +1,11 @@
 ARG GOTENBERG_IMAGE=gotenberg/gotenberg:8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769
+FROM ${GOTENBERG_IMAGE} AS bundled-fonts
+USER root
+COPY docker/fonts/manage.py docker/fonts/sources.lock.json /opt/imprint-font-tools/
+COPY docker/fonts/licenses /opt/imprint-font-tools/licenses/
+RUN --mount=type=cache,id=imprint-font-downloads,sharing=locked,target=/var/cache/imprint-fonts \
+    python3 /opt/imprint-font-tools/manage.py install --destination /opt/imprint-fonts
+
 FROM ${GOTENBERG_IMAGE} AS patched-pdfcpu
 USER root
 ARG TARGETARCH
@@ -8,5 +15,13 @@ COPY docker/install-pdfcpu.sh /tmp/install-pdfcpu.sh
 RUN sh /tmp/install-pdfcpu.sh
 
 FROM ${GOTENBERG_IMAGE}
+USER root
 COPY --from=patched-pdfcpu /usr/bin/pdfcpu /usr/bin/pdfcpu
+COPY --from=bundled-fonts /opt/imprint-fonts /usr/local/share/fonts/imprint/google/
+COPY docker/fonts/custom /usr/local/share/fonts/imprint/custom/
+COPY docker/fonts/manage.py docker/fonts/sources.lock.json docker/fonts/carbone-cloud-font-list.txt /usr/local/lib/imprint-fonts/
+ARG REQUIRED_FONTS=Roboto,Lobster,Open\ Sans,Noto\ Sans
+RUN fc-cache -f && python3 /usr/local/lib/imprint-fonts/manage.py inventory --require "$REQUIRED_FONTS"
+# Load the large catalog before health succeeds, not inside the first request.
+ENV LIBREOFFICE_AUTO_START=true LIBREOFFICE_START_TIMEOUT=60s
 USER gotenberg

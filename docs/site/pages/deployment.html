@@ -6,6 +6,77 @@
   publishes linux/amd64 images after required checks pass. Pin a tested digest and back up before upgrades.
 </p>
 <pre><code>docker compose -f compose.standalone.yml up -d --wait</code></pre>
+<h2 id="fonts">Bundled and custom fonts</h2>
+<p>
+  Both the standalone image and the separate converter include a pinned Google Fonts snapshot:
+  3,913 font files in 2,066 family directories, plus the base image's Noto, Liberation, Carlito and other
+  fonts. Variable font files can provide multiple faces. The snapshot adds about 2.3 GiB before image
+  compression and requires an initial download of about 1.6 GiB. Docker caches the verified archive and
+  font layer. No font download occurs during document conversion.
+  LibreOffice preloads the catalog before the service reports ready, with a 60-second startup budget.
+  Allow up to 90 seconds for standalone readiness; request deadlines remain unchanged.
+</p>
+<p>
+  Sources, revision, expected file count, and SHA-256 are pinned in <code>docker/fonts/sources.lock.json</code>.
+  The build preserves the original font files, metadata, family license/notice files, and shared OFL,
+  Apache, and Ubuntu license texts under <code>/usr/local/share/fonts/imprint/google/</code>.
+  A checksum mismatch or incomplete archive fails the build.
+</p>
+<p>
+  This does not imply full parity with Carbone's cloud service. Its 6,361-entry reference list includes
+  independently licensed commercial fonts and names/styles absent from the pinned Google snapshot.
+  Aptos and Calibri are not bundled by default. Microsoft's standalone Aptos download allows installation
+  on your devices but explicitly grants no redistribution rights. Include independently licensed fonts
+  only where your license permits the resulting image's use and distribution.
+</p>
+<p>
+  Every built image includes <code>installed-fonts.json</code>, <code>carbone-coverage.json</code>, and
+  <code>sources.lock.json</code> in <code>/usr/local/share/imprint/fonts/</code>. The coverage report compares
+  installed full names and primary family/style names against the reference. It does not count fallback
+  aliases as coverage, and name matching alone does not prove identical glyphs, all language coverage,
+  or identical Office layout.
+</p>
+<pre><code># Works without starting the API or providing an API key.
+docker run --rm --network none --entrypoint cat imprint-doc-gen:standalone \
+  /usr/local/share/imprint/fonts/carbone-coverage.json
+
+# Fail if even one reference face name is missing; writes a fresh report in /tmp.
+docker run --rm --network none --read-only --tmpfs /tmp \
+  --entrypoint python3 imprint-doc-gen:standalone \
+  /usr/local/lib/imprint-fonts/manage.py inventory --output /tmp/font-report --strict</code></pre>
+<p>
+  To add fonts, put their TTF, OTF or TTC files and license/notice files in
+  <code>docker/fonts/custom/</code> before building. This directory is Git-ignored but is intentionally
+  copied into both images. CI must receive those files separately if its images need them. Existing images
+  and running containers do not acquire newly added files automatically: rebuild and recreate them.
+  <code>REQUIRED_FONTS</code> is a comma-separated build argument that fails the build when an expected
+  family is absent, rather than accepting a fontconfig substitute.
+</p>
+<pre><code># After supplying Aptos font files with suitable rights for this image:
+docker build -f Dockerfile.standalone \
+  --build-arg 'REQUIRED_FONTS=Roboto,Lobster,Open Sans,Noto Sans,Aptos' \
+  -t imprint-doc-gen:custom-fonts .
+IMPRINT_IMAGE=imprint-doc-gen:custom-fonts \
+  docker compose -f compose.standalone.yml up -d --wait
+
+# Separate converter builds use the same folder and argument.
+docker build -f Dockerfile.gotenberg \
+  --build-arg 'REQUIRED_FONTS=Roboto,Lobster,Open Sans,Noto Sans,Aptos' \
+  -t imprint-doc-gen:converter-8.37.0-pdfcpu-0.16.1 .
+docker compose -f compose.yml up -d --no-build --force-recreate gotenberg</code></pre>
+<p>
+  CI converts a synthetic DOCX using Roboto, Open Sans, Lobster and Ubuntu and checks the resulting PDF's
+  embedded font resources. Run <code>npm run test:fonts</code> for the installer and coverage unit checks.
+  To validate your converter, run <code>python3 scripts/font-smoke.py --url http://CONVERTER:3000</code>;
+  repeat <code>--font "Family Name"</code> to select your own families. Keep representative customer
+  documents as separate visual acceptance tests.
+</p>
+<p>
+  Sources:
+  <a href="https://github.com/google/fonts">Google Fonts collection and licenses</a>,
+  <a href="https://carbone.io/img/doc/carbone-cloud-font-list.txt">Carbone font-name reference</a>,
+  <a href="https://www.microsoft.com/en-us/download/details.aspx?id=106087">Microsoft Aptos download and included license</a>.
+</p>
 <h2 id="development">Development and separate production services</h2>
 <pre><code>docker compose up --build -d
 # compose.override.yml adds source mounts, watch mode and a development key.

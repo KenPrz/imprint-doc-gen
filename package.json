@@ -28,6 +28,7 @@
     "corpus:validate": "node scripts/corpus/validate.ts",
     "corpus:score": "node scripts/corpus/score.ts",
     "test": "node --test --test-isolation=none scripts/corpus/tests/*.test.ts tests/*.test.ts",
+    "test:fonts": "python3 -m unittest discover -s tests -p fonts_test.py",
     "typecheck": "tsc --noEmit",
     "test:synthetic": "node scripts/synthetic/synthetic-run.ts",
     "worker": "node dist/worker.js",

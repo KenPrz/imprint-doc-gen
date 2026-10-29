@@ -87,6 +87,12 @@ Passing `-f compose.yml` excludes the development override. The production image
 
 Node and Gotenberg base images are pinned by digest. The converter image replaces bundled pdfcpu 0.15.0 with verified release 0.16.1. Linux amd64 and arm64 builds are defined; local validation covers amd64.
 
+**Bundled fonts:** Both PDF-capable images include a pinned, SHA-256-verified Google Fonts snapshot (3,913 files in 2,066 family directories), alongside the base image's fonts. The font files add about 2.3 GiB before image compression; the initial build downloads about 1.6 GiB and caches the archive. Conversion needs no font downloads at runtime. Original font files, available family licenses/notices, metadata, and shared license texts are retained.
+
+This is not the complete Carbone cloud catalog: commercial fonts such as Aptos and Calibri are not included by default, and upstream font names/styles can differ. Each image contains an actual font inventory and a present/missing comparison against the pinned 6,361-entry Carbone list under `/usr/local/share/imprint/fonts/`. Add separately licensed fonts through [`docker/fonts/custom/`](docker/fonts/custom/README.md), then rebuild and recreate the container. See [font deployment and verification](docs/site/pages/deployment.html) for exact commands. Substituted fonts are never counted as installed coverage.
+
+The validated default images match 4,771 reference face names and report 1,590 missing names. See [font validation evidence](docs/font-validation.json). LibreOffice loads the catalog before readiness so initialization does not consume the first document's request deadline. The font unit checks require Python 3.
+
 **Known conversion limitation:** LibreOffice still stalls on DOCX stress reference level 93. Compose now recycles LibreOffice after every conversion attempt, including timeouts, so the following document can render without a manual restart. A timed-out request returns JSON with HTTP `504`; the failing document is not retried automatically or reported as converted. Recycling trades some throughput for predictable recovery. See [recovery evidence](docs/converter-recovery.json).
 
 ## Development and validation
@@ -96,6 +102,7 @@ npm ci --ignore-scripts
 npm run typecheck
 npm run build
 npm test
+npm run test:fonts
 npm run corpus:render && npm run corpus:score
 npm run test:formats
 npm run test:synthetic

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "googleFonts": {
+    "revision": "6157dfaa640ca5738b4d1a7070fe389c3036d7fc",
+    "url": "https://codeload.github.com/google/fonts/tar.gz/6157dfaa640ca5738b4d1a7070fe389c3036d7fc",
+    "sha256": "8875a8fdffcf3867f97df06d255853fec33d681d60cdfb6bbd018dcfcb9d9654",
+    "fontFiles": 3913,
+    "families": 2066,
+    "licenses": ["OFL-1.1", "Apache-2.0", "UFL-1.0"]
+  },
+  "reference": {
+    "url": "https://carbone.io/img/doc/carbone-cloud-font-list.txt",
+    "retrieved": "2026-10-29",
+    "sha256": "e72e6f4f0da65007967e2ccb2ebd7216856cc3c4030e97f1b4011b711d4f7167",
+    "entries": 6361
+  }
+}

@@ -5,3 +5,11 @@ Source: docs/site/pages/deployment.html
 Build locally: npm run docs:build
 
 See also docs/site/pages/formats.html for supported structures and explicit limits.
+
+Font deployment: deployment.html#fonts (source: docs/site/pages/deployment.html).
+Both PDF images bundle the pinned Google Fonts collection. Exact installed names
+and Carbone reference gaps are recorded in /usr/local/share/imprint/fonts/ inside
+the built image. Supply separately licensed fonts in docker/fonts/custom/ before
+building; rebuild and recreate the container to apply them. Aptos is not included
+in the distributable default image. Font inventory is not a guarantee of universal
+Office layout fidelity.

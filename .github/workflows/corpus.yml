@@ -15,6 +15,7 @@ jobs:
       - run: node scripts/assurance/compiled-check.mjs
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: npm test
+      - run: npm run test:fonts
       - run: npm run test:formats
       - run: npm run docs:build
       - run: node scripts/generate-example.ts
@@ -39,7 +40,7 @@ jobs:
 
   conversion:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       COMPOSE_PROJECT_NAME: imprint-ci
       IMPRINT_API_KEY: imprint-ci-integration-test-key
@@ -48,6 +49,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and start production services
         run: docker compose -f compose.yml up --build --wait --wait-timeout 120 -d
+      - name: Verify bundled font conversion and record coverage
+        run: |
+          mkdir -p corpus/results/fonts
+          docker compose -f compose.yml exec -T gotenberg python3 - --output /tmp/font-smoke < scripts/font-smoke.py
+          docker compose -f compose.yml exec -T gotenberg cat /tmp/font-smoke/font-smoke.json > corpus/results/fonts/converter-smoke.json
+          docker compose -f compose.yml exec -T gotenberg cat /usr/local/share/imprint/fonts/carbone-coverage.json > corpus/results/fonts/converter-coverage.json
       - name: Verify production DOCX, XLSX and PDF API
         run: >-
           docker compose -f compose.yml run --rm --no-deps
@@ -82,13 +89,14 @@ jobs:
             corpus/results/calculation/formula-comparison.json
             corpus/results/converter-recovery.json
             corpus/results/docker-conversion.log
+            corpus/results/fonts/
       - name: Stop test services
         if: always()
         run: docker compose -f compose.yml down --volumes
 
   standalone:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       IMPRINT_API_KEY: imprint-ci-standalone-integration-key
       IMPRINT_PORT: 8091
@@ -113,6 +121,12 @@ jobs:
           cache-to: type=gha,mode=max,scope=standalone
       - name: Start a single container with a persistent volume
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml up --no-build --wait --wait-timeout 90 -d
+      - name: Verify standalone font conversion and record coverage
+        run: |
+          mkdir -p corpus/results/fonts
+          docker compose -p imprint-standalone-ci -f compose.standalone.yml exec -T app python3 - --url http://127.0.0.1:3001 --output /tmp/font-smoke < scripts/font-smoke.py
+          docker compose -p imprint-standalone-ci -f compose.standalone.yml exec -T app cat /tmp/font-smoke/font-smoke.json > corpus/results/fonts/standalone-smoke.json
+          docker compose -p imprint-standalone-ci -f compose.standalone.yml exec -T app cat /usr/local/share/imprint/fonts/carbone-coverage.json > corpus/results/fonts/standalone-coverage.json
       - name: Verify example integration, forced restart recovery and converter supervision
         run: node scripts/standalone-smoke.ts
       - name: Install PDF inspection tools
@@ -143,6 +157,7 @@ jobs:
             corpus/results/standalone.log
             corpus/results/synthetic/
             artifacts/formats/
+            corpus/results/fonts/
       - name: Stop standalone services
         if: always()
         run: docker compose -p imprint-standalone-ci -f compose.standalone.yml down --volumes
