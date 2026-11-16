@@ -320,8 +320,17 @@ test('bundle route assembles the acceptance bundle', needsPdfcpu, async () => {
     assert.equal((await send([['colour', 'red'], ['files', blob(await plainPdf())]])).statusCode, 400);
     assert.equal((await send([['decrypt', 'yes'], ['files', blob(await plainPdf())]])).statusCode, 400);
     assert.equal((await send([['decrypt', 'true']])).statusCode, 400);
-    const tooMany = await send(Array.from({ length: 21 }, () => ['files', blob(Buffer.from('%PDF-'))] as [string, Blob]));
+    // The cap is on total bytes, not count: a 22-part bundle of small files assembles.
+    const small = blob(await plainPdf());
+    const many = await send(Array.from({ length: 22 }, () => ['files', small] as [string, Blob]));
+    assert.equal(many.statusCode, 200, many.body);
+    assert.equal((await PDFDocument.load(many.rawPayload)).getPageCount(), 22);
+    const tooMany = await send(Array.from({ length: 51 }, () => ['files', small] as [string, Blob]));
     assert.equal(tooMany.statusCode, 413);
+    const tenMiB = blob(Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(10 * 1024 * 1024 - 5)]));
+    const overTotal = await send(Array.from({ length: 21 }, () => ['files', tenMiB] as [string, Blob]));
+    assert.equal(overTotal.statusCode, 413);
+    assert.equal(overTotal.json().error, 'LIMIT_EXCEEDED');
     // The app-wide 16 MiB JSON bodyLimit must not cap multipart bundles: 18 MiB of junk PDFs reaches the scan.
     const junk = blob(Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(9 * 1024 * 1024)]));
     assert.equal((await send([['files', junk], ['files', junk]])).statusCode, 422);

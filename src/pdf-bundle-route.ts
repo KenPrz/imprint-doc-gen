@@ -14,6 +14,9 @@ import { runTask } from './task-runner.ts';
 
 const exec = promisify(execFile);
 const flags = ['decrypt', 'flatten', 'stripActiveContent'] as const;
+// Total bytes bound disk, merge memory and time; the count is loose. Measured bounds were taken at ~195 MiB.
+const maxTotal = 200 * 1024 * 1024;
+const maxFiles = 50;
 const badRequest = (message: string): never => {
   throw new ServiceError(400, 'INVALID_REQUEST', message);
 };
@@ -54,7 +57,7 @@ const isPdf = async (path: string) => {
 
 export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderService) {
   const root = process.env.IMPRINT_PDF_BUNDLE_DIR || tmpdir();
-  // Measured: 20 × 10 MB (195 MiB) takes ~10 s on 2 cores (scripts/bench-pdf-bundle.ts); 60 s leaves ~6× headroom.
+  // Measured on 2 cores (scripts/bench-pdf-bundle.ts): 20 × 10 MB mixed ~10 s; worst case 50 × 12 MP photos ~25 s.
   const timeout = Number(process.env.IMPRINT_PDF_BUNDLE_TIMEOUT_MS ?? 60_000);
   if (!Number.isSafeInteger(timeout) || timeout < 1000 || timeout > 600_000)
     throw new Error('IMPRINT_PDF_BUNDLE_TIMEOUT_MS must be between 1000 and 600000');
@@ -71,11 +74,11 @@ export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderSer
       ),
     )
     .catch(() => undefined);
-  // ponytail: one bundle at a time per process. Each stages up to ~600 MB on disk; raise when staging is sized for more.
+  // ponytail: one bundle at a time per process. Each stages up to ~3× maxTotal on disk; raise when staging is sized for more.
   let busy = false;
   app.register(async (scope) => {
     await scope.register(multipart, {
-      limits: { fileSize: 10 * 1024 * 1024, files: 20, fields: 4, fieldSize: 64, parts: 24, headerPairs: 100 },
+      limits: { fileSize: 10 * 1024 * 1024, files: maxFiles, fields: 4, fieldSize: 64, parts: maxFiles + 4, headerPairs: 100 },
     });
     scope.post('/v1/pdf/bundle', async (request, reply) => {
       if (!request.isMultipart()) throw new ServiceError(415, 'UNSUPPORTED_MEDIA_TYPE');
@@ -96,18 +99,23 @@ export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderSer
         const options: Record<(typeof flags)[number], boolean> = { decrypt: false, flatten: false, stripActiveContent: false };
         let pageSize: 'A4' | 'Letter' = 'A4';
         const files: string[] = [];
+        let total = 0;
         for await (const part of request.parts()) {
           if (part.type === 'file') {
             if (part.fieldname !== 'files') badRequest('Upload inputs as "files" parts');
             const path = join(work, `in-${files.length}.pdf`); // pdfcpu requires the .pdf extension
-            await pipeline(part.file, createWriteStream(path, { flags: 'wx', mode: 0o600 }));
+            const file = createWriteStream(path, { flags: 'wx', mode: 0o600 });
+            await pipeline(part.file, file);
             files.push(path);
+            // ponytail: checked per completed file, so staging can overshoot by at most one 10 MiB file.
+            if ((total += file.bytesWritten) > maxTotal)
+              throw new RenderError('LIMIT_EXCEEDED', 'Bundle inputs exceed 200 MiB in total');
           } else if (flags.includes(part.fieldname as (typeof flags)[number]) && ['true', 'false'].includes(String(part.value)))
             options[part.fieldname as (typeof flags)[number]] = part.value === 'true';
           else if (part.fieldname === 'pageSize' && (part.value === 'A4' || part.value === 'Letter')) pageSize = part.value;
           else badRequest(`Unknown or invalid field "${part.fieldname}"`);
         }
-        if (!files.length) badRequest('Supply 1–20 files');
+        if (!files.length) badRequest('Supply at least one file');
         end = Date.now() + timeout;
         const outputs: string[] = [];
         const stripped: string[] = [];

@@ -48,7 +48,7 @@
     <tr>
       <td><code>files</code></td>
       <td>
-        1–20 file parts, each at most 10 MiB, in output order. PDF, JPEG, PNG, WebP or GIF (first frame),
+        1–50 file parts, each at most 10 MiB and 200 MiB in total, in output order. PDF, JPEG, PNG, WebP or GIF (first frame),
         detected from the bytes. BMP and HEIC are unsupported.
       </td>
     </tr>
@@ -98,7 +98,8 @@
 </p>
 <ul>
   <li>
-    At most 20 files of 10 MiB and 1,000 output pages. Errors name the failing input, for example
+    At most 50 files, 10 MiB per file, 200 MiB in total and 1,000 output pages. The total is what bounds
+    disk, memory and time; the file count is deliberately loose. Errors name the failing input, for example
     <code>Input 3: Cannot read PDF…</code>.
   </li>
   <li>
@@ -113,14 +114,15 @@
   </li>
   <li>
     Uploads are staged in a private per-request directory under <code>IMPRINT_PDF_BUNDLE_DIR</code> (default:
-    the OS temp directory) and removed when the request ends. A full bundle stages up to about 600 MB. The
+    the OS temp directory) and removed when the request ends. A full 200 MiB bundle stages up to about 600 MB. The
     shipped compose files set <code>/data/bundles</code>, because their <code>/tmp</code> is a RAM-backed
     tmpfs counted against the container memory limit (128 MB in split mode).
   </li>
   <li>
-    Memory at the full target size: the API process peaked at about 470 MiB and pdfcpu's merge at about
-    155 MiB. This fits the 768 MB split-mode API container and the 2 GB standalone container, provided
-    staging is not on tmpfs.
+    Measured on 2 cores, staging on disk. 20 × 10 MB of photos and PDFs: about 10 seconds, API peak about
+    470 MiB, pdfcpu merge about 155 MiB. Worst case, 50 × 12-megapixel photos (about 180 MiB): about 25 seconds,
+    API peak about 560 MiB, merge about 220 MiB. Both fit the 2 GB standalone container. In split mode the
+    worst case is close to the 768 MB API limit; raise <code>mem_limit</code> to 1 GB if bundles are photo-heavy.
   </li>
   <li>
     The plugin dependency is
