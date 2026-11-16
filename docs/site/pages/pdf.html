@@ -91,7 +91,7 @@
 </table>
 <p>
   Every flag defaults to <code>false</code>. With no flags, the bundle rejects every input that
-  <code>/v1/pdf</code> rejects, and its scan also inspects actions nested directly inside annotations. Each
+  <code>/v1/pdf</code> rejects. Each
   input runs through decryption, then its own 256 MiB worker for flattening, stripping and the security scan,
   one input at a time, before <a href="https://pdfcpu.io/">pdfcpu</a> merges the checked files from disk. The
   response is the binary PDF.
@@ -185,7 +185,8 @@
     explicitly.
   </li>
   <li>
-    Encrypted, signed, interactive-form and detected active-content PDFs are rejected. This is document
+    Encrypted, signed, interactive-form and detected active-content PDFs are rejected, including actions
+    nested directly inside annotations (checked since 1.1.1). This is document
     assembly, not a PDF sanitization or malware-scanning service.
   </li>
   <li>

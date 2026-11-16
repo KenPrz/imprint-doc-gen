@@ -1,4 +1,4 @@
-import { PDFDocument, PDFName, PDFDict, StandardFonts, degrees, rgb } from 'pdf-lib';
+import { PDFArray, PDFDocument, PDFName, PDFDict, PDFRef, PDFStream, StandardFonts, degrees, rgb, type PDFObject } from 'pdf-lib';
 import { RenderError } from './errors.ts';
 export interface PdfInput {
   bytes: Uint8Array;
@@ -14,6 +14,34 @@ const limit = 32 * 1024 * 1024;
 const invalid = (message: string): never => {
   throw new RenderError('INVALID_PDF_OPERATION', message);
 };
+export const activeKeys = ['JavaScript', 'JS', 'Launch', 'OpenAction', 'AA', 'XFA'].map((key) => PDFName.of(key));
+export const activeActions = ['JavaScript', 'Launch', 'SubmitForm', 'ImportData', 'GoToR', 'Rendition'].map((key) =>
+  PDFName.of(key),
+);
+export function children(object: PDFObject): PDFObject[] {
+  if (object instanceof PDFStream) return [object.dict];
+  if (object instanceof PDFDict) return object.values();
+  if (object instanceof PDFArray) return object.asArray();
+  return [];
+}
+/** Visits every dictionary in an object, including direct (nested, unreferenced) children. */
+export function walk(object: PDFObject, visit: (dict: PDFDict) => void) {
+  if (object instanceof PDFDict) visit(object);
+  for (const child of children(object)) if (!(child instanceof PDFRef)) walk(child, visit);
+}
+/**
+ * Rejects forms, signatures and active content anywhere in the file, including actions nested directly inside
+ * annotations. Copying pages cannot preserve signatures or interactive forms faithfully, so they fail explicitly.
+ */
+export function assertPassive(doc: PDFDocument) {
+  if (doc.catalog.has(PDFName.of('AcroForm'))) invalid('Interactive forms and signed PDFs are unsupported');
+  for (const [, object] of doc.context.enumerateIndirectObjects())
+    walk(object, (dict) => {
+      if (activeKeys.some((key) => dict.has(key))) invalid('Active PDF content is unsupported');
+      if (activeActions.includes(dict.get(PDFName.of('S')) as PDFName) || dict.get(PDFName.of('Type')) === PDFName.of('Sig'))
+        invalid('Active or signed PDF content is unsupported');
+    });
+}
 // Parsing and processing are also isolated by the HTTP worker deadline and heap budget.
 export async function processPdf(options: PdfOptions): Promise<Buffer> {
   if (!Array.isArray(options.inputs) || options.inputs.length < 1 || options.inputs.length > 20)
@@ -37,21 +65,7 @@ export async function processPdf(options: PdfOptions): Promise<Buffer> {
     }
     if (source!.getPageCount() > 1000)
       throw new RenderError('LIMIT_EXCEEDED', 'Source PDF exceeds 1000 pages');
-    // Copying pages cannot preserve signatures or interactive forms faithfully. Fail explicitly.
-    if (source!.catalog.has(PDFName.of('AcroForm')))
-      invalid('Interactive forms and signed PDFs are unsupported');
-    for (const [, object] of source!.context.enumerateIndirectObjects())
-      if (object instanceof PDFDict) {
-        for (const key of ['JavaScript', 'JS', 'Launch', 'OpenAction', 'AA', 'XFA'])
-          if (object.has(PDFName.of(key))) invalid('Active PDF content is unsupported');
-        if (
-          ['JavaScript', 'Launch', 'SubmitForm', 'ImportData', 'GoToR', 'Rendition'].some(
-            (action) => object.get(PDFName.of('S')) === PDFName.of(action),
-          ) ||
-          object.get(PDFName.of('Type')) === PDFName.of('Sig')
-        )
-          invalid('Active or signed PDF content is unsupported');
-      }
+    assertPassive(source!);
     const selected = input.pages ?? Array.from({ length: source!.getPageCount() }, (_, i) => i + 1);
     if (
       !selected.length ||
