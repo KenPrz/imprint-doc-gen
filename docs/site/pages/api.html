@@ -81,6 +81,14 @@
       <td><a href="pdf.html">PDF assembly and splitting</a>.</td>
     </tr>
     <tr>
+      <td>POST /v1/pdf/bundle</td>
+      <td>
+        <a href="pdf.html#bundle">Multipart bundle</a> of PDFs and images (default limits: 50 files, 10 MiB each, 200 MiB total; configurable) with opt-in
+        <code>decrypt</code>, <code>flatten</code> and <code>stripActiveContent</code>. Flattening keeps signature
+        appearances, not signature validity.
+      </td>
+    </tr>
+    <tr>
       <td>POST /v1/barcode</td>
       <td><a href="images.html#barcodes">Barcode PNG</a>.</td>
     </tr>
@@ -138,6 +146,9 @@ Idempotency-Key: invoice-2026-0001
 <p>
   Responses expose stable error codes and may include a package part. Do not retry 422 blindly. For 503, apply
   bounded backoff and honor Retry-After. Maximum JSON request size is 16 MiB including base64 overhead.
+  <code>POST /v1/pdf/bundle</code> is multipart and not subject to that limit. Its typed 422 codes are
+  <code>UNSUPPORTED_INPUT</code>, <code>INVALID_PDF_OPERATION</code>, <code>PDF_PASSWORD_REQUIRED</code>,
+  <code>FORM_APPEARANCE_MISSING</code> and <code>XFA_UNSUPPORTED</code>; 415 means the body was not multipart.
 </p>
 <h2 id="sdk">TypeScript SDK</h2>
 <pre><code>import { readFile } from 'node:fs/promises';

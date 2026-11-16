@@ -1,7 +1,7 @@
 import { Worker } from 'node:worker_threads';
 import { RenderError } from './errors.ts';
 export function runTask<T>(
-  task: 'inspect' | 'pdf' | 'barcode' | 'assurance',
+  task: 'inspect' | 'pdf' | 'barcode' | 'assurance' | 'bundle',
   payload: unknown,
   timeout = 30000,
 ): Promise<T> {

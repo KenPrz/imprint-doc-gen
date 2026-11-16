@@ -1,5 +1,6 @@
 import { registerAssuranceRoutes } from './assurance-routes.ts';
 import { registerPdfRoutes } from './pdf-routes.ts';
+import { envInt, registerPdfBundleRoute } from './pdf-bundle-route.ts';
 import { runTask } from './task-runner.ts';
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
@@ -16,7 +17,7 @@ interface AppConfig { apiKey: string; converterUrl?: string; logger?: boolean; c
 export function createApp(config: AppConfig) {
   if (config.apiKey.length < 24) throw new Error('IMPRINT_API_KEY must contain at least 24 characters');
   if (config.concurrency !== undefined && (!Number.isSafeInteger(config.concurrency) || config.concurrency < 1 || config.concurrency > 8)) throw new Error('Concurrency must be between 1 and 8');
-  const app = Fastify({ bodyLimit: 16 * 1024 * 1024, requestTimeout: 100_000, logger: config.logger ? { redact: ['req.headers.authorization'] } : false });
+  const app = Fastify({ bodyLimit: 16 * 1024 * 1024, requestTimeout: envInt(process.env, 'IMPRINT_REQUEST_TIMEOUT_MS', 100_000), logger: config.logger ? { redact: ['req.headers.authorization'] } : false });
   const secret = Buffer.from(`Bearer ${config.apiKey}`);
   const renderer = new RenderService(config.concurrency, config.converterUrl);
   const store = config.store ?? (config.dataDir ? new StandaloneStore(config.dataDir) : undefined);
@@ -80,6 +81,7 @@ export function createApp(config: AppConfig) {
     return reply.type('application/pdf').header('Content-Disposition', 'inline; filename="preview.pdf"').send(result.bytes);
   });
   registerPdfRoutes(app, renderer);
+  registerPdfBundleRoute(app, renderer);
   registerAssuranceRoutes(app, renderer);
   // One-shot document rendering shares authentication
   // and resource limits; only the request/response protocol is adapted here.

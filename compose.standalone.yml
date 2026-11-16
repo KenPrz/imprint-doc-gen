@@ -8,6 +8,8 @@ services:
     environment:
       IMPRINT_API_KEY: ${IMPRINT_API_KEY:?Set a secret of at least 24 characters}
       GOTENBERG_API_TIMEOUT: ${GOTENBERG_API_TIMEOUT:-60s}
+      # /tmp is tmpfs (RAM, counted in mem_limit); stage PDF bundles on the data volume instead.
+      IMPRINT_PDF_BUNDLE_DIR: /data/bundles
     ports:
       - "127.0.0.1:${IMPRINT_PORT:-8088}:3000"
     volumes:

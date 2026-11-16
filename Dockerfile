@@ -5,7 +5,15 @@ RUN mkdir -p /data && chown node:node /data && chmod 700 /data
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 
+# pdfcpu backs POST /v1/pdf/bundle (decrypt and merge). Pinned and digest-checked by the install script.
+FROM ${NODE_IMAGE} AS pdfcpu
+ARG TARGETARCH
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl xz-utils && rm -rf /var/lib/apt/lists/*
+COPY docker/install-pdfcpu.sh /tmp/install-pdfcpu.sh
+RUN sh /tmp/install-pdfcpu.sh
+
 FROM dependencies AS development
+COPY --from=pdfcpu /usr/bin/pdfcpu /usr/bin/pdfcpu
 COPY --chown=node:node . .
 USER node
 ENV NODE_ENV=development
@@ -26,6 +34,7 @@ FROM ${NODE_IMAGE} AS production
 WORKDIR /app
 RUN mkdir -p /data && chown node:node /data && chmod 700 /data
 ENV NODE_ENV=production
+COPY --from=pdfcpu /usr/bin/pdfcpu /usr/bin/pdfcpu
 COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --chown=node:node package.json ./
