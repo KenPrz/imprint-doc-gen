@@ -1,8 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { PDFArray, PDFBool, PDFDict, PDFDocument, PDFName, PDFRef, PDFStream, type PDFObject } from 'pdf-lib';
+import { PDFArray, PDFBool, PDFDict, PDFDocument, PDFName, PDFRef, type PDFObject } from 'pdf-lib';
 import sharp, { type OutputInfo } from 'sharp';
 import { RenderError } from './errors.ts';
 import { limits } from './package.ts';
+import { activeActions, activeKeys, assertPassive, children, walk } from './pdf.ts';
 
 export interface BundleInputOptions {
   flatten?: boolean;
@@ -18,9 +19,6 @@ export interface BundleInput {
 const name = (key: string) => PDFName.of(key);
 const sizes = { A4: [595.28, 841.89], Letter: [612, 792] } as const;
 const margin = 36;
-// Same keys and actions as the /v1/pdf scan (src/pdf.ts), applied to nested direct objects as well.
-const activeKeys = ['JavaScript', 'JS', 'Launch', 'OpenAction', 'AA', 'XFA'].map(name);
-const activeActions = ['JavaScript', 'Launch', 'SubmitForm', 'ImportData', 'GoToR', 'Rendition'].map(name);
 const invalid = (message: string): never => {
   throw new RenderError('INVALID_PDF_OPERATION', message);
 };
@@ -48,31 +46,10 @@ export async function prepareBundleInput(bytes: Uint8Array, options: BundleInput
   // Transforms leave orphaned objects (signature dictionaries, removed actions). Without transforms, orphans
   // are scanned exactly as /v1/pdf scans them.
   if (options.flatten || options.stripActiveContent) prune(source);
-  scan(source);
+  assertPassive(source);
   const output = await PDFDocument.create();
   for (const page of await output.copyPages(source, source.getPageIndices())) output.addPage(page);
   return { bytes: await output.save(), pages: output.getPageCount(), stripped: [...stripped] };
-}
-
-function children(object: PDFObject): PDFObject[] {
-  if (object instanceof PDFStream) return [object.dict];
-  if (object instanceof PDFDict) return object.values();
-  if (object instanceof PDFArray) return object.asArray();
-  return [];
-}
-function walk(object: PDFObject, visit: (dict: PDFDict) => void) {
-  if (object instanceof PDFDict) visit(object);
-  for (const child of children(object)) if (!(child instanceof PDFRef)) walk(child, visit);
-}
-
-function scan(doc: PDFDocument) {
-  if (doc.catalog.has(name('AcroForm'))) invalid('Interactive forms and signed PDFs are unsupported');
-  for (const [, object] of doc.context.enumerateIndirectObjects())
-    walk(object, (dict) => {
-      if (activeKeys.some((key) => dict.has(key))) invalid('Active PDF content is unsupported');
-      if (activeActions.includes(dict.get(name('S')) as PDFName) || dict.get(name('Type')) === name('Sig'))
-        invalid('Active or signed PDF content is unsupported');
-    });
 }
 
 function strip(object: PDFObject, doc: PDFDocument, stripped: Set<string>) {

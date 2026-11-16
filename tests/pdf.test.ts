@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PDFDocument, PDFName } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
 import sharp from 'sharp';
 import { processPdf, splitPdf } from '../src/pdf.ts';
 import { barcode } from '../src/barcode.ts';
@@ -38,6 +38,27 @@ test('PDF merges selected pages in order, numbers, watermarks, and embeds attach
   form.addPage();
   form.getForm().createTextField('name');
   await assert.rejects(processPdf({ inputs: [{ bytes: await form.save() }] }), /forms/);
+});
+test('PDF rejects active content nested directly inside other objects', async () => {
+  const link = await PDFDocument.create();
+  const page = link.addPage();
+  page.node.set(
+    PDFName.of('Annots'),
+    link.context.obj([
+      link.context.register(
+        link.context.obj({
+          Type: 'Annot',
+          Subtype: 'Link',
+          Rect: [0, 0, 100, 100],
+          A: { S: 'JavaScript', JS: PDFString.of('app.alert(1)') },
+        }),
+      ),
+    ]),
+  );
+  await assert.rejects(processPdf({ inputs: [{ bytes: await link.save() }] }), /Active/);
+  const nested = await PDFDocument.create();
+  nested.addPage().node.set(PDFName.of('AA'), nested.context.obj({ O: { S: 'Launch', F: PDFString.of('calc.exe') } }));
+  await assert.rejects(processPdf({ inputs: [{ bytes: await nested.save() }] }), /Active/);
 });
 test('barcode outputs bounded PNG attachments for four symbologies', async () => {
   for (const type of ['qrcode', 'code128', 'ean13', 'datamatrix'] as const) {
