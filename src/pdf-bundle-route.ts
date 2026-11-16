@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
-import { mkdir, mkdtemp, open, readdir, rm, stat } from 'node:fs/promises';
+import { mkdir, mkdtemp, open, readdir, rm, stat, statfs } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
@@ -14,9 +14,57 @@ import { runTask } from './task-runner.ts';
 
 const exec = promisify(execFile);
 const flags = ['decrypt', 'flatten', 'stripActiveContent'] as const;
-// Total bytes bound disk, merge memory and time; the count is loose. Measured bounds were taken at ~195 MiB.
-const maxTotal = 200 * 1024 * 1024;
-const maxFiles = 50;
+const MiB = 1024 * 1024;
+
+/** Reads a positive integer setting. Operators may choose any value; only malformed input is refused. */
+export function envInt(env: NodeJS.ProcessEnv, key: string, fallback: number) {
+  const raw = env[key];
+  if (raw === undefined || raw === '') return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < 1) throw new Error(`${key} must be a positive integer`);
+  return value;
+}
+
+/**
+ * Bundle limits. Defaults are the measured bounds (scripts/bench-pdf-bundle.ts, 2 cores): 20 × 10 MB mixed in
+ * ~10 s, worst case 50 × 12 MP photos in ~25 s at ~560 MiB API peak. Values past them are allowed, with a warning.
+ */
+export function bundleConfig(env: NodeJS.ProcessEnv = process.env) {
+  const config = {
+    root: env.IMPRINT_PDF_BUNDLE_DIR || tmpdir(),
+    timeout: envInt(env, 'IMPRINT_PDF_BUNDLE_TIMEOUT_MS', 60_000),
+    maxFiles: envInt(env, 'IMPRINT_PDF_BUNDLE_MAX_FILES', 50),
+    maxFileBytes: envInt(env, 'IMPRINT_PDF_BUNDLE_MAX_FILE_MB', 10) * MiB,
+    maxTotalBytes: envInt(env, 'IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB', 200) * MiB,
+    warnings: [] as string[],
+  };
+  const untested = 'beyond the measured bounds; re-run npm run bench:pdf-bundle on the target host';
+  if (config.maxFiles > 50) config.warnings.push(`IMPRINT_PDF_BUNDLE_MAX_FILES=${config.maxFiles} is ${untested}`);
+  if (config.maxFileBytes > 10 * MiB)
+    config.warnings.push(
+      `IMPRINT_PDF_BUNDLE_MAX_FILE_MB=${config.maxFileBytes / MiB} is ${untested}; each input is processed in a 256 MiB worker heap`,
+    );
+  if (config.maxTotalBytes > 200 * MiB)
+    config.warnings.push(
+      `IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB=${config.maxTotalBytes / MiB} is ${untested}; staging needs ~3× and the pdfcpu merge holds the whole output`,
+    );
+  return config;
+}
+
+/** Warns when the staging directory cannot hold a full bundle, or holds it in RAM. */
+export async function stagingWarnings(root: string, maxTotalBytes: number) {
+  const warnings: string[] = [];
+  await mkdir(root, { recursive: true, mode: 0o700 });
+  const fs = await statfs(root);
+  const free = fs.bavail * fs.bsize;
+  if (free < 3 * maxTotalBytes)
+    warnings.push(
+      `PDF bundle staging ${root} has ${Math.round(free / MiB)} MiB free; a full bundle stages up to ${Math.round((3 * maxTotalBytes) / MiB)} MiB`,
+    );
+  if (fs.type === 0x01021994)
+    warnings.push(`PDF bundle staging ${root} is tmpfs (RAM-backed); set IMPRINT_PDF_BUNDLE_DIR to a disk volume`);
+  return warnings;
+}
 const badRequest = (message: string): never => {
   throw new ServiceError(400, 'INVALID_REQUEST', message);
 };
@@ -56,11 +104,11 @@ const isPdf = async (path: string) => {
 };
 
 export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderService) {
-  const root = process.env.IMPRINT_PDF_BUNDLE_DIR || tmpdir();
-  // Measured on 2 cores (scripts/bench-pdf-bundle.ts): 20 × 10 MB mixed ~10 s; worst case 50 × 12 MP photos ~25 s.
-  const timeout = Number(process.env.IMPRINT_PDF_BUNDLE_TIMEOUT_MS ?? 60_000);
-  if (!Number.isSafeInteger(timeout) || timeout < 1000 || timeout > 600_000)
-    throw new Error('IMPRINT_PDF_BUNDLE_TIMEOUT_MS must be between 1000 and 600000');
+  const { root, timeout, maxFiles, maxFileBytes, maxTotalBytes, warnings } = bundleConfig();
+  for (const warning of warnings) app.log.warn(warning);
+  void stagingWarnings(root, maxTotalBytes)
+    .then((found) => found.forEach((warning) => app.log.warn(warning)))
+    .catch((error: unknown) => app.log.warn({ err: error }, 'PDF bundle staging directory is not usable'));
   // Staging may be disk-backed and survive a crash. Remove leftovers older than any possible request.
   void readdir(root)
     .then((names) =>
@@ -68,17 +116,17 @@ export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderSer
         names
           .filter((name) => name.startsWith('imprint-bundle-'))
           .map(async (name) => {
-            if (Date.now() - (await stat(join(root, name))).mtimeMs > 2 * 600_000)
+            if (Date.now() - (await stat(join(root, name))).mtimeMs > 2 * timeout + 600_000)
               await rm(join(root, name), { recursive: true, force: true });
           }),
       ),
     )
     .catch(() => undefined);
-  // ponytail: one bundle at a time per process. Each stages up to ~3× maxTotal on disk; raise when staging is sized for more.
+  // ponytail: one bundle at a time per process. Each stages up to ~3× maxTotalBytes; raise when staging is sized for more.
   let busy = false;
   app.register(async (scope) => {
     await scope.register(multipart, {
-      limits: { fileSize: 10 * 1024 * 1024, files: maxFiles, fields: 4, fieldSize: 64, parts: maxFiles + 4, headerPairs: 100 },
+      limits: { fileSize: maxFileBytes, files: maxFiles, fields: 4, fieldSize: 64, parts: maxFiles + 4, headerPairs: 100 },
     });
     scope.post('/v1/pdf/bundle', async (request, reply) => {
       if (!request.isMultipart()) throw new ServiceError(415, 'UNSUPPORTED_MEDIA_TYPE');
@@ -107,9 +155,9 @@ export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderSer
             const file = createWriteStream(path, { flags: 'wx', mode: 0o600 });
             await pipeline(part.file, file);
             files.push(path);
-            // ponytail: checked per completed file, so staging can overshoot by at most one 10 MiB file.
-            if ((total += file.bytesWritten) > maxTotal)
-              throw new RenderError('LIMIT_EXCEEDED', 'Bundle inputs exceed 200 MiB in total');
+            // ponytail: checked per completed file, so staging can overshoot by at most one file.
+            if ((total += file.bytesWritten) > maxTotalBytes)
+              throw new RenderError('LIMIT_EXCEEDED', `Bundle inputs exceed ${maxTotalBytes / MiB} MiB in total`);
           } else if (flags.includes(part.fieldname as (typeof flags)[number]) && ['true', 'false'].includes(String(part.value)))
             options[part.fieldname as (typeof flags)[number]] = part.value === 'true';
           else if (part.fieldname === 'pageSize' && (part.value === 'A4' || part.value === 'Letter')) pageSize = part.value;
@@ -149,9 +197,11 @@ export function registerPdfBundleRoute(app: FastifyInstance, renderer: RenderSer
           .header('Content-Disposition', 'attachment; filename="bundle.pdf"')
           .send(handle.createReadStream());
       } finally {
-        if (work) await rm(work, { recursive: true, force: true });
+        // Release admission before the async cleanup: a fast response can finish first, and the client's next
+        // request must not see a stale BUSY. The next request stages in its own directory.
         renderer.active--;
         busy = false;
+        if (work) await rm(work, { recursive: true, force: true });
       }
     });
   });

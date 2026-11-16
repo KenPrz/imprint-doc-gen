@@ -17,6 +17,7 @@ import sharp from 'sharp';
 import { prepareBundleInput } from '../src/pdf-bundle.ts';
 import { RenderError } from '../src/errors.ts';
 import { createApp } from '../src/app.ts';
+import { bundleConfig, stagingWarnings } from '../src/pdf-bundle-route.ts';
 
 // ponytail: pdfcpu-backed tests skip locally when the binary is absent; CI installs it and never skips.
 const hasPdfcpu = (() => {
@@ -343,5 +344,46 @@ test('bundle route assembles the acceptance bundle', needsPdfcpu, async () => {
   } finally {
     await app.close();
     await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('bundle limits come from the environment, with warnings past the measured bounds', async () => {
+  const defaults = bundleConfig({});
+  assert.deepEqual(
+    [defaults.maxFiles, defaults.maxFileBytes, defaults.maxTotalBytes, defaults.timeout],
+    [50, 10 * 1024 * 1024, 200 * 1024 * 1024, 60_000],
+  );
+  assert.deepEqual(defaults.warnings, []);
+  const raised = bundleConfig({
+    IMPRINT_PDF_BUNDLE_MAX_FILES: '100',
+    IMPRINT_PDF_BUNDLE_MAX_FILE_MB: '25',
+    IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB: '420',
+    IMPRINT_PDF_BUNDLE_TIMEOUT_MS: '900000',
+  });
+  assert.deepEqual([raised.maxFiles, raised.maxFileBytes, raised.maxTotalBytes, raised.timeout], [100, 25 * 2 ** 20, 420 * 2 ** 20, 900_000]);
+  assert.equal(raised.warnings.length, 3, raised.warnings.join('\n'));
+  for (const bad of ['0', '-1', '1.5', 'lots'])
+    assert.throws(() => bundleConfig({ IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB: bad }), /IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB/);
+  assert.match((await stagingWarnings(tmpdir(), Number.MAX_SAFE_INTEGER)).join(' '), /free/);
+});
+
+test('bundle route enforces configured limits', needsPdfcpu, async () => {
+  const apiKey = 'a'.repeat(32);
+  const saved = { ...process.env };
+  Object.assign(process.env, { IMPRINT_PDF_BUNDLE_MAX_FILES: '2', IMPRINT_PDF_BUNDLE_MAX_FILE_MB: '1' });
+  const app = createApp({ apiKey });
+  process.env = saved;
+  try {
+    const send = async (parts: [string, Blob][]) => {
+      const b = await multipart(parts);
+      return app.inject({ method: 'POST', url: '/v1/pdf/bundle', headers: { authorization: `Bearer ${apiKey}`, 'content-type': b.contentType }, payload: b.payload });
+    };
+    const small = blob(await plainPdf());
+    assert.equal((await send([['files', small], ['files', small]])).statusCode, 200);
+    const three = await send([['files', small], ['files', small], ['files', small]]);
+    assert.equal(three.statusCode, 413, three.body);
+    assert.equal((await send([['files', blob(Buffer.alloc(2 ** 20 + 1))]])).statusCode, 413);
+  } finally {
+    await app.close();
   }
 });

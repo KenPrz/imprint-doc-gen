@@ -48,7 +48,7 @@
     <tr>
       <td><code>files</code></td>
       <td>
-        1–50 file parts, each at most 10 MiB and 200 MiB in total, in output order. PDF, JPEG, PNG, WebP or GIF (first frame),
+        File parts in output order (by default 1–50, each at most 10 MiB and 200 MiB in total; see the limits below). PDF, JPEG, PNG, WebP or GIF (first frame),
         detected from the bytes. BMP and HEIC are unsupported.
       </td>
     </tr>
@@ -96,30 +96,69 @@
   one input at a time, before <a href="https://pdfcpu.io/">pdfcpu</a> merges the checked files from disk. The
   response is the binary PDF.
 </p>
+<p>
+  Limits are settings, not fixed values. The defaults are the measured bounds below. Any positive integer is
+  accepted. A value past the measured bounds, or a staging directory that is RAM-backed or too small for a full
+  bundle, logs a warning at startup instead of refusing to start. Re-run <code>npm run bench:pdf-bundle</code>
+  on the target host after raising them.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Environment variable</th>
+      <th>Default</th>
+      <th>Bounds</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>IMPRINT_PDF_BUNDLE_MAX_FILES</code></td>
+      <td>50</td>
+      <td>Files per request.</td>
+    </tr>
+    <tr>
+      <td><code>IMPRINT_PDF_BUNDLE_MAX_FILE_MB</code></td>
+      <td>10</td>
+      <td>MiB per file. Each input is processed in a 256 MiB worker heap.</td>
+    </tr>
+    <tr>
+      <td><code>IMPRINT_PDF_BUNDLE_MAX_TOTAL_MB</code></td>
+      <td>200</td>
+      <td>MiB per request. This bounds staging disk (about 3× the total), merge memory and time.</td>
+    </tr>
+    <tr>
+      <td><code>IMPRINT_PDF_BUNDLE_TIMEOUT_MS</code></td>
+      <td>60000</td>
+      <td>Processing deadline. It starts after the upload.</td>
+    </tr>
+    <tr>
+      <td><code>IMPRINT_REQUEST_TIMEOUT_MS</code></td>
+      <td>100000</td>
+      <td>Time to receive any request, including the bundle upload. 200 MB in 100 s is about 16 Mbit/s.</td>
+    </tr>
+    <tr>
+      <td><code>IMPRINT_PDF_BUNDLE_DIR</code></td>
+      <td>OS temp directory</td>
+      <td>Staging directory. Use a disk volume; the shipped compose files set <code>/data/bundles</code>.</td>
+    </tr>
+  </tbody>
+</table>
 <ul>
   <li>
-    At most 50 files, 10 MiB per file, 200 MiB in total and 1,000 output pages. The total is what bounds
-    disk, memory and time; the file count is deliberately loose. Errors name the failing input, for example
-    <code>Input 3: Cannot read PDF…</code>.
-  </li>
-  <li>
-    The processing deadline starts after the upload and defaults to 60 seconds
-    (<code>IMPRINT_PDF_BUNDLE_TIMEOUT_MS</code>, 1,000–600,000). A 20 × 10 MB bundle measured about 10 seconds
-    on 2 cores (<code>npm run bench:pdf-bundle</code>). The upload itself must finish within the server's
-    100-second request timeout, about 16 Mbit/s for 200 MB.
+    1,000 output pages at most. Over-limit uploads return 413 (<code>LIMIT_EXCEEDED</code> for the total).
+    Errors name the failing input, for example <code>Input 3: Cannot read PDF…</code>.
   </li>
   <li>
     One bundle runs at a time per process and also uses one render admission slot. A busy server answers 503
     with <code>Retry-After</code>.
   </li>
   <li>
-    Uploads are staged in a private per-request directory under <code>IMPRINT_PDF_BUNDLE_DIR</code> (default:
-    the OS temp directory) and removed when the request ends. A full 200 MiB bundle stages up to about 600 MB. The
-    shipped compose files set <code>/data/bundles</code>, because their <code>/tmp</code> is a RAM-backed
-    tmpfs counted against the container memory limit (128 MB in split mode).
+    Uploads are staged in a private per-request directory and removed when the request ends. The compose
+    files avoid <code>/tmp</code> because it is a RAM-backed tmpfs counted against the container memory limit
+    (128 MB in split mode).
   </li>
   <li>
-    Measured on 2 cores, staging on disk. 20 × 10 MB of photos and PDFs: about 10 seconds, API peak about
+    Measured bounds (2 cores, staging on disk). 20 × 10 MB of photos and PDFs: about 10 seconds, API peak about
     470 MiB, pdfcpu merge about 155 MiB. Worst case, 50 × 12-megapixel photos (about 180 MiB): about 25 seconds,
     API peak about 560 MiB, merge about 220 MiB. Both fit the 2 GB standalone container. In split mode the
     worst case is close to the 768 MB API limit; raise <code>mem_limit</code> to 1 GB if bundles are photo-heavy.
