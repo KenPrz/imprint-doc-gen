@@ -8,6 +8,8 @@ services:
     environment:
       NODE_ENV: production
       IMPRINT_DATA_DIR: /data
+      # /tmp is a 128 MB tmpfs (RAM); stage PDF bundles on the data volume instead.
+      IMPRINT_PDF_BUNDLE_DIR: /data/bundles
       HOST: 0.0.0.0
       PORT: "3000"
       IMPRINT_API_KEY: ${IMPRINT_API_KEY:-}

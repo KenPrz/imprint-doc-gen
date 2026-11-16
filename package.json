@@ -31,6 +31,7 @@
     "test:fonts": "python3 -m unittest discover -s tests -p fonts_test.py",
     "typecheck": "tsc --noEmit",
     "test:synthetic": "node scripts/synthetic/synthetic-run.ts",
+    "bench:pdf-bundle": "node scripts/bench-pdf-bundle.ts",
     "worker": "node dist/worker.js",
     "inspect": "node scripts/inspect.ts",
     "preview": "node scripts/preview.ts",
@@ -55,6 +56,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1149.0",
+    "@fastify/multipart": "10.1.7",
     "@xmldom/xmldom": "0.9.12",
     "@zip.js/zip.js": "2.8.26",
     "better-sqlite3": "13.0.3",

@@ -1,5 +1,6 @@
 import { registerAssuranceRoutes } from './assurance-routes.ts';
 import { registerPdfRoutes } from './pdf-routes.ts';
+import { registerPdfBundleRoute } from './pdf-bundle-route.ts';
 import { runTask } from './task-runner.ts';
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
@@ -80,6 +81,7 @@ export function createApp(config: AppConfig) {
     return reply.type('application/pdf').header('Content-Disposition', 'inline; filename="preview.pdf"').send(result.bytes);
   });
   registerPdfRoutes(app, renderer);
+  registerPdfBundleRoute(app, renderer);
   registerAssuranceRoutes(app, renderer);
   // One-shot document rendering shares authentication
   // and resource limits; only the request/response protocol is adapted here.

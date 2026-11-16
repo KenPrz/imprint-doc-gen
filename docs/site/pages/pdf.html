@@ -26,6 +26,108 @@
   <code>processPdf({inputs,...options})</code> and <code>splitPdf(bytes, ranges)</code> accept byte arrays and
   return buffers.
 </p>
+<h2 id="bundle">Assemble a bundle from uploads</h2>
+<p>
+  <code>POST /v1/pdf/bundle</code> assembles real-world uploads (a rendered document followed by quotes,
+  invoices and photos of receipts) into one PDF. It takes <code>multipart/form-data</code>, so large files avoid
+  base64 and the 16 MiB JSON limit. <code>POST /v1/pdf</code> is unchanged.
+</p>
+<pre><code>curl -X POST https://imprint.example/v1/pdf/bundle \
+  -H "Authorization: Bearer $IMPRINT_API_KEY" \
+  -F decrypt=true -F flatten=true -F stripActiveContent=true \
+  -F files=@rendered.pdf -F files=@quote.pdf -F files=@receipt.jpg \
+  -o bundle.pdf</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>files</code></td>
+      <td>
+        1–20 file parts, each at most 10 MiB, in output order. PDF, JPEG, PNG, WebP or GIF (first frame),
+        detected from the bytes. BMP and HEIC are unsupported.
+      </td>
+    </tr>
+    <tr>
+      <td><code>decrypt</code></td>
+      <td>
+        <code>true</code> removes an owner password (one that only restricts editing or printing). A PDF that
+        needs a password to open still fails with <code>PDF_PASSWORD_REQUIRED</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>flatten</code></td>
+      <td>
+        <code>true</code> draws form fields and signature appearances into the page as static content.
+        <strong>Cryptographic signature validity is not preserved</strong>, only the visible appearance. A
+        visible widget without an appearance fails with <code>FORM_APPEARANCE_MISSING</code>; dynamic XFA
+        forms fail with <code>XFA_UNSUPPORTED</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>stripActiveContent</code></td>
+      <td>
+        <code>true</code> removes JavaScript, <code>Launch</code>, <code>SubmitForm</code>,
+        <code>ImportData</code>, <code>GoToR</code> and <code>Rendition</code> actions, additional actions
+        (<code>AA</code>), <code>XFA</code> and any <code>OpenAction</code>, including actions nested inside
+        annotations. The <code>Imprint-Stripped-Active-Content</code> response header lists what was removed per
+        one-based input, for example <code>2:A+OpenAction, 5:AA</code>. Stripping is not sanitization or
+        malware scanning.
+      </td>
+    </tr>
+    <tr>
+      <td><code>pageSize</code></td>
+      <td>
+        <code>A4</code> (default) or <code>Letter</code> for image pages. Each image gets its own portrait page,
+        is turned upright from its EXIF orientation, and is scaled to fit inside 0.5 in margins with its aspect
+        ratio kept. Images are never enlarged and are stored at no more than 300 dpi.
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Every flag defaults to <code>false</code>. With no flags, the bundle rejects every input that
+  <code>/v1/pdf</code> rejects, and its scan also inspects actions nested directly inside annotations. Each
+  input runs through decryption, then its own 256 MiB worker for flattening, stripping and the security scan,
+  one input at a time, before <a href="https://pdfcpu.io/">pdfcpu</a> merges the checked files from disk. The
+  response is the binary PDF.
+</p>
+<ul>
+  <li>
+    At most 20 files of 10 MiB and 1,000 output pages. Errors name the failing input, for example
+    <code>Input 3: Cannot read PDF…</code>.
+  </li>
+  <li>
+    The processing deadline starts after the upload and defaults to 60 seconds
+    (<code>IMPRINT_PDF_BUNDLE_TIMEOUT_MS</code>, 1,000–600,000). A 20 × 10 MB bundle measured about 10 seconds
+    on 2 cores (<code>npm run bench:pdf-bundle</code>). The upload itself must finish within the server's
+    100-second request timeout, about 16 Mbit/s for 200 MB.
+  </li>
+  <li>
+    One bundle runs at a time per process and also uses one render admission slot. A busy server answers 503
+    with <code>Retry-After</code>.
+  </li>
+  <li>
+    Uploads are staged in a private per-request directory under <code>IMPRINT_PDF_BUNDLE_DIR</code> (default:
+    the OS temp directory) and removed when the request ends. A full bundle stages up to about 600 MB. The
+    shipped compose files set <code>/data/bundles</code>, because their <code>/tmp</code> is a RAM-backed
+    tmpfs counted against the container memory limit (128 MB in split mode).
+  </li>
+  <li>
+    Memory at the full target size: the API process peaked at about 470 MiB and pdfcpu's merge at about
+    155 MiB. This fits the 768 MB split-mode API container and the 2 GB standalone container, provided
+    staging is not on tmpfs.
+  </li>
+  <li>
+    The plugin dependency is
+    <a href="https://github.com/fastify/fastify-multipart">@fastify/multipart</a>; pdfcpu 0.16.1 ships in the
+    API, standalone and converter images.
+  </li>
+</ul>
 <h2 id="boundaries">Limits and document behavior</h2>
 <ul>
   <li>

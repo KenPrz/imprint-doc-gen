@@ -11,6 +11,8 @@ try {
       : await processPdf(workerData.payload);
   } else if (workerData.task === 'barcode')
     value = await (await import('./barcode.ts')).barcode(workerData.payload);
+  else if (workerData.task === 'bundle')
+    value = await (await import('./pdf-bundle.ts')).prepareBundleFile(workerData.payload);
   else if (workerData.task === 'assurance')
     value = await (await import('./assurance-task.ts')).executeAssurance(workerData.payload);
   else throw new RenderError('UNSUPPORTED_OPERATION', 'Unsupported operation');
