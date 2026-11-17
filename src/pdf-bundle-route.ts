@@ -7,6 +7,7 @@ import { pipeline } from 'node:stream/promises';
 import { promisify } from 'node:util';
 import multipart from '@fastify/multipart';
 import type { FastifyInstance } from 'fastify';
+import { envInt } from './env.ts';
 import { RenderError } from './errors.ts';
 import type { RenderService } from './render-service.ts';
 import { ServiceError } from './service-error.ts';
@@ -16,14 +17,6 @@ const exec = promisify(execFile);
 const flags = ['decrypt', 'flatten', 'stripActiveContent'] as const;
 const MiB = 1024 * 1024;
 
-/** Reads a positive integer setting. Operators may choose any value; only malformed input is refused. */
-export function envInt(env: NodeJS.ProcessEnv, key: string, fallback: number) {
-  const raw = env[key];
-  if (raw === undefined || raw === '') return fallback;
-  const value = Number(raw);
-  if (!Number.isSafeInteger(value) || value < 1) throw new Error(`${key} must be a positive integer`);
-  return value;
-}
 
 /**
  * Bundle limits. Defaults are the measured bounds (scripts/bench-pdf-bundle.ts, 2 cores): 20 × 10 MB mixed in

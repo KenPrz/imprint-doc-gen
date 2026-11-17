@@ -48,6 +48,36 @@ Marker row:  {d.items[i+1].name}</code></pre>
   horizontal repeats. PPTX supports paragraph/table-row repeats and whole-slide repeats followed by a
   marker-only slide. ODT/ODS repeat table rows; ODP can repeat whole pages.
 </p>
+<h2 id="sheets">Fixed-row forms (sheets)</h2>
+<p>
+  A paper form with a fixed number of item rows continues on another copy of the same form. Declare the rule
+  as a custom document property (Word: File → Info → Properties → Advanced → Custom; LibreOffice: File →
+  Properties → Custom Properties):
+</p>
+<pre><code>imprint.sheets = items:10          (array path : rows per sheet [: pad | nopad])</code></pre>
+<p>
+  Imprint splits <code>d.items</code> into chunks of 10, pads each chunk with empty objects (<code>pad</code>,
+  the default) so blank rows keep the table height, renders the template once per chunk, and returns one
+  merged PDF. Put exactly one pattern row and one marker row in the template table; padding supplies the
+  other rows. An empty or missing array gives one sheet. Each sheet sees:
+</p>
+<table>
+  <thead><tr><th>Field</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td><code>d.items</code></td><td>That sheet's rows. The rest of <code>d</code> is unchanged.</td></tr>
+    <tr><td><code>d.sheet.number</code>, <code>d.sheet.count</code></td><td>1-based sheet number and total, for "Sheet 2 of 3".</td></tr>
+    <tr><td><code>d.sheet.isFirst</code>, <code>d.sheet.isLast</code>, <code>d.sheet.notLast</code></td><td><code>"1"</code> or <code>""</code>.</td></tr>
+    <tr><td><code>d.sheet.&lt;key&gt;</code></td><td>Keys of the request's <code>perSheet</code> entry for that sheet, for example a serial number.</td></tr>
+  </tbody>
+</table>
+<pre><code>{d.sheet.isLast:ifNEM():showBegin}Net Amount: {d.net:number(2)}
+{d.sheet.isLast:showEnd}</code></pre>
+<p>
+  Show totals and signatures on the last sheet only with a conditional block. The block is sibling paragraphs
+  in one container (the body or one table cell); it hides paragraphs, not table rows. A request can set or
+  override the rule with <code>sheets</code>; see the <a href="api.html#sheets">API reference</a>. Paginated
+  templates render only to PDF. A data key named <code>sheet</code> is replaced on paginated renders.
+</p>
 <h2 id="formatters">Formatter reference</h2>
 <table>
   <thead>

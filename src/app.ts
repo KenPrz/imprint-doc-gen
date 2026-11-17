@@ -1,6 +1,7 @@
 import { registerAssuranceRoutes } from './assurance-routes.ts';
 import { registerPdfRoutes } from './pdf-routes.ts';
-import { envInt, registerPdfBundleRoute } from './pdf-bundle-route.ts';
+import { envInt } from './env.ts';
+import { registerPdfBundleRoute } from './pdf-bundle-route.ts';
 import { runTask } from './task-runner.ts';
 import Fastify from 'fastify';
 import { timingSafeEqual } from 'node:crypto';

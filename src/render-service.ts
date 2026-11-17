@@ -4,13 +4,16 @@ export { decodeBase64 } from './base64.ts';
 import { RenderError } from './errors.ts';
 import { renderDocumentInWorker } from './jobs.ts';
 import { convertToPdf } from './converter.ts';
+import { envInt } from './env.ts';
 import { ServiceError } from './service-error.ts';
+import type { SheetsInput } from './sheets.ts';
 import type { DocumentFormat, RenderOptions } from './types.ts';
 
 export interface RenderInput extends Pick<RenderOptions, 'images' | 'locale' | 'timeZone' | 'restartNumbering' | 'charts'> {
   data: Record<string, unknown>;
   attachments?: Record<string, string>;
   output?: DocumentFormat | 'pdf';
+  sheets?: SheetsInput;
 }
 export interface RenderResult { bytes: Buffer; format: DocumentFormat | 'pdf' }
 
@@ -19,6 +22,8 @@ export class RenderService {
   readonly metrics = new Metrics();
   readonly concurrency: number;
   readonly converterUrl?: string;
+  // ponytail: 50 sheets convert in ~30 s with --libreoffice-restart-after=1 (~0.6 s each), half the 60 s converter budget.
+  readonly maxSheets = envInt(process.env, 'IMPRINT_MAX_SHEETS', 50);
   constructor(concurrency = 2, converterUrl?: string) {
     if(!Number.isInteger(concurrency)||concurrency<1||concurrency>8)throw new Error('Concurrency must be between 1 and 8');
     this.concurrency = concurrency; this.converterUrl = converterUrl;
@@ -31,11 +36,11 @@ export class RenderService {
     try {
       const attachments: Record<string, Uint8Array> = Object.create(null);
       for (const [key, value] of Object.entries(input.attachments ?? {})) attachments[key] = decodeBase64(value);
-      const result = await renderDocumentInWorker(template, input.data, attachments, 30_000, input.output, false, input);
+      const result = await renderDocumentInWorker(template, input.data, attachments, 30_000, input.output, false, { ...input, maxSheets: this.maxSheets });
       if (input.output !== 'pdf') { ok = true; outputBytes = result.bytes.length; return result; }
       if (result.format === 'txt' || result.format === 'csv') throw new RenderError('UNSUPPORTED_FORMAT', 'Text templates do not support PDF conversion');
       if (!this.converterUrl) throw new RenderError('CONVERTER_UNAVAILABLE', 'PDF conversion is not configured');
-      const bytes = await convertToPdf(result.bytes, this.converterUrl, `document.${result.format}`); ok = true; outputBytes = bytes.length; return { bytes, format: 'pdf' };
+      const bytes = await convertToPdf(result.sheets ?? result.bytes, this.converterUrl, `document.${result.format}`); ok = true; outputBytes = bytes.length; return { bytes, format: 'pdf' };
     } finally { this.active--; this.metrics.render(ok, (performance.now() - started) / 1000, outputBytes); }
   }
 }

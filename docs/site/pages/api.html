@@ -32,7 +32,7 @@
     </tr>
     <tr>
       <td>POST /v1/inspect</td>
-      <td><code>{"template":"BASE64"}</code>. Fields and diagnostics.</td>
+      <td><code>{"template":"BASE64"}</code>. Fields, diagnostics and <code>sheets</code>: the template's <code>{"array","rowsPerSheet","pad"}</code> rule, or <code>null</code>.</td>
     </tr>
     <tr>
       <td>POST /v1/preview</td>
@@ -99,6 +99,31 @@
   <code>POST /render/template?download=true</code> route accepts template, data, attachments, images, locale,
   timeZone and <code>convertTo</code>; it returns the same binary output.
 </p>
+<h2 id="sheets">Sheets for fixed-row forms</h2>
+<pre><code>POST /v1/render
+{
+  "template":"BASE64_DOCX", "output":"pdf",
+  "data":{"items":[...]},
+  "sheets":{"perSheet":[{"serial":"M-004016"},{"serial":"M-004017"}]}
+}</code></pre>
+<p>
+  <code>sheets</code> is accepted by <code>/v1/render</code>, <code>/v1/preview</code> and <code>/v1/jobs</code>.
+  Its fields <code>array</code>, <code>rowsPerSheet</code> (1–500) and <code>pad</code> override the template's
+  <a href="syntax.html#sheets"><code>imprint.sheets</code></a> property field by field, so a template without the
+  property can still be paginated. <code>perSheet</code> is optional; when present it needs one object per sheet,
+  <code>max(1, ceil(rows / rowsPerSheet))</code>. Compute that count from <code>/v1/inspect</code> before the
+  render if each sheet needs its own serial number. All sheets convert in one converter call; measured cost is
+  about 0.6 seconds per sheet.
+</p>
+<table>
+  <thead><tr><th>Error</th><th>Cause</th></tr></thead>
+  <tbody>
+    <tr><td>422 <code>INVALID_SHEETS</code></td><td>Malformed property, missing <code>array</code> or <code>rowsPerSheet</code>, rows outside 1–500, or the data at the path is not an array of objects.</td></tr>
+    <tr><td>422 <code>SHEET_DATA_MISMATCH</code></td><td><code>perSheet</code> length differs from the sheet count.</td></tr>
+    <tr><td>422 <code>SHEETS_REQUIRE_PDF</code></td><td>A paginated template was rendered to a format other than PDF.</td></tr>
+    <tr><td>413 <code>LIMIT_EXCEEDED</code></td><td>More sheets than <code>IMPRINT_MAX_SHEETS</code> (default 50, about 30 seconds of conversion). Raise it together with <code>GOTENBERG_API_TIMEOUT</code>.</td></tr>
+  </tbody>
+</table>
 <h2 id="jobs">Reliable job submission</h2>
 <pre><code>POST /v1/jobs
 Idempotency-Key: invoice-2026-0001
