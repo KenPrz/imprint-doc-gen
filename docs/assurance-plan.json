@@ -65,11 +65,11 @@
   "releaseApproved": true,
   "validation": "assurance-validation.json",
   "releaseApproval": {
-    "version": "1.1.1",
+    "version": "1.2.0",
     "date": "2026-11-17",
     "approvedBy": "repository owner",
     "disposition": "release-with-documented-limitations",
-    "reason": "Owner explicitly requested a v1.1.1 patch release that makes /v1/pdf reject actions nested directly inside annotations. The same four acceptance gaps carried from 1.0.0 remain deferred, not reported as passed.",
+    "reason": "Owner approved v1.2.0: sheet pagination for fixed-row forms (imprint.sheets property and request sheets field, merged PDF output) and DOCX conditional blocks that may share a story with repeats. The same four acceptance gaps carried from 1.0.0 remain deferred, not reported as passed.",
     "deferredAcceptance": [
       "Customer-approved datasets and visual baselines, including long text, high volume and populated images",
       "Microsoft Office repair-free opening on supported desktop versions",
