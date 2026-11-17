@@ -15,12 +15,17 @@ async function readBounded(response: Response, limit: number, truncate = false):
   return Buffer.concat(chunks);
 }
 
-export async function convertToPdf(document: Uint8Array, endpoint: string, filename = 'document.docx', options: ConversionOptions = {}): Promise<Buffer> {
+/** Converts one document, or several merged in order into one PDF (Gotenberg merges by filename). */
+export async function convertToPdf(document: Uint8Array | Uint8Array[], endpoint: string, filename = 'document.docx', options: ConversionOptions = {}): Promise<Buffer> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(new DOMException('Conversion deadline exceeded', 'TimeoutError')), options.timeoutMs ?? 65_000);
   try {
     const form = new FormData();
-    form.append('files', new Blob([new Uint8Array(document)]), filename);
+    if (Array.isArray(document)) {
+      const extension = filename.slice(filename.lastIndexOf('.'));
+      document.forEach((sheet, index) => form.append('files', new Blob([new Uint8Array(sheet)]), `sheet-${String(index + 1).padStart(4, '0')}${extension}`));
+      form.append('merge', 'true');
+    } else form.append('files', new Blob([new Uint8Array(document)]), filename);
     const response = await fetch(new URL('/forms/libreoffice/convert', endpoint), { method: 'POST', body: form, signal: controller.signal });
     if (!response.ok || !response.body) {
       // Gotenberg uses 503 for both deadlines and capacity errors. Only its

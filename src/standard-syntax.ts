@@ -30,7 +30,7 @@ export function standardBindings(text: string, part: string): StandardBinding[] 
     const raw = text.slice(start.index + 1, close);
     // Structural conditional markers are accepted only in Word stories. Their
     // pairing and paragraph boundaries are validated by compileStory.
-    const block = /^(d\.[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*):(?:(ifNEM\(\)):)?(showBegin|showEnd)$/.exec(raw);
+    const block = /^(d\.[A-Za-z_$][\w$]*(?:\[i\])?(?:\.[A-Za-z_$][\w$]*(?:\[i\])?)*):(?:(ifNEM\(\)):)?(showBegin|showEnd)$/.exec(raw);
     if (block && /^word\/.*\.xml$/.test(part)) {
       if ((block[3] === 'showBegin') !== Boolean(block[2]))
         throw new RenderError('UNSUPPORTED_EXPRESSION', 'Only ifNEM():showBegin paired with showEnd is supported', part);

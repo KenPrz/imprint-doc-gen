@@ -66,6 +66,32 @@ test('conditional split runs preserve formatting and following data; suppressed 
   assert(shown.includes('<w:b/>'));
   assert.deepEqual(paragraphs(shown), ['Guarantee', '3', '', 'retained']);
 });
+const row = (text: string) => `<w:tr><w:tc>${p(text)}</w:tc></w:tr>`;
+test('conditional blocks share a story with row repeats', async () => {
+  const body =
+    `<w:tbl>${row('{d.rows[i].name}')}${row('{d.rows[i+1].name}')}</w:tbl>` +
+    p('{d.last:ifNEM():showBegin}Total {d.total}') +
+    p('{d.last:showEnd}') +
+    p('After');
+  const rows = [{ name: 'A' }, { name: 'B' }];
+  assert.deepEqual(paragraphs(await output(body, { rows, last: '1', total: 9 })), ['A', 'B', 'Total 9', '', 'After']);
+  assert.deepEqual(paragraphs(await output(body, { rows, last: '', total: 9 })), ['A', 'B', '', 'After']);
+});
+test('conditional blocks inside a repeated cell use the item scope', async () => {
+  const cell = (inner: string) => `<w:tr><w:tc>${inner}</w:tc></w:tr>`;
+  const body =
+    '<w:tbl>' +
+    cell(p('{d.rows[i].name}') + p('{d.rows[i].note:ifNEM():showBegin}Note {d.rows[i].note}') + p('{d.rows[i].note:showEnd}')) +
+    cell(p('{d.rows[i+1].name}')) +
+    '</w:tbl>';
+  assert.deepEqual(paragraphs(await output(body, { rows: [{ name: 'A', note: 'x' }, { name: 'B' }] })), [
+    'A', 'Note x', '', 'B', '',
+  ]);
+});
+test('conditional blocks share a story with legacy repeats', async () => {
+  const body = p('{{#each rows}}') + p('{{name}}') + p('{{/each}}') + p(open + 'Shown') + p(close);
+  assert.deepEqual(paragraphs(await output(body, { rows: [{ name: 'A' }], flag: 1 })), ['A', 'Shown', '']);
+});
 test('sequential blocks and table content retain root data scope', async () => {
   const body =
     p(open + 'Section') +
@@ -91,11 +117,7 @@ const invalid: [string, string][] = [
   ['closing content', p(open + 'Text') + p(close + 'After')],
   ['nested', p(open + 'Text') + p('{d.other:ifNEM():showBegin}Inner') + p('{d.other:showEnd}') + p(close)],
   ['cross-container', p(open + 'Text') + '<w:tbl><w:tr><w:tc>' + p(close) + '</w:tc></w:tr></w:tbl>'],
-  ['repeat mixing', p(open + 'Text') + p(close) + p('{d.rows[i].name}') + p('{d.rows[i+1].name}')],
-  [
-    'native repeat mixing',
-    p(open + 'Text') + p(close) + p('{{#each rows}}') + p('{{name}}') + p('{{/each}}'),
-  ],
+  ['block crossing a repeat', p(open + 'Text') + p('{d.rows[i].name}') + p(close) + p('{d.rows[i+1].name}')],
   [
     'range anchors',
     p(open + 'Text') + '<w:p><w:bookmarkStart w:id="1"/><w:r><w:t>Range</w:t></w:r></w:p>' + p(close),

@@ -5,6 +5,7 @@ import { compile } from './index.ts';
 import { standardBindings } from './standard-syntax.ts';
 import { ns, parseXml, descendants } from './xml.ts';
 import { RenderError } from './errors.ts';
+import { templateSheetRule, type SheetRule } from './sheets.ts';
 import type { DocumentFormat } from './types.ts';
 export interface TemplateField {
   expression: string;
@@ -26,11 +27,14 @@ export interface Inspection {
   valid: boolean;
   fields: TemplateField[];
   diagnostics: Diagnostic[];
+  /** The template's imprint.sheets rule, or null when it does not paginate. */
+  sheets: SheetRule | null;
 }
 export async function inspectTemplate(bytes: Uint8Array): Promise<Inspection> {
   const fields: TemplateField[] = [],
     diagnostics: Diagnostic[] = [];
   let format: DocumentFormat | undefined;
+  let sheets: SheetRule | null = null;
   const record = (error: unknown, part?: string, location?: string) =>
     diagnostics.push({
       severity: 'error',
@@ -59,10 +63,15 @@ export async function inspectTemplate(bytes: Uint8Array): Promise<Inspection> {
       const compiled=await compile(bytes);format=compiled.format;
       const envelope=JSON.parse(Buffer.from(bytes).toString().slice(textMagic.length));
       inspect(envelope.source,'text','source');
-      return {format,valid:diagnostics.length===0,fields,diagnostics};
+      return {format,valid:diagnostics.length===0,fields,diagnostics,sheets};
     }
     const office = await openOfficePackage(bytes);
     format = office.format;
+    try {
+      sheets = templateSheetRule(office.parts);
+    } catch (error) {
+      record(error, 'imprint.sheets');
+    }
     for (const [part, content] of office.parts) {
       if (!part.endsWith('.xml')) continue;
       const doc = parseXml(content.toString(), part);
@@ -132,5 +141,5 @@ export async function inspectTemplate(bytes: Uint8Array): Promise<Inspection> {
   } catch (error) {
     record(error);
   }
-  return { format, valid: diagnostics.length === 0, fields, diagnostics };
+  return { format, valid: diagnostics.length === 0, fields, diagnostics, sheets };
 }

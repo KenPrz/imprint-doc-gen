@@ -18,6 +18,11 @@ export const inputProperties = {
   data: { type: 'object', additionalProperties: true },
   attachments: { type: 'object', maxProperties: 32, additionalProperties: { type: 'string', maxLength: 12 * 1024 * 1024 } },
   output: { type: 'string', enum: ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'txt', 'csv', 'pdf'] },
+  // Ranges are checked in sheets.ts so they fail as 422 INVALID_SHEETS, like the template property.
+  sheets: { type: 'object', additionalProperties: false, properties: {
+    array: { type: 'string', maxLength: 256 }, rowsPerSheet: { type: 'integer' }, pad: { type: 'boolean' },
+    perSheet: { type: 'array', maxItems: 1000, items: { type: 'object', additionalProperties: true } },
+  } },
 };
 const id = { type: 'string', pattern: '^[a-zA-Z0-9-]{1,64}$' };
 const body = (required: string[], properties: object) => ({ body: { type: 'object', additionalProperties: false, required, properties } });

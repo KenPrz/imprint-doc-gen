@@ -75,7 +75,8 @@ function loopsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: strin
   return loops;
 }
 /** Narrow Carbone-compatible sibling-paragraph conditional. No implicit scope
- * changes, nested blocks, repeat mixing, inline blocks or cross-container cuts. */
+ * changes, nested blocks, inline blocks or cross-container cuts. Repeats may sit
+ * inside a block or contain one, but not cross its boundary. */
 function conditionsFor(paragraphs: ParagraphPlan[], nodes: ElementSpan[], part: string): LoopPlan[] {
   const result: LoopPlan[] = [];
   let open: { paragraph: ParagraphPlan; binding: Binding } | undefined;
@@ -170,12 +171,12 @@ export function compileStory(part: string, source: string): StoryPlan {
     }
     if (bindings.length) paragraphs.push({ node, text: logical, spans, bindings });
   }
-  const conditions = conditionsFor(paragraphs, nodes, part);
   const standardLoops = inferStandardLoops(paragraphs, part);
   const nativeLoops = loopsFor(paragraphs, nodes, part);
-  if (conditions.length && (standardLoops.length || nativeLoops.length)) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Conditional blocks cannot share a story with repetition markers', part);
   if (standardLoops.length && nativeLoops.length) throw new RenderError('UNSUPPORTED_TEMPLATE', 'Do not mix standard and legacy repetition markers in one story', part);
   if (nativeLoops.length) for (const paragraph of paragraphs) for (const binding of paragraph.bindings) if (binding.standard) binding.path = scopedStandardPath(binding.path, paragraph.node.start, nativeLoops, part);
+  // After scoping: a block inside a repeat reads its condition in the item scope. nestLoops rejects partial overlaps.
+  const conditions = conditionsFor(paragraphs, nodes, part);
   const images: ImagePlan[] = [], owners = new Set<number>();
   for (const node of nodes) {
     if (!((node.uri === ns.wordDrawing && node.local === 'docPr') || (node.uri === ns.picture && node.local === 'cNvPr'))) continue;
@@ -195,7 +196,7 @@ export function compileStory(part: string, source: string): StoryPlan {
       owners.add(owner.start); images.push({ size, description, reference, path, start: owner.start, end: owner.end, standard });
     }
   }
-  const loops = conditions.length ? conditions : nestLoops([...nativeLoops, ...standardLoops], nodes, part), identities = nodes.flatMap(identityAttributes);
+  const loops = nestLoops([...nativeLoops, ...standardLoops, ...conditions], nodes, part), identities = nodes.flatMap(identityAttributes);
   const region = (start: number, end: number, loops: LoopPlan[]): Segment[] => {
     const result: Segment[] = [];
     const fragment = (a: number, b: number) => {

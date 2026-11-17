@@ -14,6 +14,7 @@ const pages = [
   ['operations', 'Operations'],
   ['roadmap', 'Roadmap & validation'],
 ] as const;
+const { version } = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
 const source = 'docs/site',
   target = 'artifacts/docs';
 await rm(target, { recursive: true, force: true });
@@ -78,10 +79,10 @@ for (const [slug, title] of pages) {
     <input id="search" type="search" placeholder="Search topics…" autocomplete="off" aria-controls="search-results">
     <div id="search-results" class="search-results" aria-live="polite"></div>
     <nav id="navigation" aria-label="Documentation">${navigation}</nav>
-    <footer>Preview release</footer>
+    <footer>Version ${version}</footer>
   </aside>
   <div class="layout">
-    <main id="main">${article}<footer class="bottom">Imprint Doc Gen <span>Preview release</span></footer></main>
+    <main id="main">${article}<footer class="bottom">Imprint Doc Gen <span>v${version}</span></footer></main>
 
   </div>
 </body>
