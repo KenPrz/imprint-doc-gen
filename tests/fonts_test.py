@@ -105,6 +105,41 @@ class FontTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "1 reference"):
             fonts.check_requirements(report, records, [], strict=True)
 
+    def test_reference_names_map_to_variable_font_axes(self):
+        families = {"fraunces": {}, "georama": {}, "noto sans thai": {}, "texturina": {}}
+        self.assertEqual(fonts.parse_face("Fraunces Soft Wonky ExtraBold Italic", families),
+                         ("fraunces", True, {"SOFT": 50, "WONK": 1, "wght": 800}))
+        self.assertEqual(fonts.parse_face("Georama Ultra Condensed Semi Bold", families),
+                         ("georama", False, {"wdth": 50, "wght": 600}))
+        self.assertEqual(fonts.parse_face("Noto Sans Thai Condensed", families), ("noto sans thai", False, {"wdth": 75}))
+        self.assertEqual(fonts.parse_face("Texturina 28pt Light", families), ("texturina", False, {"opsz": 28, "wght": 300}))
+        self.assertIsNone(fonts.parse_face("Fraunces Caption Bold", families))
+        self.assertIsNone(fonts.parse_face("Aptos Bold", families))
+
+    def test_unnamed_weight_and_width_mean_regular_not_the_font_default(self):
+        georama = {"wght": (100, 100, 900), "wdth": (62.5, 100, 150), "ital": (0, 0, 1)}
+        self.assertEqual(fonts.axis_location(georama, {"wdth": 75, "ital": 1}), {"wght": 400, "wdth": 75, "ital": 1})
+        fraunces = {"wght": (100, 900, 900), "SOFT": (0, 0, 100), "opsz": (9, 144, 144)}
+        self.assertEqual(fonts.axis_location(fraunces, {"SOFT": 50}), {"wght": 400, "SOFT": 50, "opsz": 144})
+        self.assertIsNone(fonts.axis_location(fraunces, {"wdth": 75}))
+        self.assertIsNone(fonts.axis_location({"wght": (300, 300, 700)}, {"wght": 900}))
+
+    def test_generated_names_keep_office_style_linking(self):
+        names = fonts.face_names("Georama Condensed Black Italic", italic=True, bold=False)
+        self.assertEqual((names[16], names[17], names[4]), ("Georama Condensed", "Black Italic", "Georama Condensed Black Italic"))
+        self.assertEqual((names[1], names[2], names[6]), ("Georama Condensed Black", "Italic", "GeoramaCondensed-BlackItalic"))
+        bold = fonts.face_names("Fraunces Soft Bold", italic=False, bold=True)
+        self.assertEqual((bold[1], bold[2]), ("Fraunces Soft", "Bold"))
+
+    def test_reserved_font_names_are_never_modified(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            (folder / "OFL.txt").write_text('Copyright 2010 The Lato Authors, with Reserved Font Name "Lato".\n'
+                                            '"Reserved Font Name" refers to any names specified as such')
+            self.assertTrue(fonts.reserves_name(folder))
+            (folder / "OFL.txt").write_text('"Reserved Font Name" refers to any names specified as such')
+            self.assertFalse(fonts.reserves_name(folder))
+
 
 if __name__ == "__main__":
     unittest.main()

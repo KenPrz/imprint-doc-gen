@@ -23,8 +23,29 @@
   A checksum mismatch or incomplete archive fails the build.
 </p>
 <p>
-  This does not imply full parity with Carbone's cloud service. Its 6,361-entry reference list includes
-  independently licensed commercial fonts and names/styles absent from the pinned Google snapshot.
+  Two more sources add named faces that the snapshot lacks:
+</p>
+<ul>
+  <li>
+    <strong>Debian packages.</strong> <code>docker/fonts/debian-packages.txt</code> lists packages from the
+    base image's Debian release: Thai TLWG fonts, Linux Libertine, Junicode, Gentium Basic, Andika New Basic,
+    Liberation Sans Narrow and Lato. Each package's license is in <code>/usr/share/doc/PACKAGE/copyright</code>.
+  </li>
+  <li>
+    <strong>Generated static faces.</strong> The build creates a static font for each reference name that is a
+    named weight, width or design variant of a snapshot variable font, for example
+    <code>Georama Condensed Black</code> or <code>Fraunces Soft Wonky Italic</code>. Each face is an instance
+    of the original variable font at those axis values, so the glyphs are the same. The family's license file
+    is copied next to it in <code>/usr/local/share/fonts/imprint/generated/</code>. Families whose license
+    declares a Reserved Font Name (for example Lato and Merriweather) are never modified. Generation adds
+    about 164 MiB and 3–5 minutes to an uncached build.
+  </li>
+</ul>
+<p>
+  The default images match 6,175 of the 6,361 reference face names. This does not imply full parity with
+  Carbone's cloud service. Most of the 186 missing names are commercial fonts that cannot be redistributed,
+  such as Aptos, Calibri, Arial and Times New Roman. The rest are older names of fonts that the pinned
+  snapshot ships under new names, such as Source Sans Pro (now Source Sans 3).
   Aptos and Calibri are not bundled by default. Microsoft's standalone Aptos download allows installation
   on your devices but explicitly grants no redistribution rights. Include independently licensed fonts
   only where your license permits the resulting image's use and distribution.
