@@ -50,6 +50,23 @@
   on your devices but explicitly grants no redistribution rights. Include independently licensed fonts
   only where your license permits the resulting image's use and distribution.
 </p>
+<h3 id="microsoft-fonts">Microsoft fonts in private images</h3>
+<p>
+  The build option <code>MICROSOFT_FONTS=true</code> installs Aptos (all 28 faces) and Microsoft's core
+  fonts: Arial, Times New Roman, Courier New, Georgia, Verdana, Trebuchet MS, Comic Sans MS, Impact,
+  Webdings and Andale Mono. The files are downloaded from Microsoft during the build, and the Aptos archive
+  is checked against a pinned SHA-256. They are never stored in this repository. Calibri and Cambria have
+  no Microsoft download; Carlito and Caladea are installed with the same character widths.
+</p>
+<p>
+  <strong>Keep these images private.</strong> The licenses allow installing the fonts on your own devices
+  but not redistributing them, and Aptos may not be used for commercial software hosting services. The
+  release workflow sets this option for <code>ghcr.io/kenprz/imprint-doc-gen</code>, which must stay a
+  private package.
+</p>
+<pre><code>docker build -f Dockerfile.standalone --build-arg MICROSOFT_FONTS=true \
+  --build-arg 'REQUIRED_FONTS=Roboto,Lobster,Open Sans,Noto Sans,Aptos,Arial,Times New Roman' \
+  -t imprint-doc-gen:private .</code></pre>
 <p>
   Every built image includes <code>installed-fonts.json</code>, <code>carbone-coverage.json</code>, and
   <code>sources.lock.json</code> in <code>/usr/local/share/imprint/fonts/</code>. The coverage report compares

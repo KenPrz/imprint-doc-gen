@@ -16,6 +16,14 @@ RUN --mount=type=bind,from=bundled-fonts,source=/opt/imprint-fonts,target=/usr/l
     apt-get update && xargs -a /opt/imprint-font-tools/debian-packages.txt apt-get install -y --no-install-recommends python3-fonttools \
     && fc-cache -f && python3 /opt/imprint-font-tools/manage.py generate --source /usr/local/share/fonts/imprint/google --output /opt/imprint-generated
 
+# Optional Microsoft fonts, downloaded from Microsoft at build time. Keep images built with
+# MICROSOFT_FONTS=true private: the licenses allow installation, not redistribution.
+FROM ${GOTENBERG_IMAGE} AS microsoft-fonts
+USER root
+ARG MICROSOFT_FONTS=false
+COPY docker/fonts/microsoft-fonts.sh /opt/imprint-font-tools/
+RUN MICROSOFT_FONTS=$MICROSOFT_FONTS sh /opt/imprint-font-tools/microsoft-fonts.sh /opt/microsoft-fonts
+
 FROM ${GOTENBERG_IMAGE} AS patched-pdfcpu
 USER root
 ARG TARGETARCH
@@ -31,6 +39,7 @@ COPY --from=bundled-fonts /opt/imprint-fonts /usr/local/share/fonts/imprint/goog
 COPY docker/fonts/debian-packages.txt /tmp/debian-font-packages.txt
 RUN apt-get update && xargs -a /tmp/debian-font-packages.txt apt-get install -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
 COPY --from=generated-fonts /opt/imprint-generated /usr/local/share/fonts/imprint/generated/
+COPY --from=microsoft-fonts /opt/microsoft-fonts /usr/local/share/fonts/microsoft/
 COPY docker/fonts/custom /usr/local/share/fonts/imprint/custom/
 COPY docker/fonts/manage.py docker/fonts/sources.lock.json docker/fonts/carbone-cloud-font-list.txt /usr/local/lib/imprint-fonts/
 ARG REQUIRED_FONTS=Roboto,Lobster,Open\ Sans,Noto\ Sans
