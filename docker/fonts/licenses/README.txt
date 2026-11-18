@@ -17,3 +17,11 @@ Shared license text sources, all from the same pinned revision:
 
 The Carbone reference list is an inventory of names, not a license grant.
 Additional fonts supplied by operators keep their own licenses and notices.
+
+Debian font packages (../debian-packages.txt) keep their licenses in
+/usr/share/doc/PACKAGE/copyright inside each image.
+
+Generated faces under /usr/local/share/fonts/imprint/generated/ are static
+instances of the variable fonts above, made at build time for Carbone reference
+names. Each family directory carries the source family's license files. Fonts
+whose license declares a Reserved Font Name are not modified.

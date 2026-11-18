@@ -7,7 +7,7 @@ Independent document generation in TypeScript and Node.js. Render **DOCX, XLSX, 
 
 **[Read the documentation →](https://kenprz.github.io/imprint-doc-gen/)** · [API](https://kenprz.github.io/imprint-doc-gen/api.html) · [Template syntax](https://kenprz.github.io/imprint-doc-gen/syntax.html) · [Support matrix](https://kenprz.github.io/imprint-doc-gen/formats.html)
 
-Version 1.2.0 provides bounded format support. The template compiler, repeat expansion and package adapters live in this repository. Third-party libraries provide ZIP/XML primitives, image transforms, PDF manipulation, barcodes and infrastructure clients. It is not a universal Office editor or a complete spreadsheet calculation engine.
+Version 1.3.0 provides bounded format support. The template compiler, repeat expansion and package adapters live in this repository. Third-party libraries provide ZIP/XML primitives, image transforms, PDF manipulation, barcodes and infrastructure clients. It is not a universal Office editor or a complete spreadsheet calculation engine.
 
 ## Capabilities
 
@@ -22,7 +22,7 @@ Version 1.2.0 provides bounded format support. The template compiler, repeat exp
 
 ## Quick start: one container
 
-The release workflow publishes a **linux/amd64 image** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. Tested `main` builds publish `standalone`, and each build receives a `sha-<commit>` tag. Versioned releases additionally publish `v1.2.0`, `v1` and `latest` tags.
+The release workflow publishes a **linux/amd64 image** to GitHub Container Registry after all CI gates pass. The private package requires a GitHub login with package read access. Tested `main` builds publish `standalone`, and each build receives a `sha-<commit>` tag. Versioned releases additionally publish `v1.3.0`, `v1` and `latest` tags.
 
 ```bash
 docker login ghcr.io -u YOUR_GITHUB_USERNAME
@@ -91,7 +91,7 @@ Node and Gotenberg base images are pinned by digest. The converter image replace
 
 This is not the complete Carbone cloud catalog: commercial fonts such as Aptos and Calibri are not included by default, and upstream font names/styles can differ. Each image contains an actual font inventory and a present/missing comparison against the pinned 6,361-entry Carbone list under `/usr/local/share/imprint/fonts/`. Add separately licensed fonts through [`docker/fonts/custom/`](docker/fonts/custom/README.md), then rebuild and recreate the container. See [font deployment and verification](docs/site/pages/deployment.html) for exact commands. Substituted fonts are never counted as installed coverage.
 
-The validated default images match 4,771 reference face names and report 1,590 missing names. See [font validation evidence](docs/font-validation.json). LibreOffice loads the catalog before readiness so initialization does not consume the first document's request deadline. The font unit checks require Python 3.
+The default images match 6,175 reference face names and report 186 missing names. Debian font packages and static faces generated from the bundled variable fonts (for example `Georama Condensed Black`) fill named styles that the snapshot lacks. See [font validation evidence](docs/font-validation.json). LibreOffice loads the catalog before readiness so initialization does not consume the first document's request deadline. The font unit checks require Python 3.
 
 **Known conversion limitation:** LibreOffice still stalls on DOCX stress reference level 93. Compose now recycles LibreOffice after every conversion attempt, including timeouts, so the following document can render without a manual restart. A timed-out request returns JSON with HTTP `504`; the failing document is not retried automatically or reported as converted. Recycling trades some throughput for predictable recovery. See [recovery evidence](docs/converter-recovery.json).
 
@@ -121,6 +121,6 @@ Current tests do not establish universal layout fidelity, PDF conformance or pro
 
 ## Document assurance (implementation branch)
 
-The SDK, `POST /v1/assurance`, and `npm run assurance -- request.json evidence.json` expose typed input contracts, execution traces, customer regression suites, semantic/PDF visual comparisons, replay bundles, conservative migration, pinned text and rich DOCX components, bounded RPT artifact inspection, validated artifact handoff, interactive report snapshots and candidate-template verification. See [support contracts and examples](docs/site/pages/assurance.html), [implementation gates](docs/assurance-plan.json), and [independent research](docs/competitive-research.json). Version 1.2.0 is owner-approved with documented limitations: customer-specific visual acceptance, desktop Office repair-free validation, accessibility certification and full Crystal semantic migration remain unverified.
+The SDK, `POST /v1/assurance`, and `npm run assurance -- request.json evidence.json` expose typed input contracts, execution traces, customer regression suites, semantic/PDF visual comparisons, replay bundles, conservative migration, pinned text and rich DOCX components, bounded RPT artifact inspection, validated artifact handoff, interactive report snapshots and candidate-template verification. See [support contracts and examples](docs/site/pages/assurance.html), [implementation gates](docs/assurance-plan.json), and [independent research](docs/competitive-research.json). Version 1.3.0 is owner-approved with documented limitations: customer-specific visual acceptance, desktop Office repair-free validation, accessibility certification and full Crystal semantic migration remain unverified.
 
 Run `npm test` (requires Poppler), `npm run test:assurance:browser` (requires `npx playwright install chromium`) and `npm run test:assurance:verapdf` (requires Docker; uses a pinned independent validator image). Generated evidence is in `artifacts/assurance/`.

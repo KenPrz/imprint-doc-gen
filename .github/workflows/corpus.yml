@@ -118,6 +118,9 @@ jobs:
           file: Dockerfile.standalone
           load: true
           tags: imprint-doc-gen:standalone-check
+          build-args: |
+            MICROSOFT_FONTS=true
+            REQUIRED_FONTS=Roboto,Lobster,Open Sans,Noto Sans,Aptos,Arial,Times New Roman
           cache-from: type=gha,scope=standalone
           cache-to: type=gha,mode=max,scope=standalone
       - name: Start a single container with a persistent volume
@@ -279,6 +282,9 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ steps.image-tags.outputs.tags }}
+          build-args: |
+            MICROSOFT_FONTS=true
+            REQUIRED_FONTS=Roboto,Lobster,Open Sans,Noto Sans,Aptos,Arial,Times New Roman
           cache-from: type=gha,scope=standalone
           provenance: mode=max
           sbom: true

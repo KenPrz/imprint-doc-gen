@@ -202,5 +202,39 @@
     "The smoke suite validates representative Latin fonts, not all glyphs or every document layout.",
     "Operator-supplied font files require separate coverage and rendering validation.",
     "Local image builds only; no registry publication or running application replacement."
-  ]
+  ],
+  "coverageUpdate": {
+    "validated": "2026-11-17",
+    "platform": "linux/amd64",
+    "image": "Dockerfile.gotenberg (converter)",
+    "debianPackages": "docker/fonts/debian-packages.txt (Debian 13, base image distribution)",
+    "generatedFaces": {
+      "count": 1296,
+      "fromVariableFonts": 68,
+      "sizeMiB": 164,
+      "buildSeconds": 185,
+      "policy": "Static instances of snapshot variable fonts at the named axis values; skipped when the license declares a Reserved Font Name; family license files copied alongside"
+    },
+    "coverage": {
+      "total": 6361,
+      "presentCount": 6175,
+      "missingCount": 186,
+      "installedFiles": 5652
+    },
+    "fontSmoke": {
+      "passed": [
+        "Georama Condensed",
+        "Georama Condensed Black",
+        "Fraunces Soft Wonky",
+        "Fraunces ExtraBold",
+        "Noto Sans Thai Condensed",
+        "Archivo Expanded",
+        "Tourney",
+        "Garuda",
+        "Gentium Basic",
+        "Roboto"
+      ],
+      "check": "scripts/font-smoke.py: requested family embedded in the PDF for Regular, Bold, Italic and Bold Italic runs; no substitutes"
+    }
+  }
 }
